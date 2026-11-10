@@ -1,0 +1,479 @@
+
+Session modifiée.
+
+############################################################
+6.1 - CLIENTS SANS LEURS NUMEROS DE TELEPHONE
+############################################################
+
+NUM_CLIENT NOM		  PRENOM       DATE_NAISS NUM_SECU	      NUM RUE			       VILLE	  CP	     EMAIL		      DATE_ENTRE CONSEILLER  PARRAIN
+---------- -------------- ------------ ---------- ------------ ---------- ---------------------------- ---------- ---------- ------------------------ ---------- ----------- -----------
+	 1 AMRANI	  Ali	       12/05/1980 800512001	       12 Rue des Oliviers	       Bejaia	  06000      ali.amrani@mail.dz       01/04/2015 BENALI
+	 2 BENALI	  Samia        20/02/1990 900220002		5 Rue Didouche Mourad	       Alger	  16000      samia.benali@mail.dz     15/06/2016 HAMDI	     AMRANI
+	 3 CHERIF	  Mohamed      03/11/1975 751103003		8 Boulevard de l ALN	       Oran	  31000      mohamed.cherif@mail.dz   20/01/2017 TOUATI      AMRANI
+	 4 DJEBBAR	  Lina	       08/07/1995 950708004		3 Rue des Freres Amirouche     Bejaia	  06000      lina.djebbar@mail.dz     10/03/2019 BENALI
+	 5 HADDAD	  Omar	       30/09/1988 880930005	       22 Rue de la Gare	       Alger	  16000      omar.haddad@mail.dz      05/11/2020 HAMDI
+	 6 ZERROUKI	  Nour	       25/01/2000 000125006		7 Cite 200 logements	       Oran	  31000      nour.zerrouki@mail.dz    14/02/2022 TOUATI
+
+6 lignes sélectionnées.
+
+############################################################
+6.2 - COMPTES COURANTS
+############################################################
+
+NUM_COMPTE	SOLDE DATE_OUVER  DECOUVERT   NB_OP_CB
+---------- ---------- ---------- ---------- ----------
+CC1	      2498500 10/04/2015      50000	     0
+CC2	       -50000 01/07/2016      50000	     0
+CC3		38000 01/02/2017      20000	     1
+CC4	       325000 01/04/2019     100000	     1
+CC5		    0 01/12/2020	  0	     0
+CC6		40000 01/03/2022      30000	     0
+CC7	       185000 01/05/2023      75000	     1
+
+7 lignes sélectionnées.
+
+############################################################
+6.3a - COMPTES D'EPARGNE TRIES PAR TAUX DECROISSANT
+############################################################
+
+NUM_COMPTE	SOLDE DATE_OUVER TAUX_INTERET PLAFOND_DEPOT
+---------- ---------- ---------- ------------ -------------
+CE2	       250000 01/03/2017	 3,49	    1000000
+CE5	       500000 01/09/2021	    3	    2000000
+CE1	       150000 15/01/2016	  2,5	     500000
+CE4	       320000 01/06/2019	    2	     750000
+CE3		80000 01/05/2018	 1,75	     300000
+
+5 lignes sélectionnées.
+
+############################################################
+6.3b - COMPTES A TERME
+############################################################
+
+NUM_COMPTE	SOLDE DATE_OUVER MONTANT_BLOQUE DUREE_MOIS DATE_ECHEA TAUX_GARANTI
+---------- ---------- ---------- -------------- ---------- ---------- ------------
+CT4		    0 06/10/2022	      0 	36 06/10/2025	       1,5
+CT3		50000 21/10/2025	  50000 	12 21/10/2026		 3
+CT2	       100000 15/05/2026	 100000 	 6 15/11/2026	       2,8
+CT1	       200000 30/11/2025	 200000 	12 30/11/2026	       3,2
+
+4 lignes sélectionnées.
+
+############################################################
+6.4 - COMPTES COURANTS DU CLIENT 4 (JOINTURE IMPLICITE)
+############################################################
+
+NUM_COMPTE	SOLDE DATE_OUVER  DECOUVERT
+---------- ---------- ---------- ----------
+CC4	       325000 01/04/2019     100000
+CC7	       185000 01/05/2023      75000
+
+2 lignes sélectionnées.
+
+############################################################
+6.5 - TOUS LES COMPTES DU CLIENT 4 (UNION)
+############################################################
+
+NUM_COMPTE TYPE_CO	SOLDE DATE_OUVER INFO
+---------- ------- ---------- ---------- --------------------------------------------------
+CC4	   COURANT     325000 01/04/2019 decouvert=100000
+CC7	   COURANT     185000 01/05/2023 decouvert=75000
+CE4	   EPARGNE     320000 01/06/2019 taux=2
+
+3 lignes sélectionnées.
+
+############################################################
+6.6 - CLIENTS ET COMPTES COURANTS DE SOLDE < 100 000 DA
+############################################################
+
+NUM_CLIENT NOM		  VILLE      NUM_COMPTE      SOLDE
+---------- -------------- ---------- ---------- ----------
+	 2 BENALI	  Alger      CC2	    -50000
+	 3 CHERIF	  Oran	     CC3	     38000
+	 5 HADDAD	  Alger      CC5		 0
+	 6 ZERROUKI	  Oran	     CC6	     40000
+
+4 lignes sélectionnées.
+
+############################################################
+6.7a - CLIENTS TITULAIRES D'AU MOINS UN COMPTE D'EPARGNE
+############################################################
+
+NUM_CLIENT NOM		  VILLE
+---------- -------------- ----------
+	 1 AMRANI	  Bejaia
+	 2 BENALI	  Alger
+	 3 CHERIF	  Oran
+	 4 DJEBBAR	  Bejaia
+
+4 lignes sélectionnées.
+
+############################################################
+6.7b - CLIENTS TITULAIRES D'UN SEUL COMPTE D'EPARGNE
+############################################################
+
+NUM_CLIENT NOM		  VILLE
+---------- -------------- ----------
+	 2 BENALI	  Alger
+	 3 CHERIF	  Oran
+	 4 DJEBBAR	  Bejaia
+
+3 lignes sélectionnées.
+
+############################################################
+6.8 - CLIENTS AYANT OPERÃ‰ SUR CC7
+############################################################
+
+NUM_CLIENT NOM		  DATE_OP	MONTANT TYPE_OP
+---------- -------------- ---------- ---------- ----------
+	 4 DJEBBAR	  21/09/2026	 300000 DEPOT
+	 2 BENALI	  01/10/2026	 -40000 RETRAIT
+	 3 CHERIF	  11/10/2026	 -60000 RETRAIT
+	 3 CHERIF	  21/10/2026	 -15000 CB
+
+4 lignes sélectionnées.
+
+############################################################
+6.9a - OPERATIONS SUR CC7 FAITES PAR LE PROPRIETAIRE
+############################################################
+
+     ID_OP DATE_OP	 MONTANT TYPE_OP    CLIENT
+---------- ---------- ---------- ---------- ------------------------------
+	17 21/09/2026	  300000 DEPOT	    DJEBBAR
+
+1 ligne sélectionnée.
+
+############################################################
+6.9b - OPERATIONS SUR CC7 FAITES PAR DES NON-PROPRIETAIRES
+############################################################
+
+     ID_OP DATE_OP	 MONTANT TYPE_OP    CLIENT
+---------- ---------- ---------- ---------- ------------------------------
+	18 01/10/2026	  -40000 RETRAIT    BENALI
+	19 11/10/2026	  -60000 RETRAIT    CHERIF
+	20 21/10/2026	  -15000 CB	    CHERIF
+
+3 lignes sélectionnées.
+
+############################################################
+6.10 - COMPTES COURANTS A SOLDE NEGATIF + TITULAIRE + CONSEILLER
+############################################################
+
+NUM_COMPTE	SOLDE  DECOUVERT TITULAIRE			CONSEILLER
+---------- ---------- ---------- ------------------------------ -----------
+CC2	       -50000	   50000 BENALI 			HAMDI
+
+1 ligne sélectionnée.
+
+############################################################
+6.11a - NOMBRE DE COMPTES D'EPARGNE PAR CLIENT
+############################################################
+
+NUM_CLIENT NOM		  NB_EPARGNE
+---------- -------------- ----------
+	 1 AMRANI		   2
+	 2 BENALI		   1
+	 3 CHERIF		   1
+	 4 DJEBBAR		   1
+
+4 lignes sélectionnées.
+
+############################################################
+6.11b - IDEM, Y COMPRIS LES CLIENTS SANS COMPTE D'EPARGNE
+############################################################
+
+NUM_CLIENT NOM		  NB_EPARGNE
+---------- -------------- ----------
+	 1 AMRANI		   2
+	 2 BENALI		   1
+	 3 CHERIF		   1
+	 4 DJEBBAR		   1
+	 5 HADDAD		   0
+	 6 ZERROUKI		   0
+
+6 lignes sélectionnées.
+
+############################################################
+6.12 - TITULAIRE AYANT LE PLUS DE COMPTES D'EPARGNE
+############################################################
+
+NUM_CLIENT NOM		  NB_EPARGNE
+---------- -------------- ----------
+	 1 AMRANI		   2
+
+1 ligne sélectionnée.
+
+############################################################
+6.13 - PAR TYPE D'OPERATION : NOMBRE ET MONTANT MOYEN
+############################################################
+
+TYPE_OP    NB_OPERATIONS MONTANT_MOYEN
+---------- ------------- -------------
+CB		       3     -17333,33
+DEPOT		       7	520000
+RETRAIT 	       8	-68750
+VIREMENT	       2	     0
+
+4 lignes sélectionnées.
+
+############################################################
+6.14 - PAR AGENCE : TOTAL DES SOLDES (COURANTS + EPARGNE)
+############################################################
+
+CODE   NOM	      TOTAL_SOLDES
+------ -------------- ------------
+A1     Agence Bejaia	   3478500
+       Centre
+
+A2     Agence Alger G	    700000
+       rande Poste
+
+A3     Agence Oran Fr	    158000
+       ont de Mer
+
+
+3 lignes sélectionnées.
+
+############################################################
+6.15 - LES 3 CLIENTS AU SOLDE TOTAL LE PLUS ELEVE
+############################################################
+
+NUM_CLIENT NOM		  SOLDE_TOTAL
+---------- -------------- -----------
+	 1 AMRANI	      3348500
+	 4 DJEBBAR	       830000
+	 2 BENALI	       300000
+
+3 lignes sélectionnées.
+
+############################################################
+6.16a - TELEPHONES RENSEIGNES DU CLIENT 1
+############################################################
+
+NB_ELEMENTS NB_RENSEIGNES
+----------- -------------
+	  3		2
+
+1 ligne sélectionnée.
+
+############################################################
+6.16b - TELEPHONES RENSEIGNES POUR CHAQUE CLIENT
+############################################################
+
+NUM_CLIENT NOM		  NB_ELEMENTS NB_RENSEIGNES
+---------- -------------- ----------- -------------
+	 1 AMRANI		    3		  2
+	 2 BENALI		    3		  2
+	 3 CHERIF		    3		  1
+	 4 DJEBBAR		    3		  3
+	 5 HADDAD		    3		  1
+	 6 ZERROUKI		    3		  1
+
+6 lignes sélectionnées.
+
+############################################################
+6.17 - NUMEROS DE TELEPHONE DE CHAQUE CLIENT
+############################################################
+
+NUM_CLIENT NOM		  TELEPHONE
+---------- -------------- --------------------
+	 1 AMRANI	  034-12-34-56
+	 1 AMRANI	  0661-11-22-33
+	 1 AMRANI	  <non renseigne>
+	 2 BENALI	  021-45-67-89
+	 2 BENALI	  <non renseigne>
+	 2 BENALI	  0770-44-55-66
+	 3 CHERIF	  <non renseigne>
+	 3 CHERIF	  0777-11-22-33
+	 3 CHERIF	  <non renseigne>
+	 4 DJEBBAR	  034-98-76-54
+	 4 DJEBBAR	  0662-33-44-55
+	 4 DJEBBAR	  0771-22-33-44
+	 5 HADDAD	  021-11-22-33
+	 5 HADDAD	  <non renseigne>
+	 5 HADDAD	  <non renseigne>
+	 6 ZERROUKI	  <non renseigne>
+	 6 ZERROUKI	  0663-55-66-77
+	 6 ZERROUKI	  <non renseigne>
+
+18 lignes sélectionnées.
+
+############################################################
+6.18a - NOMBRE DE SIGNATAIRES DE CC7
+############################################################
+
+NB_SIGNATAIRES
+--------------
+	     3
+
+1 ligne sélectionnée.
+
+############################################################
+6.18b - NOMBRE DE SIGNATAIRES POUR CHAQUE COMPTE COURANT
+############################################################
+
+NUM_COMPTE NB_SIGNATAIRES
+---------- --------------
+CC1			1
+CC2			1
+CC3			2
+CC4			3
+CC5			0
+CC6			0
+CC7			3
+
+7 lignes sélectionnées.
+
+############################################################
+6.19a - SIGNATAIRES DE CC7 (NUMERO ET DROIT)
+############################################################
+
+NUM_CLIENT NOM		  D
+---------- -------------- -
+	 2 BENALI	  D
+	 3 CHERIF	  X
+	 5 HADDAD	  R
+
+3 lignes sélectionnées.
+
+############################################################
+6.19b - SIGNATAIRES DE TOUS LES COMPTES COURANTS
+############################################################
+
+NUM_COMPTE NUM_CLIENT NOM	     D
+---------- ---------- -------------- -
+CC1		    4 DJEBBAR	     X
+CC2		    5 HADDAD	     R
+CC3		    1 AMRANI	     D
+CC3		    6 ZERROUKI	     R
+CC4		    2 BENALI	     D
+CC4		    3 CHERIF	     X
+CC4		    5 HADDAD	     R
+CC7		    2 BENALI	     D
+CC7		    3 CHERIF	     X
+CC7		    5 HADDAD	     R
+
+10 lignes sélectionnées.
+
+############################################################
+6.19c - MEME RESULTAT AVEC UN CURSEUR IMBRIQUE
+############################################################
+Compte CC1
+DJEBBAR 	droit X
+Compte CC2
+HADDAD		droit R
+Compte CC3
+AMRANI		droit D
+ZERROUKI	droit R
+Compte CC4
+BENALI		droit D
+CHERIF		droit X
+HADDAD		droit R
+Compte CC5
+Compte CC6
+Compte CC7
+BENALI		droit D
+CHERIF		droit X
+HADDAD		droit R
+
+Procédure PL/SQL terminée avec succès.
+
+############################################################
+6.20 - SIGNATAIRES DE CC7 : JOINTURE NESTED TABLE / CLIENT
+############################################################
+
+NUM_CLIENT NOM		  ADRESSE					     D
+---------- -------------- -------------------------------------------------- -
+	 2 BENALI	  5 Rue Didouche Mourad, Alger			     D
+	 3 CHERIF	  8 Boulevard de l ALN, Oran			     X
+	 5 HADDAD	  22 Rue de la Gare, Alger			     R
+
+3 lignes sélectionnées.
+
+############################################################
+6.21a - TOUS LES CLIENTS PAR VILLE
+############################################################
+
+VILLE	   NUM_CLIENT NOM	     PRENOM
+---------- ---------- -------------- ------------
+Alger		    2 BENALI	     Samia
+Alger		    5 HADDAD	     Omar
+Bejaia		    1 AMRANI	     Ali
+Bejaia		    4 DJEBBAR	     Lina
+Oran		    3 CHERIF	     Mohamed
+Oran		    6 ZERROUKI	     Nour
+
+6 lignes sélectionnées.
+
+############################################################
+6.21b - RECHERCHE D'UNE VILLE (EXEMPLE : BEJAIA)
+############################################################
+
+NUM_CLIENT NOM		  PRENOM       VILLE
+---------- -------------- ------------ ----------
+	 1 AMRANI	  Ali	       Bejaia
+	 4 DJEBBAR	  Lina	       Bejaia
+
+2 lignes sélectionnées.
+
+############################################################
+6.22 - COMPTES A TERME DONT L'ECHEANCE EST DANS 30 JOURS
+############################################################
+
+NUM_COMPTE MONTANT_BLOQUE DATE_ECHEA JOURS_RESTANTS
+---------- -------------- ---------- --------------
+CT2		   100000 15/11/2026		  5
+CT1		   200000 30/11/2026		 20
+
+2 lignes sélectionnées.
+
+############################################################
+6.23 - COMPTES COURANTS SANS OPERATION DEPUIS PLUS DE 12 MOIS
+############################################################
+
+NUM_COMPTE	SOLDE STATUT	 DERNIERE_O
+---------- ---------- ---------- ----------
+CC5		    0 BLOQUE
+CC6		40000 ACTIF	 06/10/2025
+
+2 lignes sélectionnées.
+
+############################################################
+6.24 - OPERATIONS DE PLUS DE 1 000 000 DA
+############################################################
+
+     ID_OP DATE_OP	 MONTANT TYPE_OP    NUM_CLIENT CLIENT			      NUM_COMPTE
+---------- ---------- ---------- ---------- ---------- ------------------------------ ----------
+	 5 08/11/2026	 1500000 DEPOT		     1 AMRANI			      CC1
+
+1 ligne sélectionnée.
+
+############################################################
+6.25 - SUPPRESSION DES COMPTES A TERME EXPIRES > 1 AN, MONTANT NUL
+############################################################
+
+NUM_COMPTE MONTANT_BLOQUE DATE_ECHEA
+---------- -------------- ----------
+CT4			0 06/10/2025
+
+1 ligne sélectionnée.
+
+
+1 ligne supprimée.
+
+
+Validation effectuée.
+
+*** Verification apres suppression ***
+
+NUM_COMPTE MONTANT_BLOQUE DATE_ECHEA
+---------- -------------- ----------
+CT1		   200000 30/11/2026
+CT2		   100000 15/11/2026
+CT3		    50000 21/10/2026
+
+3 lignes sélectionnées.
+
+############################################################
+FIN PARTIE C
+############################################################

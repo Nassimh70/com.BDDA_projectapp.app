@@ -1,0 +1,119 @@
+===== A. REF RECURSIF AJOUTE PAR ALTER TYPE ... CASCADE =====
+
+Procédure PL/SQL terminée avec succès.
+
+
+Table créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+Type modifié.
+
+Pas d'erreur.
+
+1 ligne mise à jour.
+
+
+Validation effectuée.
+
+
+	ID NOM				  ID_PARRAIN
+---------- ------------------------------ ----------
+	 1 A
+	 2 B					   1
+
+2 lignes sélectionnées.
+
+
+	ID PARRAIN			  GRAND_PARRAIN
+---------- ------------------------------ ------------------------------
+	 2 A
+
+1 ligne sélectionnée.
+
+===== B. CONTRAINTE FK SUR UNE COLONNE REF =====
+
+Procédure PL/SQL terminée avec succès.
+
+
+Table créée.
+
+
+1 ligne créée.
+
+
+Table créée.
+
+
+Table modifiée.
+
+Pas d'erreur.
+
+1 ligne créée.
+
+
+	ID NOM
+---------- --------------------
+	 1 X
+
+1 ligne sélectionnée.
+
+===== C. LA FK SUR REF EST-ELLE REELLEMENT VERIFIEE ? =====
+DELETE FROM b_cli WHERE id = 1
+*
+ERREUR à la ligne 1 :
+ORA-02292: violation de contrainte (MASTER1.B_FK_REF) d'intégrité - enregistrement fils existant
+
+
+
+RESTANT_DANS_B_CLI
+------------------
+		 1
+
+1 ligne sélectionnée.
+
+
+RESTANT_DANS_B_USE
+------------------
+		 1
+
+1 ligne sélectionnée.
+
+===== D. SCOPE IS SUR UNE COLONNE REF =====
+
+Table créée.
+
+Pas d'erreur.
+
+1 ligne créée.
+
+===== E. FK SUR REF DANS LE STOCKAGE D'UNE NESTED TABLE =====
+
+Procédure PL/SQL terminée avec succès.
+
+
+Table créée.
+
+ALTER TABLE b_sig_st ADD CONSTRAINT b_fk_nt_ref FOREIGN KEY (r) REFERENCES b_cli
+*
+ERREUR à la ligne 1 :
+ORA-30730: contrainte référentielle interdite sur une colonne de table imbriquée
+
+
+Pas d'erreur.
+
+1 ligne créée.
+
+
+	ID  ID_CLIENT D
+---------- ---------- -
+	 1	    1 D
+
+1 ligne sélectionnée.
+
+===== F. FIN =====

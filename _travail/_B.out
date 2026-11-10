@@ -1,0 +1,206 @@
+============================================================
+0. PROCEDURES CATALOGUEES UTILISEES EN PARTIE B
+============================================================
+
+Procédure créée.
+
+Pas d'erreur.
+
+Procédure créée.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+============================================================
+1. B5a - AJOUT DU CLIENT 99
+============================================================
+
+1 ligne créée.
+
+
+Validation effectuée.
+
+
+NUM_CLIENT NOM				  PRENOM			 VILLE
+---------- ------------------------------ ------------------------------ ----------------------------------------
+	99 OUKACI			  Ahmed 			 Bejaia
+
+1 ligne sélectionnée.
+
+
+TELEPHONE
+--------------------
+0661-00-00-01
+
+1 ligne sélectionnée.
+
+============================================================
+2. B5b - CC99 SANS TITULAIRE, PUIS UPDATE
+============================================================
+
+1 ligne créée.
+
+
+NUM_COMPTE TITULAIRE			       SOLDE STATUT
+---------- ------------------------------ ---------- ----------
+CC99						   0 ACTIF
+
+1 ligne sélectionnée.
+
+
+1 ligne mise à jour.
+
+
+Validation effectuée.
+
+
+NUM_COMPTE TITULAIRE			       SOLDE STATUT
+---------- ------------------------------ ---------- ----------
+CC99	   OUKACI				   0 ACTIF
+
+1 ligne sélectionnée.
+
+============================================================
+3. B5c - OPERATION SANS DATE (DEFAUT SYSDATE)
+============================================================
+
+1 ligne créée.
+
+
+Validation effectuée.
+
+
+     ID_OP TYPE_OP	 MONTANT COMMISSION DATE_OP		DATE_SYS
+---------- ---------- ---------- ---------- ------------------- -------------------
+       100 DEPOT	   50000	  0 10/11/2026 19:05:48 10/11/2026 19:05:48
+
+1 ligne sélectionnée.
+
+============================================================
+4. B5d - SIGNATAIRE DE DROIT D SUR CC99
+============================================================
+
+1 ligne créée.
+
+
+Validation effectuée.
+
+
+SIGNATAIRE		       D
+------------------------------ -
+AMRANI			       D
+
+1 ligne sélectionnée.
+
+============================================================
+5. B5e - CHANGE_PORTABLE (AVANT / APRES)
+============================================================
+AVANT client 99 : COUNT=1  element2=<ABSENT>
+
+Procédure PL/SQL terminée avec succès.
+
+change_Portable : client 99 -> 0770-99-88-77  (COUNT=2)
+
+Procédure PL/SQL terminée avec succès.
+
+APRES client 99 : COUNT=2  element2=0770-99-88-77
+
+Procédure PL/SQL terminée avec succès.
+
+AVANT client 3	: COUNT=3  element2=0555-77-88-99
+
+Procédure PL/SQL terminée avec succès.
+
+change_Portable : client 3 -> 0777-11-22-33  (COUNT=3)
+
+Procédure PL/SQL terminée avec succès.
+
+APRES client 3	: COUNT=3  element2=0777-11-22-33
+
+Procédure PL/SQL terminée avec succès.
+
+change_Portable : client 12345 inexistant.
+
+Procédure PL/SQL terminée avec succès.
+
+============================================================
+6. B5f - DROP_CLIENT(99) (AVANT / APRES)
+============================================================
+
+1 ligne créée.
+
+
+1 ligne mise à jour.
+
+
+Validation effectuée.
+
+*** ETAT AVANT SUPPRESSION ***
+
+OBJET		       NB
+-------------- ----------
+CLIENT 99		1
+COMPTES 99		1
+OPERATIONS 99		1
+SIGNATAIRES 99		1
+FILLEULS 99		1
+CC99			1
+OPS SUR CC99		1
+
+7 lignes sélectionnées.
+
+
+NUM_CLIENT NOM				  PARRAIN
+---------- ------------------------------ ------------------------------
+	 5 HADDAD			  OUKACI
+
+1 ligne sélectionnée.
+
+drop_client : client 99 supprime, COMMIT effectue.
+
+Procédure PL/SQL terminée avec succès.
+
+*** ETAT APRES SUPPRESSION ***
+
+OBJET		       NB
+-------------- ----------
+CLIENT 99		0
+COMPTES 99		0
+OPERATIONS 99		0
+SIGNATAIRES 99		0
+FILLEULS 99		0
+CC99			0
+OPS SUR CC99		0
+
+7 lignes sélectionnées.
+
+
+NUM_CLIENT NOM				  PARRAIN
+---------- ------------------------------ ------------------------------
+	 5 HADDAD
+
+1 ligne sélectionnée.
+
+drop_client : client 99 inexistant.
+
+Procédure PL/SQL terminée avec succès.
+
+============================================================
+7. ETAT FINAL DE LA BASE APRES LA PARTIE B
+============================================================
+
+OBJET		    NB
+----------- ----------
+CLIENTS 	     6
+CC		     7
+CE		     5
+CT		     4
+OPERATIONS	    20
+SIGNATAIRES	    10
+
+6 lignes sélectionnées.
+
+============================================================
+FIN PARTIE B
+============================================================

@@ -1,0 +1,146 @@
+*** corps complet de agence_vor_type ***
+
+Corps de type crÚÚ.
+
+Pas d'erreur.
+*** etat initial de la vue ***
+
+CODE   NB_CONSEILLERS NB_COMPTES
+------ -------------- ----------
+A1		    1	       2
+A2		    2	       2
+A3		    1	       2
+
+3 lignes sÚlectionnÚes.
+
+*** mutation 4 : A2 -> A3 (non responsable) ***
+Information : le conseiller 4 n'est pas responsable de l'agence A2.
+Mutation effectuee : conseiller 4 de A2 vers A3.
+
+ProcÚdure PL/SQL terminÚe avec succÞs.
+
+
+CODE   NB_CONSEILLERS
+------ --------------
+A1		    1
+A2		    1
+A3		    2
+
+3 lignes sÚlectionnÚes.
+
+*** mutation 1 : A1 -> A2 (responsable A1) ***
+ALERTE : le conseiller 1 est responsable de l'agence A1 qu'il quitte.
+Mutation effectuee : conseiller 1 de A1 vers A2.
+
+ProcÚdure PL/SQL terminÚe avec succÞs.
+
+
+CODE   NB_CONSEILLERS
+------ --------------
+A1		    0
+A2		    2
+A3		    2
+
+3 lignes sÚlectionnÚes.
+
+*** restauration 1 : A2 -> A1 ***
+Information : le conseiller 1 n'est pas responsable de l'agence A2.
+DECLARE
+*
+ERREUR Ó la ligne 1 :
+ORA-02290: violation de contraintes (MASTER1.CK_AFF_DATES) de vÚrification
+ORA-06512: Ó "MASTER1.AGENCE_VOR_TYPE", ligne 42
+ORA-06512: Ó ligne 5
+
+
+*** restauration 4 : A3 -> A2 ***
+Information : le conseiller 4 n'est pas responsable de l'agence A3.
+DECLARE
+*
+ERREUR Ó la ligne 1 :
+ORA-02290: violation de contraintes (MASTER1.CK_AFF_DATES) de vÚrification
+ORA-06512: Ó "MASTER1.AGENCE_VOR_TYPE", ligne 42
+ORA-06512: Ó ligne 5
+
+
+
+CODE   NB_CONSEILLERS
+------ --------------
+A1		    0
+A2		    2
+A3		    2
+
+3 lignes sÚlectionnÚes.
+
+*** erreur : conseiller hors agence ***
+DECLARE
+*
+ERREUR Ó la ligne 1 :
+ORA-20010: Le conseiller 1 n'est pas en poste dans l'agence A3
+ORA-06512: Ó "MASTER1.AGENCE_VOR_TYPE", ligne 25
+ORA-06512: Ó ligne 5
+
+
+*** E11 : insertion de 4 mois ***
+
+0 lignes supprimÚes.
+
+
+1 ligne crÚÚe.
+
+
+Validation effectuÚe.
+
+SELECT annee, CARDINALITY(mois_vry) AS nb_mois FROM releves
+                          *
+ERREUR Ó la ligne 1 :
+ORA-00932: types de donnÚes incohÚrents ; attendu : UDT ; obtenu : MASTER1.MOIS_VRY_TYPE
+
+
+*** E11 : ajout du mois 5 ***
+VARRAY : 4 -> 5 mois
+Nested table du mois 5 : 3 types
+
+ProcÚdure PL/SQL terminÚe avec succÞs.
+
+SELECT annee, CARDINALITY(mois_vry) AS nb_mois FROM releves
+                          *
+ERREUR Ó la ligne 1 :
+ORA-00932: types de donnÚes incohÚrents ; attendu : UDT ; obtenu : MASTER1.MOIS_VRY_TYPE
+
+
+*** E11 : totaux par type sur l annee ***
+
+TYPE_OP      NB_TOTAL MONTANT_TOTAL
+---------- ---------- -------------
+DEPOT		   13	     880000
+RETRAIT 	   32	     620000
+VIREMENT	    3	     130000
+CB		    2	      35000
+
+4 lignes sÚlectionnÚes.
+
+*** E10 : mise a jour des parrains ***
+
+1 ligne mise Ó jour.
+
+
+1 ligne mise Ó jour.
+
+
+1 ligne mise Ó jour.
+
+
+Validation effectuÚe.
+
+
+NUM_CLIENT NOM				  NOM_PARRAIN			 NOM_GRAND_PARRAIN
+---------- ------------------------------ ------------------------------ ------------------------------
+	 2 BENALI			  AMRANI
+	 3 CHERIF			  AMRANI
+	 4 DJEBBAR			  AMRANI
+	 5 HADDAD			  BENALI			 AMRANI
+	 6 ZERROUKI			  CHERIF			 AMRANI
+
+5 lignes sÚlectionnÚes.
+

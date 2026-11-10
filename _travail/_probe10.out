@@ -1,0 +1,95 @@
+===== A. TABLE OBJET A OID PRIMAIRE + FK SUR REF =====
+
+Procédure PL/SQL terminée avec succès.
+
+
+Table créée.
+
+
+Table créée.
+
+
+Table créée.
+
+
+Table créée.
+
+
+Table modifiée.
+
+Pas d'erreur.
+
+Table modifiée.
+
+Pas d'erreur.
+
+Table modifiée.
+
+Pas d'erreur.
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+===== B. LA FK SUR REF VERS UNE TABLE A OID PRIMAIRE EST VERIFIEE =====
+DELETE FROM d_ag WHERE code = 'A1'
+*
+ERREUR à la ligne 1 :
+ORA-02292: violation de contrainte (MASTER1.D_FK_AG) d'intégrité - enregistrement fils existant
+
+
+===== C. VUE OBJET AVEC CAST(MULTISET(...)) + MAKE_REF =====
+
+Vue créée.
+
+Pas d'erreur.
+===== D. LES TROIS REQUETES D'INTERROGATION =====
+
+CODE	     NUM NOM
+----- ---------- --------------------
+A1	       1 Karim
+A2	       2 Sara
+
+2 lignes sélectionnées.
+
+
+CODE  NUM	      SOLDE
+----- ---------- ----------
+A1    CC1	       1000
+A1    CC2	       2000
+
+2 lignes sélectionnées.
+
+
+CODE  NOM		   NOM_AGENCE_REL
+----- -------------------- --------------------
+A1    Bejaia		   Bejaia
+A2    Alger		   Alger
+
+2 lignes sélectionnées.
+
+===== E. VALEUR D'UN ELEMENT DE COLLECTION =====
+VALUE = 1 / Karim
+
+Procédure PL/SQL terminée avec succès.
+
+===== F. FIN =====

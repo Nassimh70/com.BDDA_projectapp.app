@@ -1,0 +1,107 @@
+===== A. TYPE DE TEST =====
+
+ProcÚdure PL/SQL terminÚe avec succÞs.
+
+
+Corps de type crÚÚ.
+
+
+Table crÚÚe.
+
+===== B. ALTER TYPE DOUBLON (CODE D'ERREUR) =====
+ALTER TYPE p_t ADD MEMBER FUNCTION f RETURN NUMBER CASCADE
+*
+ERREUR Ó la ligne 1 :
+ORA-22324: le type modifiÚ comporte des erreurs de compilation
+ORA-22328: l'objet "MASTER1"."P_T" comporte des erreurs.
+PLS-00305: l'utilisation prÚcÚdente de 'F' (ligne 4) est en conflit avec celle-ci
+ORA-06550: Ligne 0, colonne 0 :
+PL/SQL: Compilation unit analysis terminated
+
+
+Pas d'erreur.
+===== C. ALTER TYPE DEUX MEMBRES EN UNE SEULE INSTRUCTION =====
+ALTER TYPE p_t ADD MEMBER FUNCTION g RETURN NUMBER, MEMBER FUNCTION h(x IN NUMBER) RETURN NUMBER CASCADE
+*
+ERREUR Ó la ligne 1 :
+ORA-06545: PL/SQL : erreur de compilation - abandon de la compilation
+ORA-06550: Ligne 5, colonne 54 :
+PLS-00103: Symbole "MEMBER" rencontrÚ Ó la place d'un des symboles suivants :
+pragma drop add rename
+ORA-06550: Ligne 0, colonne 0 :
+PLS-00565: P_T doit Ûtre complÚtÚ comme une cible REF potentielle (type d'objet)
+
+
+Pas d'erreur.
+===== D. ALTER TYPE PROCEDURE MEMBRE + STATIC =====
+
+Type modifiÚ.
+
+
+Type modifiÚ.
+
+Pas d'erreur.
+===== E. CORPS =====
+
+Avertissement : Corps de type crÚÚ avec erreurs de compilation.
+
+Erreurs pour TYPE BODY P_T :
+
+LINE/COL ERROR
+-------- -----------------------------------------------------------------
+3/19	 PLS-00539: le sous-programme 'G' est dÚclarÚ dans un corps de
+	 type d'objet et doit Ûtre dÚfini dans la
+
+4/19	 PLS-00539: le sous-programme 'H' est dÚclarÚ dans un corps de
+	 type d'objet et doit Ûtre dÚfini dans la
+
+===== F. VARRAY IS NULL + COUNT + TRIM =====
+v.COUNT=3 v.LIMIT=3 v.LAST=3
+apres TRIM v.COUNT=2
+w IS NULL : TRUE
+w.COUNT -> ORA-06531: RÚfÚrence Ó un ensemble non initialisÚ
+
+ProcÚdure PL/SQL terminÚe avec succÞs.
+
+===== G. DML DANS UNE METHODE MEMBRE =====
+
+Avertissement : Corps de type crÚÚ avec erreurs de compilation.
+
+Erreurs pour TYPE BODY P_T :
+
+LINE/COL ERROR
+-------- -----------------------------------------------------------------
+3/19	 PLS-00539: le sous-programme 'G' est dÚclarÚ dans un corps de
+	 type d'objet et doit Ûtre dÚfini dans la
+
+4/19	 PLS-00539: le sous-programme 'H' est dÚclarÚ dans un corps de
+	 type d'objet et doit Ûtre dÚfini dans la
+
+12/5	 PL/SQL: SQL Statement ignored
+12/31	 PL/SQL: ORA-02315: nombre d'arguments non valide pour
+	 constructeur par dÚfaut
+
+INSERT INTO p_tab VALUES (p_t(1, tel_vry_type('A'), 0))
+                          *
+ERREUR Ó la ligne 1 :
+ORA-02315: nombre d'arguments non valide pour constructeur par dÚfaut
+
+
+
+Validation effectuÚe.
+
+DECLARE
+*
+ERREUR Ó la ligne 1 :
+ORA-01403: aucune donnÚe trouvÚe
+ORA-06512: Ó ligne 4
+
+
+
+aucune ligne sÚlectionnÚe
+
+===== H. NETTOYAGE =====
+
+ProcÚdure PL/SQL terminÚe avec succÞs.
+
+===== I. FIN =====

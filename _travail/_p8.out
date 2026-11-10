@@ -1,0 +1,15 @@
+
+Type abandonné.
+
+
+Type abandonné.
+
+DROP TYPE probe_c FORCE
+*
+ERREUR à la ligne 1 :
+ORA-04043: objet PROBE_C inexistant
+
+
+
+Table supprimée.
+

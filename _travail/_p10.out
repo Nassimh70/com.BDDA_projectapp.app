@@ -1,0 +1,15 @@
+
+Type abandonné.
+
+DROP TYPE t2 FORCE
+*
+ERREUR à la ligne 1 :
+ORA-04043: objet T2 inexistant
+
+
+DROP TYPE t3 FORCE
+*
+ERREUR à la ligne 1 :
+ORA-04043: objet T3 inexistant
+
+

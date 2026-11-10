@@ -1,0 +1,93 @@
+===== A. TYPE PROPRE =====
+
+ProcÚdure PL/SQL terminÚe avec succÞs.
+
+
+Corps de type crÚÚ.
+
+
+Table crÚÚe.
+
+
+1 ligne crÚÚe.
+
+
+1 ligne crÚÚe.
+
+
+Validation effectuÚe.
+
+===== B. DOUBLON ALTER + ETAT DU TYPE =====
+CODE=-22324 MSG=ORA-22324: le type modifiÚ comporte des erreurs de compilation
+
+ProcÚdure PL/SQL terminÚe avec succÞs.
+
+
+OBJECT_NAME															 OBJECT_TYPE		 STATUS
+-------------------------------------------------------------------------------------------------------------------------------- ----------------------- -------
+Q_T																 TYPE			 VALID
+Q_T																 TYPE BODY		 VALID
+
+2 lignes sÚlectionnÚes.
+
+===== C. CORPS RECREE APRES ECHEC =====
+
+Corps de type crÚÚ.
+
+
+OBJECT_NAME															 OBJECT_TYPE		 STATUS
+-------------------------------------------------------------------------------------------------------------------------------- ----------------------- -------
+Q_T																 TYPE			 VALID
+Q_T																 TYPE BODY		 VALID
+
+2 lignes sÚlectionnÚes.
+
+===== D. AJOUT METHODE MEMBRE + DML DANS LA METHODE =====
+
+Type modifiÚ.
+
+
+Type modifiÚ.
+
+Pas d'erreur.
+
+Corps de type crÚÚ.
+
+Pas d'erreur.
+p DML ok id=1 x=5
+s INSERT+COMMIT ok x=7
+
+ProcÚdure PL/SQL terminÚe avec succÞs.
+
+
+	ID NOM
+---------- --------------------
+	 1 A
+	 2 B
+	99 S
+
+3 lignes sÚlectionnÚes.
+
+===== E. APPEL D'UNE METHODE D'UN AUTRE TYPE DANS UN CORPS =====
+
+ProcÚdure PL/SQL terminÚe avec succÞs.
+
+
+Corps de type crÚÚ.
+
+
+Corps de type crÚÚ.
+
+Pas d'erreur.
+
+	ID	    F
+---------- ----------
+	 1	   42
+
+1 ligne sÚlectionnÚe.
+
+===== F. NETTOYAGE =====
+
+ProcÚdure PL/SQL terminÚe avec succÞs.
+
+===== G. FIN =====

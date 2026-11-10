@@ -1,0 +1,76 @@
+
+Procédure PL/SQL terminée avec succès.
+
+
+Table créée.
+
+
+ETAPE
+--------------
+APRES TABLE OF
+
+1 ligne sélectionnée.
+
+
+Table créée.
+
+
+ETAPE
+------------------
+APRES COLONNE TYPE
+
+1 ligne sélectionnée.
+
+
+Procédure PL/SQL terminée avec succès.
+
+
+ETAPE
+-------------
+APRES NT TYPE
+
+1 ligne sélectionnée.
+
+
+OBJECT_NAME
+--------------------------------------------------------------------------------
+OBJECT_TYPE		STATUS
+----------------------- -------
+T42
+TYPE			VALID
+
+T42
+TYPE BODY		INVALID
+
+T43
+TYPE			VALID
+
+
+OBJECT_NAME
+--------------------------------------------------------------------------------
+OBJECT_TYPE		STATUS
+----------------------- -------
+T43
+TYPE			VALID
+
+T50
+TYPE			VALID
+
+T50_NT
+TYPE			VALID
+
+
+OBJECT_NAME
+--------------------------------------------------------------------------------
+OBJECT_TYPE		STATUS
+----------------------- -------
+T50_T
+TABLE			VALID
+
+T51
+TABLE			VALID
+
+
+8 lignes sélectionnées.
+
+EXITCODE=0

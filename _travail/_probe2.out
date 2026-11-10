@@ -1,0 +1,243 @@
+===== NETTOYAGE =====
+DROP VIEW pb_v
+*
+ERREUR à la ligne 1 :
+ORA-00942: Table ou vue inexistante
+
+
+DROP TABLE pb_cpt_t CASCADE CONSTRAINTS PURGE
+           *
+ERREUR à la ligne 1 :
+ORA-00942: Table ou vue inexistante
+
+
+DROP TABLE pb_cli_t CASCADE CONSTRAINTS PURGE
+           *
+ERREUR à la ligne 1 :
+ORA-00942: Table ou vue inexistante
+
+
+DROP TABLE pb_ag_t CASCADE CONSTRAINTS PURGE
+           *
+ERREUR à la ligne 1 :
+ORA-00942: Table ou vue inexistante
+
+
+DROP TYPE pb_ag FORCE
+*
+ERREUR à la ligne 1 :
+ORA-04043: objet PB_AG inexistant
+
+
+DROP TYPE pb_cpt FORCE
+*
+ERREUR à la ligne 1 :
+ORA-04043: objet PB_CPT inexistant
+
+
+DROP TYPE pb_sig_nt FORCE
+*
+ERREUR à la ligne 1 :
+ORA-04043: objet PB_SIG_NT inexistant
+
+
+DROP TYPE pb_sig FORCE
+*
+ERREUR à la ligne 1 :
+ORA-04043: objet PB_SIG inexistant
+
+
+DROP TYPE pb_cli FORCE
+*
+ERREUR à la ligne 1 :
+ORA-04043: objet PB_CLI inexistant
+
+
+DROP TYPE pb_addr FORCE
+*
+ERREUR à la ligne 1 :
+ORA-04043: objet PB_ADDR inexistant
+
+
+===== 1. TYPES (via EXECUTE IMMEDIATE) =====
+
+Procédure PL/SQL terminée avec succès.
+
+
+TYPE_NAME
+--------------------------------------------------------------------------------------------------------------------------------
+TYPECODE															 ATTRIBUTES
+-------------------------------------------------------------------------------------------------------------------------------- ----------
+PB_ADDR
+OBJECT																	  1
+
+PB_CLI
+OBJECT																	  3
+
+PB_CPT
+OBJECT																	  3
+
+PB_SIG
+OBJECT																	  2
+
+PB_SIG_NT
+COLLECTION																  0
+
+
+5 lignes sélectionnées.
+
+===== 2. TABLES OBJET + SCOPE + NESTED TABLE =====
+
+Table créée.
+
+
+Table créée.
+
+
+Table modifiée.
+
+
+Table modifiée.
+
+===== 3. INSERTION + REF + NESTED TABLE =====
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne mise à jour.
+
+
+1 ligne créée.
+
+
+COMPTE	    TITULAIRE VILLE			     SIGNATAIRE D
+---------- ---------- ------------------------------ ---------- -
+C1		    1 Bejaia				      2 D
+
+1 ligne sélectionnée.
+
+
+NB_SIGNATAIRES
+--------------
+	     1
+
+1 ligne sélectionnée.
+
+SELECT MAKE_REF(pb_cli_t, 1).id AS id_make_ref FROM dual
+                          *
+ERREUR à la ligne 1 :
+ORA-00932: types de données incohérents ; attendu : BINARY ; obtenu : NUMBER
+
+
+===== 4. CONTRAINTE NESTED TABLE (attendu ORA-02290) =====
+INSERT INTO TABLE(SELECT sigs FROM pb_cpt_t WHERE num='C1')
+*
+ERREUR à la ligne 1 :
+ORA-02290: violation de contraintes (MASTER1.CK_DROIT) de vérification
+
+
+===== 5. AUTO-REFERENCE : MISE A JOUR PARRAIN =====
+
+1 ligne mise à jour.
+
+
+	ID ID_PARRAIN
+---------- ----------
+	 1
+	 2	    1
+
+2 lignes sélectionnées.
+
+===== 6. METHODS : ALTER TYPE ADD MEMBER + BODY =====
+
+Type modifié.
+
+
+Corps de type créé.
+
+
+	ID	   NB
+---------- ----------
+	 1	    1
+	 2	    0
+
+2 lignes sélectionnées.
+
+
+  NB_VALUE
+----------
+	 1
+
+1 ligne sélectionnée.
+
+===== 7. STATIC METHOD =====
+
+Type modifié.
+
+
+Corps de type créé.
+
+STATIC OK
+
+Procédure PL/SQL terminée avec succès.
+
+===== 8. VARRAY + COUNT(*) / COUNT(col) =====
+
+Procédure PL/SQL terminée avec succès.
+
+
+Table créée.
+
+
+1 ligne créée.
+
+
+     TOTAL RENSEIGNES
+---------- ----------
+	 3	    1
+
+1 ligne sélectionnée.
+
+===== 9. HERITAGE + OVERRIDING VIA ALTER TYPE =====
+
+Procédure PL/SQL terminée avec succès.
+
+
+Type modifié.
+
+ALTER TYPE pb_c ADD MEMBER FUNCTION f RETURN NUMBER CASCADE
+*
+ERREUR à la ligne 1 :
+ORA-22324: le type modifié comporte des erreurs de compilation
+ORA-22328: l'objet "MASTER1"."PB_C" comporte des erreurs.
+PLS-00636: la méthode de remplacement exige le mot-clé OVERRIDING
+ORA-06550: Ligne 0, colonne 0 :
+PL/SQL: Compilation unit analysis terminated
+
+
+
+Corps de type créé.
+
+
+Avertissement : Corps de type créé avec erreurs de compilation.
+
+
+Table créée.
+
+
+1 ligne créée.
+
+
+F_DISPATCH
+----------
+	 1
+
+1 ligne sélectionnée.
+
+===== FIN =====

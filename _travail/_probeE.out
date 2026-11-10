@@ -1,0 +1,80 @@
+*** nettoyage ***
+
+ProcÚdure PL/SQL terminÚe avec succÞs.
+
+
+ProcÚdure PL/SQL terminÚe avec succÞs.
+
+*** creation type ***
+
+ProcÚdure PL/SQL terminÚe avec succÞs.
+
+Pas d'erreur.
+
+Corps de type crÚÚ.
+
+Pas d'erreur.
+*** creation vue ***
+
+Vue crÚÚe.
+
+Pas d'erreur.
+*** test 1 cardinalites ***
+
+CODE   NOM					VILLE					 NB_CONSEILLERS NB_COMPTES
+------ ---------------------------------------- ---------------------------------------- -------------- ----------
+A1     Agence Bejaia Centre			Bejaia						      1 	 2
+A2     Agence Alger Grande Poste		Alger						      2 	 2
+A3     Agence Oran Front de Mer 		Oran						      1 	 2
+
+3 lignes sÚlectionnÚes.
+
+*** test 2 TABLE conseillers ***
+
+AGENCE NUM_CONSEILLER NOM			     PRENOM
+------ -------------- ------------------------------ ------------------------------
+A1		    1 BENALI			     Karim
+A2		    2 HAMDI			     Sara
+A2		    4 KACI			     Nadia
+A3		    3 TOUATI			     Yacine
+
+4 lignes sÚlectionnÚes.
+
+*** test 3 TABLE comptes ***
+
+AGENCE NUM_COMPTE      SOLDE STATUT
+------ ---------- ---------- ----------
+A1     CC4	      325000 ACTIF
+A1     CC7	      185000 ACTIF
+A2     CC2	      -50000 ACTIF
+A2     CC5		   0 BLOQUE
+A3     CC3	       38000 ACTIF
+A3     CC6	       40000 ACTIF
+
+6 lignes sÚlectionnÚes.
+
+*** test 4 jointure relationnelle ***
+
+AGENCE CONSEILLER		      DATE_DEB
+------ ------------------------------ --------
+A1     BENALI			      01/03/15
+A2     HAMDI			      15/09/18
+A2     KACI			      01/01/24
+A3     TOUATI			      10/01/20
+
+4 lignes sÚlectionnÚes.
+
+*** test 5 notation pointee double ***
+
+NUM_CLIENT NOM				  NOM_PARRAIN			 NOM_GRAND_PARRAIN
+---------- ------------------------------ ------------------------------ ------------------------------
+	 2 BENALI			  AMRANI
+	 3 CHERIF			  AMRANI
+
+2 lignes sÚlectionnÚes.
+
+*** test 6 valeur objet ***
+Agence A1 - Agence Bejaia Centre - conseillers=1 comptes=2
+
+ProcÚdure PL/SQL terminÚe avec succÞs.
+

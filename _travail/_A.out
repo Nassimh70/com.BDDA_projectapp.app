@@ -1,0 +1,499 @@
+============================================================
+0. REGENERATION - SUPPRESSION DES OBJETS EXISTANTS
+============================================================
+Regeneration : objets existants supprimes.
+
+Procédure PL/SQL terminée avec succès.
+
+============================================================
+1. CREATION DES TYPES OBJET
+============================================================
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Type modifié.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+============================================================
+2. CORPS DES TYPES (POLYMORPHISME DE fraisTenue)
+============================================================
+
+Corps de type créé.
+
+Pas d'erreur.
+
+Corps de type créé.
+
+Pas d'erreur.
+
+Corps de type créé.
+
+Pas d'erreur.
+
+Corps de type créé.
+
+Pas d'erreur.
+============================================================
+3. CREATION DES TABLES ET DES CONTRAINTES
+============================================================
+
+Table créée.
+
+
+Table créée.
+
+
+Table créée.
+
+
+Table créée.
+
+
+Table créée.
+
+
+Table modifiée.
+
+
+Table modifiée.
+
+
+Table créée.
+
+
+Table créée.
+
+
+Table créée.
+
+
+Table créée.
+
+
+Table créée.
+
+
+Table créée.
+
+*** Valeurs par defaut exigees par le sujet ***
+
+Table modifiée.
+
+
+Table modifiée.
+
+
+Table modifiée.
+
+
+Table modifiée.
+
+
+Table modifiée.
+
+
+Table modifiée.
+
+*** Integrite referentielle sur les REF ***
+
+Table modifiée.
+
+
+Table modifiée.
+
+
+Table modifiée.
+
+
+Table modifiée.
+
+
+Table modifiée.
+
+
+Table modifiée.
+
+
+Table modifiée.
+
+
+Table modifiée.
+
+
+Table modifiée.
+
+
+Table modifiée.
+
+
+Table modifiée.
+
+
+Table modifiée.
+
+
+Table modifiée.
+
+============================================================
+4. SEQUENCES
+============================================================
+
+Séquence créée.
+
+
+Séquence créée.
+
+
+Séquence créée.
+
+
+Séquence créée.
+
+============================================================
+5. DONNEES DE TEST (A4)
+============================================================
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+2 lignes mises à jour.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+7 lignes mises à jour.
+
+
+7 lignes mises à jour.
+
+
+Validation effectuée.
+
+============================================================
+6. VERIFICATIONS
+============================================================
+
+NUM_COMPTE	SOLDE	NB_OP_CB STATUT
+---------- ---------- ---------- ----------
+CC1	      2498500	       0 ACTIF
+CC2	       -50000	       0 ACTIF
+CC3		38000	       1 ACTIF
+CC4	       325000	       1 ACTIF
+CC5		    0	       0 BLOQUE
+CC6		40000	       0 ACTIF
+CC7	       185000	       1 ACTIF
+
+7 lignes sélectionnées.
+
+
+NUM_COMPTE	SOLDE TAUX_INTERET
+---------- ---------- ------------
+CE1	       150000	       2,5
+CE2	       250000	      3,49
+CE3		80000	      1,75
+CE4	       320000		 2
+CE5	       500000		 3
+
+5 lignes sélectionnées.
+
+
+NUM_COMPTE MONTANT_BLOQUE DUREE_MOIS ECHEANCE
+---------- -------------- ---------- ----------
+CT1		   200000	  12 30/11/2026
+CT2		   100000	   6 15/11/2026
+CT3		    50000	  12 21/10/2026
+CT4			0	  36 06/10/2025
+
+4 lignes sélectionnées.
+
+
+OBJET		     NB
+------------ ----------
+CLIENTS 	      6
+CONSEILLERS	      4
+AGENCES 	      3
+AFFECTATIONS	      5
+CC		      7
+CE		      5
+CT		      4
+OPERATIONS	     20
+SIGNATAIRES	     10
+
+9 lignes sélectionnées.
+
+*** Objets invalides eventuels ***
+
+OBJECT_NAME															 OBJECT_TYPE		 STATUS
+-------------------------------------------------------------------------------------------------------------------------------- ----------------------- -------
+NB_COMPTES															 FUNCTION		 INVALID
+SOLDE_TOTAL															 FUNCTION		 INVALID
+VILLE_CLIENT															 FUNCTION		 INVALID
+AJOUT_CLIENT															 PROCEDURE		 INVALID
+CHANGE_PORTABLE 														 PROCEDURE		 INVALID
+DROP_CLIENT															 PROCEDURE		 INVALID
+MAJ_STATUTS_DORMANTS														 PROCEDURE		 INVALID
+SCAN_ECHEANCES															 PROCEDURE		 INVALID
+VIREMENT															 PROCEDURE		 INVALID
+
+9 lignes sélectionnées.
+
+============================================================
+FIN PARTIE A
+============================================================

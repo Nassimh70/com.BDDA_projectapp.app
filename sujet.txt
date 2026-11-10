@@ -1,0 +1,361 @@
+Université de Bejaia                                                                         Année 2026/2027
+
+Département Informatique
+
+Module BDDA M1 ASR
+
+
+
+Mini-projet : Gestion d'une banque (clients, comptes et opérations)
+avec Oracle (BD relationnel-objet)
+Date limite : 02/12/2026
+
+Sujet
+Vous êtes responsable du système d'information d'une banque qui possède plusieurs agences. Cette banque
+gère des clients, les différents comptes qu'ils détiennent (compte courant, compte d'épargne, compte à
+terme) et toutes les opérations effectuées sur ces comptes. La sécurité des opérations, le respect des plafonds
+et des découverts autorisés, ainsi que le suivi des échéances, sont au cœur de votre mission.
+Vous devez concevoir et implémenter, sous Oracle, une base de données relationnelle-objet exploitant :
+les types objet, l'héritage, les références (REF), les collections (VARRAY et nested tables), les méthodes,
+les types récursifs et les vues objet.
+Le système est organisé en trois volets.
+
+Premier volet : les clients, les conseillers et les agences
+Les clients. Pour chaque client on enregistre :
+    •    le numéro de client (unique), le nom, le prénom, la date de naissance,
+    •    le numéro de sécurité sociale (ou de pièce d'identité),
+    •    l'adresse (num-rue, rue, ville, CP), prévue comme un type objet dédié,
+    •    au plus 3 numéros de téléphone (domicile, portable 1, portable 2), certains pouvant être non
+         renseignés,
+    •    l'adresse e-mail et la date d'entrée en relation avec la banque,
+    •    son conseiller attitré,
+    •    éventuellement son parrain : un client peut avoir été parrainé par un autre client déjà existant
+         (association récursive).
+Les conseillers et les agences. Une agence est identifiée par un code, un nom et une ville. Elle emploie
+plusieurs conseillers (numéro, nom, prénom, spécialité, date d'embauche, salaire). Un conseiller travaille
+dans une seule agence à un instant donné et peut être muté d'une agence à une autre au cours du temps (on
+conserve l'historique avec date de début et date de fin). Chaque agence a un conseiller responsable.
+
+Deuxième volet : les comptes
+Un client peut détenir plusieurs comptes ; un compte a un seul titulaire (propriétaire). Il existe trois sortes
+de comptes et la banque ne gère jamais de compte « générique ». Les informations communes à tout compte
+sont :
+    •    le numéro de compte (unique),
+    •    le solde,
+    •    la date d'ouverture,
+    •    le statut (ACTIF, BLOQUE, DORMANT),
+    •    le titulaire (référence vers un client),
+Université de Bejaia                                                                           Année 2026/2027
+
+Département Informatique
+
+Module BDDA M1 ASR
+
+    •    l'agence de domiciliation.
+Informations propres à chaque sorte de compte :
+    •    Compte courant : le découvert autorisé (en DA), le nombre d'opérations par carte bancaire (CB),
+         et la liste de ses signataires. Un signataire est un client autre que le titulaire, autorisé à opérer sur
+         ce compte. Un client peut être signataire de plusieurs comptes et un compte peut avoir plusieurs
+         signataires. Pour chaque signataire on mémorise son droit :
+              o R : consultation seulement ;
+              o D : consultation, dépôts et retraits ;
+              o X : tous pouvoirs (y compris la modification du découvert et la clôture).
+    •    Compte d'épargne : le taux d'intérêt annuel (en %, strictement inférieur à 3,5) et le plafond de
+         dépôt.
+    •    Compte à terme : le montant bloqué, la durée en mois (6, 12, 24 ou 36), la date d'échéance et le
+         taux garanti.
+
+Troisième volet : les opérations
+Une opération (ou mouvement) est réalisée par un client (le titulaire ou un signataire) sur un compte
+courant, à une date donnée, pour un montant donné (positif pour un crédit, négatif pour un débit) et d'un
+certain type : DEPOT, RETRAIT, VIREMENT ou CB. Un même client peut effectuer plusieurs opérations
+sur plusieurs comptes. Pour chaque opération, on mémorise donc : le client, le compte, la date, le montant,
+le type et la commission prélevée.
+Les règles de gestion sont les suivantes :
+    •    Droits : un retrait (montant négatif) n'est permis qu'au titulaire du compte ou à un signataire de
+         droit D ou X. Un signataire de droit R ne peut effectuer aucune opération. Un client qui n'est ni
+         titulaire ni signataire ne peut rien faire sur le compte.
+    •    Découvert : après une opération, le solde ne peut pas devenir inférieur à l'opposé du découvert
+         autorisé. Dans le cas contraire, l'opération est refusée.
+    •    Plafond de retrait : le total des retraits d'un compte sur une même journée ne doit pas dépasser
+         200 000 DA.
+    •    Commission : tout virement vers un compte d'une autre agence est soumis à une commission de 1
+         % du montant, avec un minimum de 100 DA.
+    •    Opération suspecte : toute opération dont le montant dépasse 1 000 000 DA doit être signalée pour
+         contrôle.
+    •    Compte d'épargne : les dépôts ne peuvent pas faire dépasser le plafond. Les intérêts annuels se
+         calculent par la formule solde × (1 + taux / 100).
+    •    Compte à terme : le montant est bloqué jusqu'à l'échéance. Une sortie anticipée est pénalisée de 5
+         % du montant bloqué. La banque doit être prévenue 8 jours avant une échéance, puis à nouveau
+         si elle est dépassée.
+    •    Compte dormant : un compte courant sans aucune opération depuis plus de 12 mois passe au statut
+         DORMANT.
+La banque souhaite enfin des relevés statistiques mensuels : pour chaque année et chaque mois, le nombre
+et le montant total des opérations, détaillés par type d'opération.
+Université de Bejaia                                                                        Année 2026/2027
+
+Département Informatique
+
+Module BDDA M1 ASR
+
+Éléments à programmer dans le système
+Dans votre système nous voudrons avoir les éléments suivants :
+    1. Une fonction cataloguée qui retourne le nombre de comptes (tous types confondus) détenus par la
+       banque, et une autre qui retourne le solde total d'un client donné en paramètre.
+    2. Une fonction cataloguée qui retourne la ville d'un client donné.
+    3. Une procédure cataloguée ajout_client pour ajouter un client, et une autre drop_client(paramcli
+       IN NUMBER) qui détruit un client, ses comptes et les opérations sur ces derniers, retire ce client
+       de la liste des signataires des comptes d'autres clients et remet à NULL la référence de parrain de
+       ses filleuls. Cette dernière sera exécutée dans une transaction (COMMIT / ROLLBACK).
+    4. Une procédure cataloguée change_Portable(paramcli IN NUMBER, paramtel IN VARCHAR2)
+       qui affecte à un client un nouveau numéro de portable dans son VARRAY (celui-ci est étendu ou
+       non selon son état).
+    5. Une procédure cataloguée virement(cptsrc, cptdest, montant, cli) qui réalise un virement entre
+       deux comptes en une seule transaction atomique (les deux mouvements ou aucun).
+    6. Des méthodes (MEMBER et STATIC) sur les types objet, détaillées dans les questions.
+    7. Des triggers pour automatiser :
+           o le contrôle d'une nouvelle opération (BEFORE INSERT) : refus si le compte est bloqué,
+                si le client n'a pas les droits, si le découvert serait dépassé ou si le plafond journalier de
+                retrait serait dépassé ;
+           o la mise à jour automatique du solde du compte et du compteur d'opérations CB après
+                chaque opération (AFTER INSERT) ;
+           o la notification (dans une table Alerte) lorsque la date d'échéance d'un compte à terme est
+                proche de 8 jours, ainsi que lorsqu'elle est dépassée ;
+           o la notification lorsqu'un compte courant passe en solde négatif et lorsqu'une opération
+                dépasse 1 000 000 DA ;
+           o l'audit : toute modification du taux d'intérêt ou du découvert autorisé est tracée (ancienne
+                valeur, nouvelle valeur, date, utilisateur) dans une table Audit.
+
+Questions
+
+Partie A — Conception et création du schéma
+    1. Donner le diagramme de classes UML correspondant au sujet. Il devra faire apparaître : la
+       hiérarchie d'héritage des comptes, les associations avec leurs cardinalités, la classe d'association
+       des signataires (avec le droit), l'association n-aire ou la classe d'association des opérations,
+       l'association récursive de parrainage, l'agrégation des téléphones et les méthodes.
+    2. Créer un utilisateur MASTER1 à qui assigner tous les privilèges nécessaires (connexion, création
+       de types, tables, vues, procédures, triggers, quota sur le tablespace).
+    3. Donner les instructions nécessaires pour la création de tous les types (types objet, VARRAY,
+       nested tables, type compte_type déclaré NOT FINAL NOT INSTANTIABLE, sous-types
+       UNDER) et pour la création de toutes les tables objet, avec les contraintes suivantes :
+            o clés primaires et unicité (numéro de compte, numéro de sécurité sociale) ;
+            o contraintes NOT NULL sur toutes les références (CHECK (ref_x IS NOT NULL)) et
+                intégrité référentielle sur les REF ;
+Université de Bejaia                                                                        Année 2026/2027
+
+Département Informatique
+
+Module BDDA M1 ASR
+
+             o contraintes de domaine : droit du signataire (IN ('X','R','D')), statut, type d'opération, taux
+               d'intérêt < 3.5, durée d'un compte à terme, découvert positif ou nul ;
+           o valeur par défaut SYSDATE pour la date d'opération et ACTIF pour le statut d'un compte
+           o clause NESTED TABLE ... STORE AS et contraintes ajoutées sur la nested table par
+               ALTER TABLE.
+       Fournir également le script de régénération du schéma (DROP TABLE, DROP TYPE dans le
+       bon ordre) et celui des données (DELETE).
+    4. Donner les instructions nécessaires pour insérer au minimum les tuples suivants :
+           o 3 agences et 4 conseillers (avec un responsable par agence) ;
+           o 6 clients dont 2 parrainés ; initialiser les VARRAY de téléphones avec des cas variés
+               (éléments NULL, tableau partiellement rempli) ;
+           o 7 comptes courants (nested tables de signataires initialisées vides, puis remplies pour au
+               moins 4 comptes, avec les trois droits X, R et D) ;
+           o 5 comptes d'épargne, dont un à taux proche de la limite autorisée ;
+           o 3 comptes à terme, dont un dont l'échéance approche (moins de 8 jours) et un dont
+               l'échéance est dépassée ;
+           o 20 opérations, faites par des titulaires et par des signataires, avec des dates construites par
+               SYSDATE et des décalages, et incluant au moins une opération supérieure à 1 000 000
+               DA. Utiliser SELECT REF(...) pour renseigner les références.
+
+Partie B — Manipulation de la base
+    5. Réaliser les manipulations suivantes :
+          a. Ajouter le client n° 99, Oukaci, domicilié à Bejaia, téléphone domicile 0661-00-00-01, en
+               initialisant le VARRAY à un seul élément.
+          b. Ajouter un compte courant CC99, de solde 0, sans signataire et sans opération CB, à la date
+               du jour (SYSDATE), puis l'associer au client 99 par un UPDATE.
+          c. Insérer une opération de 50 000 DA sur ce compte sans renseigner la date (vérifier la
+               valeur par défaut). Remarquer l'absence du constructeur lorsque toutes les colonnes ne sont
+               pas renseignées.
+          d. Ajouter un signataire de droit D au compte CC99 en insérant dans la nested table (INSERT
+               INTO TABLE (SELECT ...)).
+          e. Écrire et tester la procédure change_Portable (consulter la table avant et après exécution).
+          f. Écrire et tester la procédure drop_client pour le client 99 (lister avant/après tous les objets
+               concernés).
+
+Partie C — Requêtes SQL
+    6. Donner les requêtes SQL suivantes.
+Requêtes simples
+    1. Liste des clients sans leurs numéros de téléphone.
+    2. Liste des comptes courants (numéro, solde, date d'ouverture, découvert, nombre d'opérations CB).
+    3. Liste des comptes d'épargne (numéro, solde, date d'ouverture, taux d'intérêt) triée par taux
+       décroissant ; puis celle des comptes à terme.
+Université de Bejaia                                                                      Année 2026/2027
+
+Département Informatique
+
+Module BDDA M1 ASR
+
+Requêtes sur les références (notation pointée, jointures implicites)
+    4. Liste des comptes courants du client de numéro 4 (jointure implicite dans le WHERE).
+    5. Même requête pour tous ses comptes (courants, épargne et à terme) avec UNION.
+    6. Liste des clients (numéro, nom, adresse) et numéro des comptes courants dont le solde est inférieur
+        à un seuil donné.
+    7. Numéro, nom et ville des clients titulaires d'au moins un compte d'épargne ; puis de ceux titulaires
+        d'un seul compte d'épargne.
+    8. Liste des clients (numéro, nom) qui ont fait des opérations (date et montant) sur le compte courant
+        CC7.
+    9. Liste des opérations sur CC7 faites par le propriétaire du compte, puis celles faites par des clients
+        non propriétaires.
+    10. Liste des comptes courants dont le solde est négatif (en utilisation du découvert), avec le nom du
+        titulaire et le nom de son conseiller.
+Requêtes avec agrégats
+    11. Pour chaque client (numéro, nom), le nombre de comptes d'épargne qu'il possède ; puis la même
+        requête affichant aussi les clients n'en ayant aucun.
+    12. Numéro, nom et nombre de comptes d'épargne du titulaire ayant le plus de comptes d'épargne
+        (HAVING COUNT(*) = (SELECT MAX(COUNT(*)) ...)).
+    13. Pour chaque type d'opération, le nombre d'opérations et le montant moyen.
+    14. Pour chaque agence, le total des soldes de ses comptes courants et de ses comptes d'épargne.
+    15. Les 3 clients dont le solde total (tous comptes) est le plus élevé.
+Requêtes sur les collections (opérateur TABLE)
+    16. Nombre de téléphones renseignés du client 1 (première écriture de TABLE), puis pour chaque
+        client (deuxième écriture). Expliquer la différence entre COUNT(*) et COUNT(numTel).
+    17. Liste des numéros de téléphone de chaque client.
+    18. Nombre de signataires du compte courant CC7 (première écriture), puis pour chaque compte
+        courant (deuxième écriture).
+    19. Numéro et droit des signataires de CC7, puis de tous les comptes courants, puis la même requête
+        avec un nested cursor.
+    20. Numéro, adresse et droit des signataires de CC7, en faisant une jointure entre la nested table et la
+        table Client.
+Requêtes de gestion
+    21. Rechercher tous les clients par ville.
+    22. Rechercher les comptes à terme dont l'échéance tombe dans les 30 prochains jours.
+    23. Rechercher les comptes courants sans aucune opération depuis plus de 12 mois.
+    24. Rechercher les opérations dont le montant dépasse 1 000 000 DA, avec le client et le compte
+        concernés.
+    25. Suppression de tous les comptes à terme dont l'échéance est dépassée de plus d'un an et dont le
+        montant bloqué est nul.
+Université de Bejaia                                                                       Année 2026/2027
+
+Département Informatique
+
+Module BDDA M1 ASR
+
+Partie D — Programmation PL/SQL
+    7. Blocs PL/SQL anonymes
+           a. Écrire un bloc qui affiche le numéro de téléphone du travail (deuxième élément du
+               VARRAY) du client 3, en affichant un message adapté s'il n'est pas renseigné.
+           b. Modifier ce bloc en utilisant un curseur pour afficher ce numéro pour tous les clients
+               titulaires d'un compte courant.
+           c. Écrire un bloc avec curseur paramétré qui prend en paramètre un montant et affiche, pour
+               chaque compte courant dont le solde est inférieur à ce montant, le titulaire, le solde et le
+               nombre de signataires. Traiter NO_DATA_FOUND et une exception utilisateur
+               aucun_compte.
+           d. Écrire un bloc qui ajoute un 3ᵉ téléphone à un client en étendant dynamiquement le
+               VARRAY (EXTEND, LIMIT, COUNT, LAST) puis met à jour la table. Le bloc refuse
+               tout ajout au-delà de la limite.
+           e. Écrire un bloc qui calcule, pour tous les comptes d'épargne d'une agence, le total des
+               intérêts annuels et l'affiche (avec un curseur et une variable cumulative).
+    8. Méthodes (modifier les types par ALTER TYPE ... ADD MEMBER ... CASCADE, puis écrire les
+       CREATE OR REPLACE TYPE BODY). Tester chacune dans une requête SQL et dans un bloc
+       PL/SQL (utiliser VALUE()).
+       Sur client_type :
+           a. nbCepargne : fonction qui renvoie le nombre de comptes d'épargne d'un client.
+           b. soldeTotal : fonction qui renvoie la somme des soldes de tous ses comptes (courants,
+               épargne, à terme).
+           c. supprimeTel(indice IN NUMBER) : procédure qui supprime le téléphone d'indice donné,
+               ou signale qu'aucun téléphone n'est présent à cet indice.
+           d. afficheInterets : procédure qui affiche l'épargne cumulée du client en utilisant la méthode
+               calculeInterets de chaque compte d'épargne, avec un curseur, puis affiche le total.
+       Sur cptCourant_type :
+           e. nbSignataire : fonction qui renvoie le nombre de signataires d'un compte ; la surcharger
+               en nbSignataire(droitparam IN CHAR) qui ne tient compte que des signataires du droit
+               passé en paramètre. Tester pour chaque droit de chaque compte.
+           f. estTitulaire(cli IN NUMBER) : fonction booléenne qui renvoie TRUE si le client est
+               titulaire du compte.
+           g. estSignataire(cli IN NUMBER, droitparam IN CHAR) : fonction booléenne qui renvoie
+               TRUE si le client est signataire du compte avec le droit donné.
+           h. supprimeSign(nclient IN NUMBER) : procédure qui supprime le signataire donné d'un
+               compte et signale l'anomalie s'il n'y figure pas. Tester en supprimant le signataire 2 de CC7,
+               puis un signataire inexistant.
+           i. passeMvt(cli IN NUMBER, somme IN NUMBER) : procédure qui réalise un débit (somme
+               négative) ou un crédit (somme positive) à la date du jour sur le compte, par le client cli.
+               Elle met à jour le solde et vérifie : les droits (titulaire, ou signataire D/X), le découvert
+               autorisé et le plafond journalier de retrait. Utiliser un PRAGMA EXCEPTION_INIT pour
+               traiter la violation de la contrainte NOT NULL sur la référence client, et gérer
+               NO_DATA_FOUND. Tester avec : le titulaire, un signataire D, un signataire R (refus), un
+               non-signataire (refus) et un client inconnu.
+Université de Bejaia                                                                      Année 2026/2027
+
+Département Informatique
+
+Module BDDA M1 ASR
+
+             j. peutRetirer(cli IN NUMBER, somme IN NUMBER) : fonction booléenne réutilisée par
+                passeMvt.
+           k. fraisTenue : fonction qui renvoie les frais de tenue de compte du trimestre, redéfinie dans
+                les autres sortes de comptes (polymorphisme, OVERRIDING).
+       Sur cptEpargne_type et cptTerme_type :
+           l. calculeInterets : fonction qui renvoie la somme augmentée des intérêts annuels d'un compte
+                d'épargne ; la même méthode sur un compte à terme tient compte de la durée en mois.
+                Tester pour le compte CE5.
+           m. sortieAnticipee : fonction qui renvoie le montant restitué en cas de sortie avant l'échéance
+                (avec la pénalité de 5 %).
+       Sur compte_type :
+           n. STATIC PROCEDURE fermeCompte(cpt IN VARCHAR2) : clôture un compte donné en
+                affichant son solde avant de le détruire. La méthode vide aussi la table des opérations
+                relatives au compte s'il s'agit d'un compte courant. Gérer les cas d'erreur
+                (NO_DATA_FOUND, WHEN OTHERS, COMMIT/ROLLBACK). Tester en supprimant
+                le compte d'épargne CE4, le compte courant CC1, puis des numéros inexistants.
+    9. Triggers. Écrire et tester chacun des triggers demandés dans la section « Éléments à programmer
+       ». Pour chaque trigger on précisera l'événement, le moment (BEFORE/AFTER), le niveau (FOR
+       EACH ROW ou non), et on fournira un jeu de test avec le résultat attendu. Veiller à éviter l'erreur
+       de table en mutation.
+
+Partie E — Fonctionnalités objet avancées
+    10. Type récursif. Ajouter l'attribut ref_Parrain REF client_type au type client par ALTER TYPE ...
+        CASCADE, mettre à jour les parrains de quelques clients et donner la requête qui affiche, pour
+        chaque client parrainé, le nom de son parrain et le parrain de son parrain (double notation
+        pointée).
+    11. Collection multi-niveaux. Créer la table Releves(annee, mois_vry) où mois_vry est un
+        VARRAY(12) d'objets (mois, nb_operations, types_nt) et où types_nt est une nested table d'objets
+        (typeOp, nb, montant_total). Insérer les données d'une année (au moins 4 mois). Écrire un bloc
+        PL/SQL qui ajoute les statistiques d'un nouveau mois (extension du VARRAY, puis de la nested
+        table), puis une requête qui donne, pour chaque type d'opération, le montant total sur l'année, trié
+        par ordre décroissant.
+    12. Vue objet. Créer la vue objet Agence_VOR associant à chaque agence la collection (nested table)
+        de ses conseillers en poste (date de fin NULL) et la collection de ses comptes courants, construites
+        avec CAST(MULTISET(...)) et MAKE_REF. Écrire trois requêtes d'interrogation de cette vue avec
+        l'opérateur TABLE, dont une avec jointure traditionnelle avec une table relationnelle. Programmer
+        ensuite la méthode mutation(nConseiller, nAgenceCible) qui opère la mutation d'un conseiller et
+        signale s'il est responsable de son agence actuelle.
+
+Consignes de réalisation et de remise
+    •    Le projet est réalisé en binôme sous Oracle (SQL*Plus). Les instructions doivent être exécutables
+         telles quelles, dans l'ordre.
+    •    Le rendu comprend :
+              a. un rapport (PDF) contenant le diagramme de classes, les choix de conception et les
+                  captures d'écran des exécutions et des tests ;
+Université de Bejaia                                                                     Année 2026/2027
+
+Département Informatique
+
+Module BDDA M1 ASR
+
+             b. un script .sql unique, commenté et organisé par partie (A à E), qui régénère entièrement le
+                 schéma et les données ;
+             c. une démonstration orale de 10 minutes (jeu de test des méthodes et triggers).
+    •    Les noms de types suivent la convention xxx_type, les éléments de VARRAY xxx_elt_vry_type et
+         ceux de nested tables xxx_elt_nt_type.
+    •    Toute copie d'un autre binôme entraîne la note de zéro pour les deux groupes.
+
+
+NB:
+La démontration orale est programmée dans la sale tp et dans une date à vous communiquer
+ultérieurement.
+Tous retard dans l’envoi du rapport entraine une pénalité.
+Ne pas remettre le rapport entraine la note de zéro sur la partie théorique.
+
+
+Bon courage
+Dr. N. BOUADEM
+
