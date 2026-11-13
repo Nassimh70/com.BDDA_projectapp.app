@@ -23,6 +23,7 @@ PROMPT ============================================================
 PROMPT 0. REGENERATION - SUPPRESSION DES OBJETS EXISTANTS
 PROMPT ============================================================
 -- ORDRE DE REGENERATION (equivalent explicite, pour le rapport) :
+--   DROP VIEW Agence_VOR;                 -- vue objet de E12
 --   DROP TABLE releves, "AUDIT", alerte, operation, cpt_terme, cpt_epargne,
 --              cpt_courant, client, affectation, agence, conseiller;
 --   DROP SEQUENCE seq_operation, seq_alerte, seq_audit, seq_affectation;
@@ -35,6 +36,14 @@ PROMPT ============================================================
 --
 -- Bloc idempotent : au premier passage les objets n'existent pas, on
 -- ignore donc les erreurs de suppression (aucune sortie parasite).
+
+-- La vue objet de E12 depend de la table agence et du type agence_vor_type :
+-- on la supprime en premier pour rendre le script complet rejouable.
+BEGIN
+  EXECUTE IMMEDIATE 'DROP VIEW Agence_VOR';
+EXCEPTION WHEN OTHERS THEN NULL;
+END;
+/
 
 DECLARE
   TYPE t_liste IS TABLE OF VARCHAR2(30);

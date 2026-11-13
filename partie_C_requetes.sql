@@ -123,7 +123,7 @@ HAVING COUNT(*) = 1
  ORDER BY c.num_client;
 
 PROMPT ############################################################
-PROMPT 6.8 - CLIENTS AYANT OPERÉ SUR CC7
+PROMPT 6.8 - CLIENTS AYANT OPERE SUR CC7
 PROMPT ############################################################
 SELECT c.num_client, c.nom, o.date_op, o.montant, o.type_op
   FROM client c, operation o, cpt_courant cc

@@ -1,0 +1,12 @@
+ GROUP BY r.ref_client.num_client, r.annee
+          *
+ERREUR Ó la ligne 3 :
+ORA-00904: "R"."REF_CLIENT"."NUM_CLIENT" : identificateur non valide
+
+
+ ORDER BY cli, r.annee, m.COLUMN_VALUE.mois
+                        *
+ERREUR Ó la ligne 4 :
+ORA-00904: "M"."COLUMN_VALUE"."MOIS" : identificateur non valide
+
+

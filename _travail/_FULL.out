@@ -1,0 +1,2284 @@
+############################################################
+# PARTIE_A_SCHEMA.SQL
+############################################################
+============================================================
+0. REGENERATION - SUPPRESSION DES OBJETS EXISTANTS
+============================================================
+
+Procédure PL/SQL terminée avec succès.
+
+Regeneration : objets existants supprimes.
+
+Procédure PL/SQL terminée avec succès.
+
+============================================================
+1. CREATION DES TYPES OBJET
+============================================================
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Type modifié.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+============================================================
+2. CORPS DES TYPES (POLYMORPHISME DE fraisTenue)
+============================================================
+
+Corps de type créé.
+
+Pas d'erreur.
+
+Corps de type créé.
+
+Pas d'erreur.
+
+Corps de type créé.
+
+Pas d'erreur.
+
+Corps de type créé.
+
+Pas d'erreur.
+============================================================
+3. CREATION DES TABLES ET DES CONTRAINTES
+============================================================
+
+Table créée.
+
+
+Table créée.
+
+
+Table créée.
+
+
+Table créée.
+
+
+Table créée.
+
+
+Table modifiée.
+
+
+Table modifiée.
+
+
+Table créée.
+
+
+Table créée.
+
+
+Table créée.
+
+
+Table créée.
+
+
+Table créée.
+
+
+Table créée.
+
+*** Valeurs par defaut exigees par le sujet ***
+
+Table modifiée.
+
+
+Table modifiée.
+
+
+Table modifiée.
+
+
+Table modifiée.
+
+
+Table modifiée.
+
+
+Table modifiée.
+
+*** Integrite referentielle sur les REF ***
+
+Table modifiée.
+
+
+Table modifiée.
+
+
+Table modifiée.
+
+
+Table modifiée.
+
+
+Table modifiée.
+
+
+Table modifiée.
+
+
+Table modifiée.
+
+
+Table modifiée.
+
+
+Table modifiée.
+
+
+Table modifiée.
+
+
+Table modifiée.
+
+
+Table modifiée.
+
+
+Table modifiée.
+
+============================================================
+4. SEQUENCES
+============================================================
+
+Séquence créée.
+
+
+Séquence créée.
+
+
+Séquence créée.
+
+
+Séquence créée.
+
+============================================================
+5. DONNEES DE TEST (A4)
+============================================================
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+2 lignes mises à jour.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+1 ligne créée.
+
+
+7 lignes mises à jour.
+
+
+7 lignes mises à jour.
+
+
+Validation effectuée.
+
+============================================================
+6. VERIFICATIONS
+============================================================
+
+NUM_COMPTE	SOLDE	NB_OP_CB STATUT
+---------- ---------- ---------- ----------
+CC1	      2498500	       0 ACTIF
+CC2	       -50000	       0 ACTIF
+CC3		38000	       1 ACTIF
+CC4	       325000	       1 ACTIF
+CC5		    0	       0 BLOQUE
+CC6		40000	       0 ACTIF
+CC7	       185000	       1 ACTIF
+
+7 lignes sélectionnées.
+
+
+NUM_COMPTE	SOLDE TAUX_INTERET
+---------- ---------- ------------
+CE1	       150000	       2,5
+CE2	       250000	      3,49
+CE3		80000	      1,75
+CE4	       320000		 2
+CE5	       500000		 3
+
+5 lignes sélectionnées.
+
+
+NUM_COMPTE MONTANT_BLOQUE DUREE_MOIS ECHEANCE
+---------- -------------- ---------- ----------
+CT1		   200000	  12 02/12/2026
+CT2		   100000	   6 17/11/2026
+CT3		    50000	  12 23/10/2026
+CT4			0	  36 08/10/2025
+
+4 lignes sélectionnées.
+
+
+OBJET		     NB
+------------ ----------
+CLIENTS 	      6
+CONSEILLERS	      4
+AGENCES 	      3
+AFFECTATIONS	      5
+CC		      7
+CE		      5
+CT		      4
+OPERATIONS	     20
+SIGNATAIRES	     10
+
+9 lignes sélectionnées.
+
+*** Objets invalides eventuels ***
+
+OBJECT_NAME															 OBJECT_TYPE		 STATUS
+-------------------------------------------------------------------------------------------------------------------------------- ----------------------- -------
+NB_COMPTES															 FUNCTION		 INVALID
+SOLDE_TOTAL															 FUNCTION		 INVALID
+VILLE_CLIENT															 FUNCTION		 INVALID
+AJOUT_CLIENT															 PROCEDURE		 INVALID
+CHANGE_PORTABLE 														 PROCEDURE		 INVALID
+DROP_CLIENT															 PROCEDURE		 INVALID
+MAJ_STATUTS_DORMANTS														 PROCEDURE		 INVALID
+SCAN_ECHEANCES															 PROCEDURE		 INVALID
+VIREMENT															 PROCEDURE		 INVALID
+
+9 lignes sélectionnées.
+
+============================================================
+FIN PARTIE A
+============================================================
+############################################################
+# PARTIE_B_MANIPULATIONS.SQL
+############################################################
+============================================================
+0. PROCEDURES CATALOGUEES UTILISEES EN PARTIE B
+============================================================
+
+Procédure créée.
+
+Pas d'erreur.
+
+Procédure créée.
+
+Pas d'erreur.
+
+Procédure PL/SQL terminée avec succès.
+
+============================================================
+1. B5a - AJOUT DU CLIENT 99
+============================================================
+
+1 ligne créée.
+
+
+Validation effectuée.
+
+
+NUM_CLIENT NOM				  PRENOM			 VILLE
+---------- ------------------------------ ------------------------------ ----------------------------------------
+	99 OUKACI			  Ahmed 			 Bejaia
+
+1 ligne sélectionnée.
+
+
+TELEPHONE
+--------------------
+0661-00-00-01
+
+1 ligne sélectionnée.
+
+============================================================
+2. B5b - CC99 SANS TITULAIRE, PUIS UPDATE
+============================================================
+
+1 ligne créée.
+
+
+NUM_COMPTE TITULAIRE			       SOLDE STATUT
+---------- ------------------------------ ---------- ----------
+CC99						   0 ACTIF
+
+1 ligne sélectionnée.
+
+
+1 ligne mise à jour.
+
+
+Validation effectuée.
+
+
+NUM_COMPTE TITULAIRE			       SOLDE STATUT
+---------- ------------------------------ ---------- ----------
+CC99	   OUKACI				   0 ACTIF
+
+1 ligne sélectionnée.
+
+============================================================
+3. B5c - OPERATION SANS DATE (DEFAUT SYSDATE)
+============================================================
+
+1 ligne créée.
+
+
+Validation effectuée.
+
+
+     ID_OP TYPE_OP	 MONTANT COMMISSION DATE_OP		DATE_SYS
+---------- ---------- ---------- ---------- ------------------- -------------------
+       100 DEPOT	   50000	  0 12/11/2026 20:52:13 12/11/2026 20:52:13
+
+1 ligne sélectionnée.
+
+============================================================
+4. B5d - SIGNATAIRE DE DROIT D SUR CC99
+============================================================
+
+1 ligne créée.
+
+
+Validation effectuée.
+
+
+SIGNATAIRE		       D
+------------------------------ -
+AMRANI			       D
+
+1 ligne sélectionnée.
+
+============================================================
+5. B5e - CHANGE_PORTABLE (AVANT / APRES)
+============================================================
+AVANT client 99 : COUNT=1  element2=<ABSENT>
+
+Procédure PL/SQL terminée avec succès.
+
+change_Portable : client 99 -> 0770-99-88-77  (COUNT=2)
+
+Procédure PL/SQL terminée avec succès.
+
+APRES client 99 : COUNT=2  element2=0770-99-88-77
+
+Procédure PL/SQL terminée avec succès.
+
+AVANT client 3	: COUNT=3  element2=0555-77-88-99
+
+Procédure PL/SQL terminée avec succès.
+
+change_Portable : client 3 -> 0777-11-22-33  (COUNT=3)
+
+Procédure PL/SQL terminée avec succès.
+
+APRES client 3	: COUNT=3  element2=0777-11-22-33
+
+Procédure PL/SQL terminée avec succès.
+
+change_Portable : client 12345 inexistant.
+
+Procédure PL/SQL terminée avec succès.
+
+============================================================
+6. B5f - DROP_CLIENT(99) (AVANT / APRES)
+============================================================
+
+1 ligne créée.
+
+
+1 ligne mise à jour.
+
+
+Validation effectuée.
+
+*** ETAT AVANT SUPPRESSION ***
+
+OBJET		       NB
+-------------- ----------
+CLIENT 99		1
+COMPTES 99		1
+OPERATIONS 99		1
+SIGNATAIRES 99		1
+FILLEULS 99		1
+CC99			1
+OPS SUR CC99		1
+
+7 lignes sélectionnées.
+
+
+NUM_CLIENT NOM				  PARRAIN
+---------- ------------------------------ ------------------------------
+	 5 HADDAD			  OUKACI
+
+1 ligne sélectionnée.
+
+drop_client : client 99 supprime, COMMIT effectue.
+
+Procédure PL/SQL terminée avec succès.
+
+*** ETAT APRES SUPPRESSION ***
+
+OBJET		       NB
+-------------- ----------
+CLIENT 99		0
+COMPTES 99		0
+OPERATIONS 99		0
+SIGNATAIRES 99		0
+FILLEULS 99		0
+CC99			0
+OPS SUR CC99		0
+
+7 lignes sélectionnées.
+
+
+NUM_CLIENT NOM				  PARRAIN
+---------- ------------------------------ ------------------------------
+	 5 HADDAD
+
+1 ligne sélectionnée.
+
+drop_client : client 99 inexistant.
+
+Procédure PL/SQL terminée avec succès.
+
+============================================================
+7. ETAT FINAL DE LA BASE APRES LA PARTIE B
+============================================================
+
+OBJET		    NB
+----------- ----------
+CLIENTS 	     6
+CC		     7
+CE		     5
+CT		     4
+OPERATIONS	    20
+SIGNATAIRES	    10
+
+6 lignes sélectionnées.
+
+============================================================
+FIN PARTIE B
+============================================================
+############################################################
+# PARTIE_C_REQUETES.SQL
+############################################################
+
+Session modifiée.
+
+############################################################
+6.1 - CLIENTS SANS LEURS NUMEROS DE TELEPHONE
+############################################################
+
+NUM_CLIENT NOM		  PRENOM       DATE_NAISS NUM_SECU	      NUM RUE			       VILLE	  CP	     EMAIL		      DATE_ENTRE CONSEILLER  PARRAIN
+---------- -------------- ------------ ---------- ------------ ---------- ---------------------------- ---------- ---------- ------------------------ ---------- ----------- -----------
+	 1 AMRANI	  Ali	       12/05/1980 800512001	       12 Rue des Oliviers	       Bejaia	  06000      ali.amrani@mail.dz       01/04/2015 BENALI
+	 2 BENALI	  Samia        20/02/1990 900220002		5 Rue Didouche Mourad	       Alger	  16000      samia.benali@mail.dz     15/06/2016 HAMDI	     AMRANI
+	 3 CHERIF	  Mohamed      03/11/1975 751103003		8 Boulevard de l ALN	       Oran	  31000      mohamed.cherif@mail.dz   20/01/2017 TOUATI      AMRANI
+	 4 DJEBBAR	  Lina	       08/07/1995 950708004		3 Rue des Freres Amirouche     Bejaia	  06000      lina.djebbar@mail.dz     10/03/2019 BENALI
+	 5 HADDAD	  Omar	       30/09/1988 880930005	       22 Rue de la Gare	       Alger	  16000      omar.haddad@mail.dz      05/11/2020 HAMDI
+	 6 ZERROUKI	  Nour	       25/01/2000 000125006		7 Cite 200 logements	       Oran	  31000      nour.zerrouki@mail.dz    14/02/2022 TOUATI
+
+6 lignes sélectionnées.
+
+############################################################
+6.2 - COMPTES COURANTS
+############################################################
+
+NUM_COMPTE	SOLDE DATE_OUVER  DECOUVERT   NB_OP_CB
+---------- ---------- ---------- ---------- ----------
+CC1	      2498500 10/04/2015      50000	     0
+CC2	       -50000 01/07/2016      50000	     0
+CC3		38000 01/02/2017      20000	     1
+CC4	       325000 01/04/2019     100000	     1
+CC5		    0 01/12/2020	  0	     0
+CC6		40000 01/03/2022      30000	     0
+CC7	       185000 01/05/2023      75000	     1
+
+7 lignes sélectionnées.
+
+############################################################
+6.3a - COMPTES D'EPARGNE TRIES PAR TAUX DECROISSANT
+############################################################
+
+NUM_COMPTE	SOLDE DATE_OUVER TAUX_INTERET PLAFOND_DEPOT
+---------- ---------- ---------- ------------ -------------
+CE2	       250000 01/03/2017	 3,49	    1000000
+CE5	       500000 01/09/2021	    3	    2000000
+CE1	       150000 15/01/2016	  2,5	     500000
+CE4	       320000 01/06/2019	    2	     750000
+CE3		80000 01/05/2018	 1,75	     300000
+
+5 lignes sélectionnées.
+
+############################################################
+6.3b - COMPTES A TERME
+############################################################
+
+NUM_COMPTE	SOLDE DATE_OUVER MONTANT_BLOQUE DUREE_MOIS DATE_ECHEA TAUX_GARANTI
+---------- ---------- ---------- -------------- ---------- ---------- ------------
+CT4		    0 08/10/2022	      0 	36 08/10/2025	       1,5
+CT3		50000 23/10/2025	  50000 	12 23/10/2026		 3
+CT2	       100000 17/05/2026	 100000 	 6 17/11/2026	       2,8
+CT1	       200000 02/12/2025	 200000 	12 02/12/2026	       3,2
+
+4 lignes sélectionnées.
+
+############################################################
+6.4 - COMPTES COURANTS DU CLIENT 4 (JOINTURE IMPLICITE)
+############################################################
+
+NUM_COMPTE	SOLDE DATE_OUVER  DECOUVERT
+---------- ---------- ---------- ----------
+CC4	       325000 01/04/2019     100000
+CC7	       185000 01/05/2023      75000
+
+2 lignes sélectionnées.
+
+############################################################
+6.5 - TOUS LES COMPTES DU CLIENT 4 (UNION)
+############################################################
+
+NUM_COMPTE TYPE_CO	SOLDE DATE_OUVER INFO
+---------- ------- ---------- ---------- --------------------------------------------------
+CC4	   COURANT     325000 01/04/2019 decouvert=100000
+CC7	   COURANT     185000 01/05/2023 decouvert=75000
+CE4	   EPARGNE     320000 01/06/2019 taux=2
+
+3 lignes sélectionnées.
+
+############################################################
+6.6 - CLIENTS ET COMPTES COURANTS DE SOLDE < 100 000 DA
+############################################################
+
+NUM_CLIENT NOM		  VILLE      NUM_COMPTE      SOLDE
+---------- -------------- ---------- ---------- ----------
+	 2 BENALI	  Alger      CC2	    -50000
+	 3 CHERIF	  Oran	     CC3	     38000
+	 5 HADDAD	  Alger      CC5		 0
+	 6 ZERROUKI	  Oran	     CC6	     40000
+
+4 lignes sélectionnées.
+
+############################################################
+6.7a - CLIENTS TITULAIRES D'AU MOINS UN COMPTE D'EPARGNE
+############################################################
+
+NUM_CLIENT NOM		  VILLE
+---------- -------------- ----------
+	 1 AMRANI	  Bejaia
+	 2 BENALI	  Alger
+	 3 CHERIF	  Oran
+	 4 DJEBBAR	  Bejaia
+
+4 lignes sélectionnées.
+
+############################################################
+6.7b - CLIENTS TITULAIRES D'UN SEUL COMPTE D'EPARGNE
+############################################################
+
+NUM_CLIENT NOM		  VILLE
+---------- -------------- ----------
+	 2 BENALI	  Alger
+	 3 CHERIF	  Oran
+	 4 DJEBBAR	  Bejaia
+
+3 lignes sélectionnées.
+
+############################################################
+6.8 - CLIENTS AYANT OPERE SUR CC7
+############################################################
+
+NUM_CLIENT NOM		  DATE_OP	MONTANT TYPE_OP
+---------- -------------- ---------- ---------- ----------
+	 4 DJEBBAR	  23/09/2026	 300000 DEPOT
+	 2 BENALI	  03/10/2026	 -40000 RETRAIT
+	 3 CHERIF	  13/10/2026	 -60000 RETRAIT
+	 3 CHERIF	  23/10/2026	 -15000 CB
+
+4 lignes sélectionnées.
+
+############################################################
+6.9a - OPERATIONS SUR CC7 FAITES PAR LE PROPRIETAIRE
+############################################################
+
+     ID_OP DATE_OP	 MONTANT TYPE_OP    CLIENT
+---------- ---------- ---------- ---------- ------------------------------
+	17 23/09/2026	  300000 DEPOT	    DJEBBAR
+
+1 ligne sélectionnée.
+
+############################################################
+6.9b - OPERATIONS SUR CC7 FAITES PAR DES NON-PROPRIETAIRES
+############################################################
+
+     ID_OP DATE_OP	 MONTANT TYPE_OP    CLIENT
+---------- ---------- ---------- ---------- ------------------------------
+	18 03/10/2026	  -40000 RETRAIT    BENALI
+	19 13/10/2026	  -60000 RETRAIT    CHERIF
+	20 23/10/2026	  -15000 CB	    CHERIF
+
+3 lignes sélectionnées.
+
+############################################################
+6.10 - COMPTES COURANTS A SOLDE NEGATIF + TITULAIRE + CONSEILLER
+############################################################
+
+NUM_COMPTE	SOLDE  DECOUVERT TITULAIRE			CONSEILLER
+---------- ---------- ---------- ------------------------------ -----------
+CC2	       -50000	   50000 BENALI 			HAMDI
+
+1 ligne sélectionnée.
+
+############################################################
+6.11a - NOMBRE DE COMPTES D'EPARGNE PAR CLIENT
+############################################################
+
+NUM_CLIENT NOM		  NB_EPARGNE
+---------- -------------- ----------
+	 1 AMRANI		   2
+	 2 BENALI		   1
+	 3 CHERIF		   1
+	 4 DJEBBAR		   1
+
+4 lignes sélectionnées.
+
+############################################################
+6.11b - IDEM, Y COMPRIS LES CLIENTS SANS COMPTE D'EPARGNE
+############################################################
+
+NUM_CLIENT NOM		  NB_EPARGNE
+---------- -------------- ----------
+	 1 AMRANI		   2
+	 2 BENALI		   1
+	 3 CHERIF		   1
+	 4 DJEBBAR		   1
+	 5 HADDAD		   0
+	 6 ZERROUKI		   0
+
+6 lignes sélectionnées.
+
+############################################################
+6.12 - TITULAIRE AYANT LE PLUS DE COMPTES D'EPARGNE
+############################################################
+
+NUM_CLIENT NOM		  NB_EPARGNE
+---------- -------------- ----------
+	 1 AMRANI		   2
+
+1 ligne sélectionnée.
+
+############################################################
+6.13 - PAR TYPE D'OPERATION : NOMBRE ET MONTANT MOYEN
+############################################################
+
+TYPE_OP    NB_OPERATIONS MONTANT_MOYEN
+---------- ------------- -------------
+CB		       3     -17333,33
+DEPOT		       7	520000
+RETRAIT 	       8	-68750
+VIREMENT	       2	     0
+
+4 lignes sélectionnées.
+
+############################################################
+6.14 - PAR AGENCE : TOTAL DES SOLDES (COURANTS + EPARGNE)
+############################################################
+
+CODE   NOM	      TOTAL_SOLDES
+------ -------------- ------------
+A1     Agence Bejaia	   3478500
+       Centre
+
+A2     Agence Alger G	    700000
+       rande Poste
+
+A3     Agence Oran Fr	    158000
+       ont de Mer
+
+
+3 lignes sélectionnées.
+
+############################################################
+6.15 - LES 3 CLIENTS AU SOLDE TOTAL LE PLUS ELEVE
+############################################################
+
+NUM_CLIENT NOM		  SOLDE_TOTAL
+---------- -------------- -----------
+	 1 AMRANI	      3348500
+	 4 DJEBBAR	       830000
+	 2 BENALI	       300000
+
+3 lignes sélectionnées.
+
+############################################################
+6.16a - TELEPHONES RENSEIGNES DU CLIENT 1
+############################################################
+
+NB_ELEMENTS NB_RENSEIGNES
+----------- -------------
+	  3		2
+
+1 ligne sélectionnée.
+
+############################################################
+6.16b - TELEPHONES RENSEIGNES POUR CHAQUE CLIENT
+############################################################
+
+NUM_CLIENT NOM		  NB_ELEMENTS NB_RENSEIGNES
+---------- -------------- ----------- -------------
+	 1 AMRANI		    3		  2
+	 2 BENALI		    3		  2
+	 3 CHERIF		    3		  1
+	 4 DJEBBAR		    3		  3
+	 5 HADDAD		    3		  1
+	 6 ZERROUKI		    3		  1
+
+6 lignes sélectionnées.
+
+############################################################
+6.17 - NUMEROS DE TELEPHONE DE CHAQUE CLIENT
+############################################################
+
+NUM_CLIENT NOM		  TELEPHONE
+---------- -------------- --------------------
+	 1 AMRANI	  034-12-34-56
+	 1 AMRANI	  0661-11-22-33
+	 1 AMRANI	  <non renseigne>
+	 2 BENALI	  021-45-67-89
+	 2 BENALI	  <non renseigne>
+	 2 BENALI	  0770-44-55-66
+	 3 CHERIF	  <non renseigne>
+	 3 CHERIF	  0777-11-22-33
+	 3 CHERIF	  <non renseigne>
+	 4 DJEBBAR	  034-98-76-54
+	 4 DJEBBAR	  0662-33-44-55
+	 4 DJEBBAR	  0771-22-33-44
+	 5 HADDAD	  021-11-22-33
+	 5 HADDAD	  <non renseigne>
+	 5 HADDAD	  <non renseigne>
+	 6 ZERROUKI	  <non renseigne>
+	 6 ZERROUKI	  0663-55-66-77
+	 6 ZERROUKI	  <non renseigne>
+
+18 lignes sélectionnées.
+
+############################################################
+6.18a - NOMBRE DE SIGNATAIRES DE CC7
+############################################################
+
+NB_SIGNATAIRES
+--------------
+	     3
+
+1 ligne sélectionnée.
+
+############################################################
+6.18b - NOMBRE DE SIGNATAIRES POUR CHAQUE COMPTE COURANT
+############################################################
+
+NUM_COMPTE NB_SIGNATAIRES
+---------- --------------
+CC1			1
+CC2			1
+CC3			2
+CC4			3
+CC5			0
+CC6			0
+CC7			3
+
+7 lignes sélectionnées.
+
+############################################################
+6.19a - SIGNATAIRES DE CC7 (NUMERO ET DROIT)
+############################################################
+
+NUM_CLIENT NOM		  D
+---------- -------------- -
+	 2 BENALI	  D
+	 3 CHERIF	  X
+	 5 HADDAD	  R
+
+3 lignes sélectionnées.
+
+############################################################
+6.19b - SIGNATAIRES DE TOUS LES COMPTES COURANTS
+############################################################
+
+NUM_COMPTE NUM_CLIENT NOM	     D
+---------- ---------- -------------- -
+CC1		    4 DJEBBAR	     X
+CC2		    5 HADDAD	     R
+CC3		    1 AMRANI	     D
+CC3		    6 ZERROUKI	     R
+CC4		    2 BENALI	     D
+CC4		    3 CHERIF	     X
+CC4		    5 HADDAD	     R
+CC7		    2 BENALI	     D
+CC7		    3 CHERIF	     X
+CC7		    5 HADDAD	     R
+
+10 lignes sélectionnées.
+
+############################################################
+6.19c - MEME RESULTAT AVEC UN CURSEUR IMBRIQUE
+############################################################
+Compte CC1
+DJEBBAR 	droit X
+Compte CC2
+HADDAD		droit R
+Compte CC3
+AMRANI		droit D
+ZERROUKI	droit R
+Compte CC4
+BENALI		droit D
+CHERIF		droit X
+HADDAD		droit R
+Compte CC5
+Compte CC6
+Compte CC7
+BENALI		droit D
+CHERIF		droit X
+HADDAD		droit R
+
+Procédure PL/SQL terminée avec succès.
+
+############################################################
+6.20 - SIGNATAIRES DE CC7 : JOINTURE NESTED TABLE / CLIENT
+############################################################
+
+NUM_CLIENT NOM		  ADRESSE					     D
+---------- -------------- -------------------------------------------------- -
+	 2 BENALI	  5 Rue Didouche Mourad, Alger			     D
+	 3 CHERIF	  8 Boulevard de l ALN, Oran			     X
+	 5 HADDAD	  22 Rue de la Gare, Alger			     R
+
+3 lignes sélectionnées.
+
+############################################################
+6.21a - TOUS LES CLIENTS PAR VILLE
+############################################################
+
+VILLE	   NUM_CLIENT NOM	     PRENOM
+---------- ---------- -------------- ------------
+Alger		    2 BENALI	     Samia
+Alger		    5 HADDAD	     Omar
+Bejaia		    1 AMRANI	     Ali
+Bejaia		    4 DJEBBAR	     Lina
+Oran		    3 CHERIF	     Mohamed
+Oran		    6 ZERROUKI	     Nour
+
+6 lignes sélectionnées.
+
+############################################################
+6.21b - RECHERCHE D'UNE VILLE (EXEMPLE : BEJAIA)
+############################################################
+
+NUM_CLIENT NOM		  PRENOM       VILLE
+---------- -------------- ------------ ----------
+	 1 AMRANI	  Ali	       Bejaia
+	 4 DJEBBAR	  Lina	       Bejaia
+
+2 lignes sélectionnées.
+
+############################################################
+6.22 - COMPTES A TERME DONT L'ECHEANCE EST DANS 30 JOURS
+############################################################
+
+NUM_COMPTE MONTANT_BLOQUE DATE_ECHEA JOURS_RESTANTS
+---------- -------------- ---------- --------------
+CT2		   100000 17/11/2026		  5
+CT1		   200000 02/12/2026		 20
+
+2 lignes sélectionnées.
+
+############################################################
+6.23 - COMPTES COURANTS SANS OPERATION DEPUIS PLUS DE 12 MOIS
+############################################################
+
+NUM_COMPTE	SOLDE STATUT	 DERNIERE_O
+---------- ---------- ---------- ----------
+CC5		    0 BLOQUE
+CC6		40000 ACTIF	 08/10/2025
+
+2 lignes sélectionnées.
+
+############################################################
+6.24 - OPERATIONS DE PLUS DE 1 000 000 DA
+############################################################
+
+     ID_OP DATE_OP	 MONTANT TYPE_OP    NUM_CLIENT CLIENT			      NUM_COMPTE
+---------- ---------- ---------- ---------- ---------- ------------------------------ ----------
+	 5 10/11/2026	 1500000 DEPOT		     1 AMRANI			      CC1
+
+1 ligne sélectionnée.
+
+############################################################
+6.25 - SUPPRESSION DES COMPTES A TERME EXPIRES > 1 AN, MONTANT NUL
+############################################################
+
+NUM_COMPTE MONTANT_BLOQUE DATE_ECHEA
+---------- -------------- ----------
+CT4			0 08/10/2025
+
+1 ligne sélectionnée.
+
+
+1 ligne supprimée.
+
+
+Validation effectuée.
+
+*** Verification apres suppression ***
+
+NUM_COMPTE MONTANT_BLOQUE DATE_ECHEA
+---------- -------------- ----------
+CT1		   200000 02/12/2026
+CT2		   100000 17/11/2026
+CT3		    50000 23/10/2026
+
+3 lignes sélectionnées.
+
+############################################################
+FIN PARTIE C
+############################################################
+############################################################
+# PARTIE_D_PROGRAMMATION.SQL
+############################################################
+============================================================
+D1. SOUS-PROGRAMMES CATALOGUES
+============================================================
+
+Fonction créée.
+
+Pas d'erreur.
+
+Fonction créée.
+
+Pas d'erreur.
+
+Fonction créée.
+
+Pas d'erreur.
+
+Procédure créée.
+
+Pas d'erreur.
+
+Procédure créée.
+
+Pas d'erreur.
+
+Procédure créée.
+
+Pas d'erreur.
+
+Procédure créée.
+
+Pas d'erreur.
+*** Tests des sous-programmes catalogues ***
+
+NB_COMPTES
+----------
+	15
+
+1 ligne sélectionnée.
+
+
+SOLDE_CLIENT_1
+--------------
+       3348500
+
+1 ligne sélectionnée.
+
+
+SOLDE_CLIENT_4
+--------------
+	830000
+
+1 ligne sélectionnée.
+
+
+VILLE_CLIENT_1
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Bejaia
+
+1 ligne sélectionnée.
+
+
+VILLE_CLIENT_3
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Oran
+
+1 ligne sélectionnée.
+
+ajout_client : client 97 ajoute.
+
+Procédure PL/SQL terminée avec succès.
+
+
+NUM_CLIENT NOM		  PRENOM       VILLE	  CONSEILLER  PARRAIN
+---------- -------------- ------------ ---------- ----------- -----------
+	97 TEST 	  Ajout        Bejaia	  BENALI      AMRANI
+
+1 ligne sélectionnée.
+
+ajout_client : client 97 deja existant.
+
+Procédure PL/SQL terminée avec succès.
+
+
+1 ligne supprimée.
+
+
+Validation effectuée.
+
+============================================================
+D7. BLOCS PL/SQL ANONYMES
+============================================================
+Client 3 : telephone travail = 0777-11-22-33
+
+Procédure PL/SQL terminée avec succès.
+
+1 AMRANI	      : 0661-11-22-33
+2 BENALI	      : deuxieme telephone non renseigne
+3 CHERIF	      : 0777-11-22-33
+4 DJEBBAR	      : 0662-33-44-55
+5 HADDAD	      : deuxieme telephone non renseigne
+6 ZERROUKI	      : 0663-55-66-77
+
+Procédure PL/SQL terminée avec succès.
+
+*** Seuil 100000 ***
+CC2    BENALI	      solde=-50000 signataires=1
+CC3    CHERIF	      solde=38000 signataires=2
+CC5    HADDAD	      solde=0 signataires=0
+CC6    ZERROUKI       solde=40000 signataires=0
+*** Seuil -1000000 ***
+aucun_compte : aucun compte courant sous le seuil demande.
+
+Procédure PL/SQL terminée avec succès.
+
+
+0 lignes supprimées.
+
+
+1 ligne créée.
+
+
+Validation effectuée.
+
+Avant : COUNT=2 LIMIT=3 LAST=2
+Ajout 1 : COUNT=3 LAST=3 valeur=0770-98-98-01
+Ajout 2 refuse : limite de 3 atteinte.
+Apres : COUNT=3
+
+Procédure PL/SQL terminée avec succès.
+
+
+TELEPHONE
+--------------------
+034-00-00-01
+0661-00-00-02
+0770-98-98-01
+
+3 lignes sélectionnées.
+
+
+1 ligne supprimée.
+
+
+Validation effectuée.
+
+Interets annuels des comptes d epargne de A1 :
+CE1 : solde=150000 taux=2,5% interet=3750
+CE4 : solde=320000 taux=2% interet=6400
+TOTAL ANNUEL = 10150
+
+Procédure PL/SQL terminée avec succès.
+
+============================================================
+D8. METHODES DES TYPES OBJET - ALTER TYPE ... ADD MEMBER
+============================================================
+OK   : ALTER TYPE client_type ADD MEMBER FUNCTION nbCepargne RETURN NUMBER CASCADE
+OK   : ALTER TYPE client_type ADD MEMBER FUNCTION soldeTotal RETURN NUMBER CASCADE
+OK   : ALTER TYPE client_type ADD MEMBER PROCEDURE supprimeTel(indice IN NUMBER) CASCADE
+OK   : ALTER TYPE client_type ADD MEMBER PROCEDURE afficheInterets CASCADE
+OK   : ALTER TYPE cptCourant_type ADD MEMBER FUNCTION nbSignataire RETURN NUMBER CASCADE
+OK   : ALTER TYPE cptCourant_type ADD MEMBER FUNCTION nbSignataire(droitparam IN CHAR) RETURN NUMBER CASCADE
+OK   : ALTER TYPE cptCourant_type ADD MEMBER FUNCTION estTitulaire(cli IN NUMBER) RETURN BOOLEAN CASCADE
+OK   : ALTER TYPE cptCourant_type ADD MEMBER FUNCTION estSignataire(cli IN NUMBER, droitparam IN CHAR) RETURN BOOLEAN CASCADE
+OK   : ALTER TYPE cptCourant_type ADD MEMBER PROCEDURE supprimeSign(nclient IN NUMBER) CASCADE
+OK   : ALTER TYPE cptCourant_type ADD MEMBER PROCEDURE passeMvt(cli IN NUMBER, somme IN NUMBER) CASCADE
+OK   : ALTER TYPE cptCourant_type ADD MEMBER FUNCTION peutRetirer(cli IN NUMBER, somme IN NUMBER) RETURN BOOLEAN CASCADE
+OK   : ALTER TYPE cptEpargne_type ADD MEMBER FUNCTION calculeInterets RETURN NUMBER CASCADE
+OK   : ALTER TYPE cptEpargne_type ADD MEMBER FUNCTION sortieAnticipee RETURN NUMBER CASCADE
+OK   : ALTER TYPE cptTerme_type ADD MEMBER FUNCTION calculeInterets RETURN NUMBER CASCADE
+OK   : ALTER TYPE cptTerme_type ADD MEMBER FUNCTION sortieAnticipee RETURN NUMBER CASCADE
+OK   : ALTER TYPE compte_type ADD STATIC PROCEDURE fermeCompte(cpt IN VARCHAR2) CASCADE
+
+Procédure PL/SQL terminée avec succès.
+
+*** Etat des types apres ALTER (les corps sont INVALID) ***
+
+OBJECT_NAME															 OBJECT_TYPE		 STATUS
+-------------------------------------------------------------------------------------------------------------------------------- ----------------------- -------
+ADRESSE_TYPE															 TYPE			 VALID
+AGENCE_TYPE															 TYPE			 VALID
+CLIENT_TYPE															 TYPE			 VALID
+CLIENT_TYPE															 TYPE			 VALID
+COMPTE_TYPE															 TYPE			 VALID
+CONSEILLER_NT_TYPE														 TYPE			 VALID
+CONSEILLER_TYPE 														 TYPE			 VALID
+CPTCOURANT_NT_TYPE														 TYPE			 VALID
+CPTCOURANT_TYPE 														 TYPE			 VALID
+CPTEPARGNE_TYPE 														 TYPE			 VALID
+CPTTERME_TYPE															 TYPE			 VALID
+MOIS_ELT_VRY_TYPE														 TYPE			 VALID
+MOIS_VRY_TYPE															 TYPE			 VALID
+OPERATION_TYPE															 TYPE			 VALID
+SIGNATAIRE_ELT_NT_TYPE														 TYPE			 VALID
+SIGNATAIRE_NT_TYPE														 TYPE			 VALID
+SYS_YOID0000078150$														 TYPE			 VALID
+SYS_YOID0000078183$														 TYPE			 VALID
+SYS_YOID0000078185$														 TYPE			 VALID
+SYS_YOID0000078187$														 TYPE			 VALID
+SYS_YOID0000078189$														 TYPE			 VALID
+TEL_VRY_TYPE															 TYPE			 VALID
+TYPE_STAT_ELT_NT_TYPE														 TYPE			 VALID
+TYPE_STAT_NT_TYPE														 TYPE			 VALID
+COMPTE_TYPE															 TYPE BODY		 INVALID
+CPTCOURANT_TYPE 														 TYPE BODY		 INVALID
+CPTEPARGNE_TYPE 														 TYPE BODY		 INVALID
+CPTTERME_TYPE															 TYPE BODY		 INVALID
+
+28 lignes sélectionnées.
+
+============================================================
+D8. CORPS DES TYPES (CREATE OR REPLACE TYPE BODY)
+============================================================
+
+Corps de type créé.
+
+Pas d'erreur.
+
+Corps de type créé.
+
+Pas d'erreur.
+
+Corps de type créé.
+
+Pas d'erreur.
+
+Corps de type créé.
+
+Pas d'erreur.
+
+Corps de type créé.
+
+Pas d'erreur.
+*** Etat des types apres creation des corps ***
+
+OBJECT_NAME															 OBJECT_TYPE		 STATUS
+-------------------------------------------------------------------------------------------------------------------------------- ----------------------- -------
+ADRESSE_TYPE															 TYPE			 VALID
+AGENCE_TYPE															 TYPE			 VALID
+CLIENT_TYPE															 TYPE			 VALID
+CLIENT_TYPE															 TYPE			 VALID
+COMPTE_TYPE															 TYPE			 VALID
+CONSEILLER_NT_TYPE														 TYPE			 VALID
+CONSEILLER_TYPE 														 TYPE			 VALID
+CPTCOURANT_NT_TYPE														 TYPE			 VALID
+CPTCOURANT_TYPE 														 TYPE			 VALID
+CPTEPARGNE_TYPE 														 TYPE			 VALID
+CPTTERME_TYPE															 TYPE			 VALID
+MOIS_ELT_VRY_TYPE														 TYPE			 VALID
+MOIS_VRY_TYPE															 TYPE			 VALID
+OPERATION_TYPE															 TYPE			 VALID
+SIGNATAIRE_ELT_NT_TYPE														 TYPE			 VALID
+SIGNATAIRE_NT_TYPE														 TYPE			 VALID
+SYS_YOID0000078150$														 TYPE			 VALID
+SYS_YOID0000078183$														 TYPE			 VALID
+SYS_YOID0000078185$														 TYPE			 VALID
+SYS_YOID0000078187$														 TYPE			 VALID
+SYS_YOID0000078189$														 TYPE			 VALID
+TEL_VRY_TYPE															 TYPE			 VALID
+TYPE_STAT_ELT_NT_TYPE														 TYPE			 VALID
+TYPE_STAT_NT_TYPE														 TYPE			 VALID
+CLIENT_TYPE															 TYPE BODY		 VALID
+COMPTE_TYPE															 TYPE BODY		 VALID
+CPTCOURANT_TYPE 														 TYPE BODY		 VALID
+CPTEPARGNE_TYPE 														 TYPE BODY		 VALID
+CPTTERME_TYPE															 TYPE BODY		 VALID
+
+29 lignes sélectionnées.
+
+============================================================
+D8. TESTS DES METHODES DANS DES REQUETES SQL
+============================================================
+*** nbCepargne ***
+
+NUM_CLIENT NOM		  NB_EPARGNE
+---------- -------------- ----------
+	 1 AMRANI		   2
+	 2 BENALI		   1
+	 3 CHERIF		   1
+	 4 DJEBBAR		   1
+	 5 HADDAD		   0
+	 6 ZERROUKI		   0
+
+6 lignes sélectionnées.
+
+*** soldeTotal ***
+
+NUM_CLIENT NOM		  SOLDE_TOTAL
+---------- -------------- -----------
+	 1 AMRANI	      3348500
+	 2 BENALI	       300000
+	 3 CHERIF	       168000
+	 4 DJEBBAR	       830000
+	 5 HADDAD		    0
+	 6 ZERROUKI		40000
+
+6 lignes sélectionnées.
+
+*** nbSignataire() et nbSignataire(droit) ***
+
+NUM_COMPTE	TOTAL	 DROIT_D    DROIT_R    DROIT_X
+---------- ---------- ---------- ---------- ----------
+CC1		    1	       0	  0	     1
+CC2		    1	       0	  1	     0
+CC3		    2	       1	  1	     0
+CC4		    3	       1	  1	     1
+CC5		    0	       0	  0	     0
+CC6		    0	       0	  0	     0
+CC7		    3	       1	  1	     1
+
+7 lignes sélectionnées.
+
+*** calculeInterets et sortieAnticipee des comptes d epargne ***
+
+NUM_COMPTE	SOLDE TAUX_INTERET AVEC_INTERETS SORTIE_ANTICIPEE
+---------- ---------- ------------ ------------- ----------------
+CE1	       150000	       2,5	  153750	   142500
+CE2	       250000	      3,49	  258725	   237500
+CE3		80000	      1,75	   81400	    76000
+CE4	       320000		 2	  326400	   304000
+CE5	       500000		 3	  515000	   475000
+
+5 lignes sélectionnées.
+
+*** calculeInterets et sortieAnticipee des comptes a terme ***
+
+NUM_COMPTE	SOLDE DUREE_MOIS TAUX_GARANTI AVEC_INTERETS SORTIE_ANTICIPEE
+---------- ---------- ---------- ------------ ------------- ----------------
+CT1	       200000	      12	  3,2	     206400	      190000
+CT2	       100000	       6	  2,8	     101400	       95000
+CT3		50000	      12	    3	      51500	       47500
+
+3 lignes sélectionnées.
+
+*** fraisTenue : polymorphisme ***
+
+TYPE_CO NUM_COMPTE	FRAIS
+------- ---------- ----------
+COURANT CC1		 1200
+COURANT CC2		 1200
+COURANT CC3		 1200
+COURANT CC4		 1200
+COURANT CC5		 1200
+COURANT CC6		 1200
+COURANT CC7		 1200
+EPARGNE CE1		    0
+EPARGNE CE2		    0
+EPARGNE CE3		    0
+EPARGNE CE4		    0
+EPARGNE CE5		    0
+TERME	CT1		    0
+TERME	CT2		    0
+TERME	CT3		    0
+
+15 lignes sélectionnées.
+
+============================================================
+D8. TESTS DES METHODES DANS DES BLOCS PL/SQL (VALUE)
+============================================================
+*** VALUE + nbCepargne + soldeTotal + afficheInterets ***
+Client 1 : nbCepargne = 2
+Client 1 : soldeTotal = 3348500
+Interets annuels du client 1 :
+CE1 : 3750
+CE5 : 15000
+TOTAL = 18750
+
+Procédure PL/SQL terminée avec succès.
+
+*** estTitulaire et estSignataire (BOOLEAN : PL/SQL seulement) ***
+CC7 estTitulaire(4)	 = TRUE
+CC7 estTitulaire(1)	 = FALSE
+CC7 estSignataire(2,D)	 = TRUE
+CC7 estSignataire(5,R)	 = TRUE
+CC7 estSignataire(5,D)	 = FALSE
+CC7 peutRetirer(4,-1000) = TRUE
+CC7 peutRetirer(5,-1000) = FALSE
+CC7 peutRetirer(6,-1000) = FALSE
+CC7 peutRetirer(4,-300000) = FALSE
+
+Procédure PL/SQL terminée avec succès.
+
+*** supprimeTel sur le client 4 (puis restauration) ***
+supprimeTel : indice 2 supprime, COUNT=2
+Apres supprimeTel : COUNT=2
+supprimeTel : aucun telephone a l indice 9.
+
+Procédure PL/SQL terminée avec succès.
+
+
+TELEPHONE
+--------------------
+034-98-76-54
+0771-22-33-44
+
+2 lignes sélectionnées.
+
+
+1 ligne mise à jour.
+
+
+Validation effectuée.
+
+*** supprimeTel sur le client 5 (un seul element) ***
+supprimeTel : telephone a l indice 2 non renseigne.
+
+Procédure PL/SQL terminée avec succès.
+
+*** supprimeSign : retrait du signataire 2 de CC7, puis restauration ***
+CC7 avant : 3 signataires
+supprimeSign : client 2 retire du compte CC7
+supprimeSign : client 999 inexistant.
+
+Procédure PL/SQL terminée avec succès.
+
+
+NUM_COMPTE NB_SIGNATAIRES
+---------- --------------
+CC7			2
+
+1 ligne sélectionnée.
+
+
+1 ligne créée.
+
+
+Validation effectuée.
+
+
+NUM_COMPTE NB_SIGNATAIRES
+---------- --------------
+CC7			3
+
+1 ligne sélectionnée.
+
+*** maj_statuts_dormants (test avec ROLLBACK) ***
+maj_statuts_dormants : 1 compte(s) passe(s) DORMANT.
+
+Procédure PL/SQL terminée avec succès.
+
+============================================================
+D9. TRIGGERS
+============================================================
+
+Déclencheur créé.
+
+Pas d'erreur.
+
+Déclencheur créé.
+
+Pas d'erreur.
+
+Déclencheur créé.
+
+Pas d'erreur.
+
+Déclencheur créé.
+
+Pas d'erreur.
+
+Déclencheur créé.
+
+Pas d'erreur.
+
+Déclencheur créé.
+
+Pas d'erreur.
+*** Triggers crees ***
+
+TRIGGER_NAME															 STATUS
+-------------------------------------------------------------------------------------------------------------------------------- --------
+TRG_AUDIT_DECOUVERT														 ENABLED
+TRG_AUDIT_TAUX															 ENABLED
+TRG_AUDIT_TAUX_TERME														 ENABLED
+TRG_CT_ECHEANCE 														 ENABLED
+TRG_OP_APRES															 ENABLED
+TRG_OP_AVANT															 ENABLED
+
+6 lignes sélectionnées.
+
+============================================================
+D9. TESTS DES TRIGGERS
+============================================================
+*** Test 1 : compte bloque CC5 (refus attendu) ***
+Refus attendu : ORA-20001: Compte CC5 non actif (statut BLOQUE) : operation refusee.
+ORA-06512: à "MASTER1.TRG_OP_AVANT", ligne 32
+ORA-04088: erreur lors d'exécution du déclencheur 'MASTER1.TRG_OP_AVANT'
+
+Procédure PL/SQL terminée avec succès.
+
+*** Test 2 : client sans droits sur CC1 (refus attendu) ***
+Refus attendu : ORA-20002: Client sans droit de debit sur le compte CC1.
+ORA-06512: à "MASTER1.TRG_OP_AVANT", ligne 50
+ORA-04088: erreur lors d'exécution du déclencheur 'MASTER1.TRG_OP_AVANT'
+
+Procédure PL/SQL terminée avec succès.
+
+*** Test 3 : signataire de droit R sur CC7 (refus attendu) ***
+Refus attendu : ORA-20002: Client sans droit de debit sur le compte CC7.
+ORA-06512: à "MASTER1.TRG_OP_AVANT", ligne 50
+ORA-04088: erreur lors d'exécution du déclencheur 'MASTER1.TRG_OP_AVANT'
+
+Procédure PL/SQL terminée avec succès.
+
+*** Test 4 : decouvert depasse sur CC3 (refus attendu) ***
+Refus attendu : ORA-20004: Decouvert autorise depasse sur CC3.
+ORA-06512: à "MASTER1.TRG_OP_AVANT", ligne 66
+ORA-04088: erreur lors d'exécution du déclencheur 'MASTER1.TRG_OP_AVANT'
+
+Procédure PL/SQL terminée avec succès.
+
+*** Test 5 : plafond journalier depasse sur CC4 (refus attendu) ***
+Refus attendu : ORA-20003: Plafond journalier de retrait (200000 DA) depasse sur CC4.
+ORA-06512: à "MASTER1.TRG_OP_AVANT", ligne 59
+ORA-04088: erreur lors d'exécution du déclencheur 'MASTER1.TRG_OP_AVANT'
+
+Procédure PL/SQL terminée avec succès.
+
+*** Test 6 : signataire D autorise sur CC7 (succes attendu) ***
+CC7 solde 185000 -> 184000
+
+Procédure PL/SQL terminée avec succès.
+
+*** Test 7 : signataire X autorise sur CC4 (succes attendu) ***
+CC4 solde 325000 -> 324000
+
+Procédure PL/SQL terminée avec succès.
+
+*** Test 8 : AFTER INSERT, solde et compteur CB sur CC6 ***
+CC6 avant : solde=40000 nb_op_cb=0
+CC6 apres : solde=39000 nb_op_cb=1
+
+Procédure PL/SQL terminée avec succès.
+
+*** Test 9 : alerte SOLDE_NEGATIF sur CC6 ***
+Alertes SOLDE_NEGATIF pour CC6 = 1
+
+Procédure PL/SQL terminée avec succès.
+
+*** Test 10 : alerte OPERATION_SUSPECTE sur CC1 ***
+Alertes OPERATION_SUSPECTE pour CC1 = 1
+
+Procédure PL/SQL terminée avec succès.
+
+*** Test 11 : trigger echeance proche (CT99, J+3) ***
+Alertes ECHEANCE_PROCHE pour CT99 = 1
+
+Procédure PL/SQL terminée avec succès.
+
+*** Test 12 : trigger echeance depassee (CT98, J-1) ***
+Alertes ECHEANCE_DEPASSEE pour CT98 = 1
+
+Procédure PL/SQL terminée avec succès.
+
+*** Test 13 : audit du taux d interet (CE1) ***
+
+1 ligne mise à jour.
+
+
+  ID_AUDIT NOM_TABLE			  NOM_COLONNE			 NUM_COMPTE ANCIENNE_VALEUR NOUVELLE_VALEUR UTILISATEUR
+---------- ------------------------------ ------------------------------ ---------- --------------- --------------- ------------------------------
+	 1 CPT_EPARGNE			  TAUX_INTERET			 CE1			2,5		2,6 MASTER1
+
+1 ligne sélectionnée.
+
+
+Annulation (rollback) effectuée.
+
+*** Test 14 : audit du decouvert (CC1) ***
+
+1 ligne mise à jour.
+
+
+  ID_AUDIT NOM_TABLE			  NOM_COLONNE			 NUM_COMPTE ANCIENNE_VALEUR NOUVELLE_VALEUR UTILISATEUR
+---------- ------------------------------ ------------------------------ ---------- --------------- --------------- ------------------------------
+	 2 CPT_COURANT			  DECOUVERT			 CC1		      50000	      60000 MASTER1
+
+1 ligne sélectionnée.
+
+
+Annulation (rollback) effectuée.
+
+*** Test 15 : audit du taux garanti (CT1) ***
+
+1 ligne mise à jour.
+
+
+  ID_AUDIT NOM_TABLE			  NOM_COLONNE			 NUM_COMPTE ANCIENNE_VALEUR NOUVELLE_VALEUR UTILISATEUR
+---------- ------------------------------ ------------------------------ ---------- --------------- --------------- ------------------------------
+	 3 CPT_TERME			  TAUX_GARANTI			 CT1			3,2		3,3 MASTER1
+
+1 ligne sélectionnée.
+
+
+Annulation (rollback) effectuée.
+
+*** Test 16 : balayage des echeances existantes (COMMIT) ***
+scan_echeances : traitement termine.
+
+Procédure PL/SQL terminée avec succès.
+
+
+ ID_ALERTE TYPE_ALERTE			  NUM_COMPTE
+---------- ------------------------------ ----------
+MESSAGE
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	 5 ECHEANCE_PROCHE		  CT2
+Echeance du compte CT2 dans 5 jour(s).
+
+	 6 ECHEANCE_DEPASSEE		  CT3
+Echeance du compte CT3 depassee de 20 jour(s).
+
+
+2 lignes sélectionnées.
+
+============================================================
+D8i. TESTS DE passeMvt (APRES LES TRIGGERS)
+============================================================
+*** passeMvt : titulaire, credit +10000 sur CC7 (client 4) ***
+passeMvt OK : compte CC7 montant 10000
+CC7 solde 185000 -> 195000
+
+Procédure PL/SQL terminée avec succès.
+
+*** passeMvt : signataire D, debit -5000 sur CC7 (client 2) ***
+passeMvt OK : compte CC7 montant -5000
+CC7 solde 185000 -> 180000
+
+Procédure PL/SQL terminée avec succès.
+
+*** passeMvt : signataire X, debit -5000 sur CC4 (client 3) ***
+passeMvt OK : compte CC4 montant -5000
+CC4 solde 325000 -> 320000
+
+Procédure PL/SQL terminée avec succès.
+
+*** passeMvt : signataire R, debit -5000 sur CC7 (client 5, refus) ***
+passeMvt REFUS : droits, decouvert ou plafond journalier insuffisant.
+
+Procédure PL/SQL terminée avec succès.
+
+*** passeMvt : non-signataire, debit -5000 sur CC7 (client 6, refus) ***
+passeMvt REFUS : droits, decouvert ou plafond journalier insuffisant.
+
+Procédure PL/SQL terminée avec succès.
+
+*** passeMvt : client inconnu 999 sur CC7 (refus) ***
+passeMvt : client 999 ou compte inexistant.
+
+Procédure PL/SQL terminée avec succès.
+
+*** passeMvt : decouvert depasse sur CC3 (client 3, refus) ***
+passeMvt REFUS : droits, decouvert ou plafond journalier insuffisant.
+
+Procédure PL/SQL terminée avec succès.
+
+*** passeMvt : plafond journalier depasse sur CC4 (client 4, refus) ***
+passeMvt REFUS : droits, decouvert ou plafond journalier insuffisant.
+
+Procédure PL/SQL terminée avec succès.
+
+============================================================
+D1.5. TESTS DE virement
+============================================================
+*** virement CC4 -> CC7 de 1000 DA (client 4) ***
+Avant : CC4=325000 CC7=185000
+virement OK : 1000 DA de CC4 vers CC7 (commission=0)
+Apres : CC4=324000 CC7=186000
+
+Procédure PL/SQL terminée avec succès.
+
+*** virement atomique refuse CC3 -> CC4 de 60000 DA ***
+CC4 avant = 325000
+virement ANNULE : ORA-20004: Decouvert autorise depasse sur CC3.
+CC4 apres = 325000 (doit etre inchange)
+
+Procédure PL/SQL terminée avec succès.
+
+*** virement inter-agences CC4 (A1) -> CC3 (A3), commission 1 % ***
+Avant : CC4=325000 CC3=38000
+virement OK : 1000 DA de CC4 vers CC3 (commission=100)
+Apres : CC4=323900 CC3=39000 (commission 100 attendue)
+
+Procédure PL/SQL terminée avec succès.
+
+============================================================
+D8n. TESTS DE fermeCompte (DESTRUCTIFS, EN DERNIER)
+============================================================
+*** fermeCompte CE4 ***
+
+NUM_COMPTE	SOLDE
+---------- ----------
+CE4	       320000
+
+1 ligne sélectionnée.
+
+fermeCompte : compte epargne CE4 - solde avant = 320000
+fermeCompte : compte CE4 ferme (COMMIT).
+
+Procédure PL/SQL terminée avec succès.
+
+
+CE4_RESTANT
+-----------
+	  0
+
+1 ligne sélectionnée.
+
+*** fermeCompte CC1 ***
+
+OPERATIONS_CC1
+--------------
+	     5
+
+1 ligne sélectionnée.
+
+fermeCompte : compte courant CC1 - solde avant = 2498500
+fermeCompte : compte CC1 ferme (COMMIT).
+
+Procédure PL/SQL terminée avec succès.
+
+
+CC1_RESTANT
+-----------
+	  0
+
+1 ligne sélectionnée.
+
+
+OPERATIONS_CC1_RESTANTS
+-----------------------
+		      0
+
+1 ligne sélectionnée.
+
+*** fermeCompte : comptes inexistants ***
+fermeCompte : compte CE9 inexistant.
+
+Procédure PL/SQL terminée avec succès.
+
+fermeCompte : compte XX1 inexistant.
+
+Procédure PL/SQL terminée avec succès.
+
+============================================================
+D. ETAT FINAL ET CONTROLES
+============================================================
+*** Recompilation des sous-programmes dependants ***
+
+Procédure modifiée.
+
+
+Procédure modifiée.
+
+
+Procédure modifiée.
+
+
+Procédure modifiée.
+
+
+Procédure modifiée.
+
+
+Procédure modifiée.
+
+
+Fonction modifiée.
+
+
+Fonction modifiée.
+
+
+Fonction modifiée.
+
+Pas d'erreur.
+Pas d'erreur.
+Pas d'erreur.
+Pas d'erreur.
+Pas d'erreur.
+Pas d'erreur.
+Pas d'erreur.
+Pas d'erreur.
+Pas d'erreur.
+*** Objets invalides eventuels ***
+
+aucune ligne sélectionnée
+
+*** Etat final des donnees ***
+
+OBJET		     NB
+------------ ----------
+CLIENTS 	      6
+CONSEILLERS	      4
+AGENCES 	      3
+AFFECTATIONS	      5
+CC		      6
+CE		      4
+CT		      3
+OPERATIONS	     15
+SIGNATAIRES	      9
+ALERTES 	      2
+AUDIT		      0
+
+11 lignes sélectionnées.
+
+*** Alertes presentes ***
+
+ ID_ALERTE TYPE_ALERTE			  NUM_COMPTE
+---------- ------------------------------ ----------
+MESSAGE
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	 5 ECHEANCE_PROCHE		  CT2
+Echeance du compte CT2 dans 5 jour(s).
+
+	 6 ECHEANCE_DEPASSEE		  CT3
+Echeance du compte CT3 depassee de 20 jour(s).
+
+
+2 lignes sélectionnées.
+
+*** Soldes finaux des comptes courants restants ***
+
+NUM_COMPTE	SOLDE	NB_OP_CB STATUT
+---------- ---------- ---------- ----------
+CC2	       -50000	       0 ACTIF
+CC3		38000	       1 ACTIF
+CC4	       325000	       1 ACTIF
+CC5		    0	       0 BLOQUE
+CC6		40000	       0 ACTIF
+CC7	       185000	       1 ACTIF
+
+6 lignes sélectionnées.
+
+*** Soldes finaux des comptes d epargne restants ***
+
+NUM_COMPTE	SOLDE TAUX_INTERET
+---------- ---------- ------------
+CE1	       150000	       2,5
+CE2	       250000	      3,49
+CE3		80000	      1,75
+CE5	       500000		 3
+
+4 lignes sélectionnées.
+
+============================================================
+FIN PARTIE D
+============================================================
+############################################################
+# PARTIE_E_OBJET_AVANCE.SQL
+############################################################
+============================================================
+E10. TYPE RECURSIF : PARRAINAGE
+============================================================
+
+1 ligne mise à jour.
+
+
+1 ligne mise à jour.
+
+
+1 ligne mise à jour.
+
+
+Validation effectuée.
+
+
+NUM_CLIENT NOM		   NOM_PARRAIN	   NOM_GRAND_PARRAIN
+---------- --------------- --------------- --------------------
+	 2 BENALI	   AMRANI
+	 3 CHERIF	   AMRANI
+	 4 DJEBBAR	   AMRANI
+	 5 HADDAD	   BENALI	   AMRANI
+	 6 ZERROUKI	   CHERIF	   AMRANI
+
+5 lignes sélectionnées.
+
+============================================================
+E11. COLLECTION MULTI-NIVEAUX : RELEVES MENSUELS
+============================================================
+
+0 lignes supprimées.
+
+
+1 ligne créée.
+
+
+Validation effectuée.
+
+
+     ANNEE    NB_MOIS
+---------- ----------
+      2026	    4
+
+1 ligne sélectionnée.
+
+VARRAY : 4 -> 5 mois
+Nested table du mois 5 : 3 types
+
+Procédure PL/SQL terminée avec succès.
+
+
+TYPE_OP      NB_TOTAL MONTANT_TOTAL
+---------- ---------- -------------
+DEPOT		   13	     880000
+RETRAIT 	   32	     620000
+VIREMENT	    3	     130000
+CB		    2	      35000
+
+4 lignes sélectionnées.
+
+============================================================
+E12. VUE OBJET AGENCE_VOR ET METHODE MUTATION
+============================================================
+
+Procédure PL/SQL terminée avec succès.
+
+
+Procédure PL/SQL terminée avec succès.
+
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Corps de type créé.
+
+Pas d'erreur.
+
+Vue créée.
+
+Pas d'erreur.
+
+AGENCE NUM_CONSEILLER CONSEILLER	   PRENOM
+------ -------------- -------------------- ------------
+A1		    1 BENALI		   Karim
+A2		    2 HAMDI		   Sara
+A2		    4 KACI		   Nadia
+A3		    3 TOUATI		   Yacine
+
+4 lignes sélectionnées.
+
+
+AGENCE NUM_COMPTE      SOLDE STATUT
+------ ---------- ---------- ----------
+A1     CC4	      325000 ACTIF
+A1     CC7	      185000 ACTIF
+A2     CC2	      -50000 ACTIF
+A2     CC5		   0 BLOQUE
+A3     CC3	       38000 ACTIF
+A3     CC6	       40000 ACTIF
+
+6 lignes sélectionnées.
+
+
+AGENCE CONSEILLER	    DATE_DEBUT
+------ -------------------- ----------
+A1     BENALI		    01/03/2015
+A2     HAMDI		    15/09/2018
+A2     KACI		    01/01/2024
+A3     TOUATI		    10/01/2020
+
+4 lignes sélectionnées.
+
+
+CODE   NOM	       NB_CONSEILLERS NB_COMPTES
+------ --------------- -------------- ----------
+A1     Agence Bejaia C		    1	       2
+       entre
+
+A2     Agence Alger Gr		    2	       2
+       ande Poste
+
+A3     Agence Oran Fro		    1	       2
+       nt de Mer
+
+
+3 lignes sélectionnées.
+
+
+CODE   NB_CONSEILLERS
+------ --------------
+A1		    1
+A2		    2
+A3		    1
+
+3 lignes sélectionnées.
+
+Information : le conseiller 4 n'est pas responsable de l'agence A2.
+Mutation effectuee : conseiller 4 de A2 vers A3.
+
+Procédure PL/SQL terminée avec succès.
+
+
+CODE   NB_CONSEILLERS
+------ --------------
+A1		    1
+A2		    1
+A3		    2
+
+3 lignes sélectionnées.
+
+ALERTE : le conseiller 1 est responsable de l'agence A1 qu'il quitte.
+Mutation effectuee : conseiller 1 de A1 vers A2.
+
+Procédure PL/SQL terminée avec succès.
+
+
+CODE   NB_CONSEILLERS
+------ --------------
+A1		    0
+A2		    2
+A3		    2
+
+3 lignes sélectionnées.
+
+Information : le conseiller 1 n'est pas responsable de l'agence A2.
+Mutation effectuee : conseiller 1 de A2 vers A1.
+
+Procédure PL/SQL terminée avec succès.
+
+Information : le conseiller 4 n'est pas responsable de l'agence A3.
+Mutation effectuee : conseiller 4 de A3 vers A2.
+
+Procédure PL/SQL terminée avec succès.
+
+
+CODE   NB_CONSEILLERS
+------ --------------
+A1		    1
+A2		    2
+A3		    1
+
+3 lignes sélectionnées.
+
+DECLARE
+*
+ERREUR à la ligne 1 :
+ORA-20010: Le conseiller 1 n'est pas en poste dans l'agence A3
+ORA-06512: à "MASTER1.AGENCE_VOR_TYPE", ligne 25
+ORA-06512: à ligne 5
+
+
+DECLARE
+*
+ERREUR à la ligne 1 :
+ORA-20011: Conseiller ou agence introuvable.
+ORA-06512: à "MASTER1.AGENCE_VOR_TYPE", ligne 56
+ORA-06512: à ligne 5
+
+
+DECLARE
+*
+ERREUR à la ligne 1 :
+ORA-20011: Conseiller ou agence introuvable.
+ORA-06512: à "MASTER1.AGENCE_VOR_TYPE", ligne 56
+ORA-06512: à ligne 5
+
+
+############################################################
+# CONTROLE FINAL
+############################################################
+*** Objets invalides (aucune ligne attendue) ***
+
+aucune ligne sélectionnée
+
+*** Nombre d objets par categorie ***
+
+OBJECT_TYPE		     NB
+-------------------- ----------
+FUNCTION		      3
+INDEX			     21
+LOB			      1
+PROCEDURE		      6
+SEQUENCE		      4
+TABLE			     12
+TRIGGER 		      6
+TYPE			     26
+TYPE BODY		      6
+VIEW			      1
+
+10 lignes sélectionnées.
+
+============================================================
+FIN DU SCRIPT UNIQUE - PARTIES A A E
+============================================================

@@ -153,6 +153,9 @@ CREATE OR REPLACE PROCEDURE virement (
   v_ref_src  REF cptCourant_type;
   v_ref_dest REF cptCourant_type;
   v_ref_cli  REF client_type;
+  v_ag_src   VARCHAR2(6);
+  v_ag_dest  VARCHAR2(6);
+  v_comm     NUMBER(12,2) := 0;
 BEGIN
   SAVEPOINT av_virement;
 
@@ -170,18 +173,29 @@ BEGIN
   SELECT REF(c) INTO v_ref_cli
     FROM client c WHERE c.num_client = cli;
 
+  -- Regle de gestion : virement inter-agences = 1 % du montant, minimum 100 DA.
+  SELECT x.ref_agence.code INTO v_ag_src
+    FROM cpt_courant x WHERE x.num_compte = cptsrc;
+  SELECT x.ref_agence.code INTO v_ag_dest
+    FROM cpt_courant x WHERE x.num_compte = cptdest;
+  IF v_ag_src <> v_ag_dest THEN
+    v_comm := GREATEST(ROUND(montant * 0.01, 2), 100);
+  END IF;
+
+  -- Debit : montant negatif + commission prelevee sur le compte source.
   INSERT INTO operation (id_op, ref_client, ref_compte, date_op,
                          montant, type_op, commission)
   VALUES (seq_operation.NEXTVAL, v_ref_cli, v_ref_src, TRUNC(SYSDATE),
-          -montant, 'VIREMENT', 0);
+          -montant, 'VIREMENT', v_comm);
 
+  -- Credit : montant positif, sans commission sur le compte destination.
   INSERT INTO operation (id_op, ref_client, ref_compte, date_op,
                          montant, type_op, commission)
   VALUES (seq_operation.NEXTVAL, v_ref_cli, v_ref_dest, TRUNC(SYSDATE),
           montant, 'VIREMENT', 0);
 
   DBMS_OUTPUT.PUT_LINE('virement OK : '||montant||' DA de '||cptsrc
-                       ||' vers '||cptdest);
+                       ||' vers '||cptdest||' (commission='||v_comm||')');
 EXCEPTION
   WHEN OTHERS THEN
     ROLLBACK TO av_virement;
@@ -793,7 +807,8 @@ CREATE OR REPLACE TYPE BODY cptCourant_type AS
     e_refus      EXCEPTION;
   BEGIN
     IF somme = 0 THEN
-      RAISE_APPLICATION_ERROR(-20010, 'Montant nul interdit.');
+      -- Code distinct de ORA-20010 (mutation) pour eviter toute ambiguite.
+      RAISE_APPLICATION_ERROR(-20030, 'Montant nul interdit.');
     END IF;
 
     v_num := SELF.num_compte;
@@ -1785,6 +1800,26 @@ BEGIN
 
   SELECT solde INTO v_cc4_apres FROM cpt_courant WHERE num_compte = 'CC4';
   DBMS_OUTPUT.PUT_LINE('CC4 apres = '||v_cc4_apres||' (doit etre inchange)');
+  ROLLBACK;
+END;
+/
+
+PROMPT *** virement inter-agences CC4 (A1) -> CC3 (A3), commission 1 % ***
+DECLARE
+  v_cc4 NUMBER;
+  v_cc3 NUMBER;
+BEGIN
+  SELECT solde INTO v_cc4 FROM cpt_courant WHERE num_compte = 'CC4';
+  SELECT solde INTO v_cc3 FROM cpt_courant WHERE num_compte = 'CC3';
+  DBMS_OUTPUT.PUT_LINE('Avant : CC4='||v_cc4||' CC3='||v_cc3);
+
+  -- Client 3 : signataire X de CC4 (debit autorise) et titulaire de CC3.
+  virement('CC4', 'CC3', 1000, 3);
+
+  SELECT solde INTO v_cc4 FROM cpt_courant WHERE num_compte = 'CC4';
+  SELECT solde INTO v_cc3 FROM cpt_courant WHERE num_compte = 'CC3';
+  DBMS_OUTPUT.PUT_LINE('Apres : CC4='||v_cc4||' CC3='||v_cc3
+    ||' (commission 100 attendue)');
   ROLLBACK;
 END;
 /

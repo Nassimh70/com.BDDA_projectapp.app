@@ -1,0 +1,94 @@
+*** COUNTS ***
+
+OBJET			 NB
+---------------- ----------
+clients 		  6
+conseillers		  4
+agences 		  3
+affectations		  9
+comptes_courants	  6
+comptes_epargne 	  4
+comptes_terme		  3
+operations		 15
+signataires		  9
+alertes 		  2
+audit			  0
+releves 		  1
+
+12 lignes sÚlectionnÚes.
+
+*** CLIENTS ***
+
+NUM_CLIENT NOM		PRENOM	     VILLE					    CONS    PARRAIN
+---------- ------------ ------------ ---------------------------------------- ---------- ----------
+	 1 AMRANI	Ali	     Bejaia					       1
+	 2 BENALI	Samia	     Alger					       2	  1
+	 3 CHERIF	Mohamed      Oran					       3	  1
+	 4 DJEBBAR	Lina	     Bejaia					       1	  1
+	 5 HADDAD	Omar	     Alger					       2	  2
+	 6 ZERROUKI	Nour	     Oran					       3	  3
+
+6 lignes sÚlectionnÚes.
+
+*** CC ***
+
+NUM_COMP      SOLDE STATUT	    CLI AG	DECOUVERT   NB_OP_CB	 NB_SIG
+-------- ---------- -------- ---------- ------ ---------- ---------- ----------
+CC2	     -50000 ACTIF	      2 A2	    50000	   0	      1
+CC3	      38000 ACTIF	      3 A3	    20000	   1	      2
+CC4	     325000 ACTIF	      4 A1	   100000	   1	      3
+CC5		  0 BLOQUE	      5 A2		0	   0	      0
+CC6	      40000 ACTIF	      6 A3	    30000	   0	      0
+CC7	     185000 ACTIF	      4 A1	    75000	   1	      3
+
+6 lignes sÚlectionnÚes.
+
+*** CE ***
+
+NUM_COMP      SOLDE STATUT	    CLI AG     TAUX_INTERET PLAFOND_DEPOT
+-------- ---------- -------- ---------- ------ ------------ -------------
+CE1	     150000 ACTIF	      1 A1		2,5	   500000
+CE2	     250000 ACTIF	      2 A2	       3,49	  1000000
+CE3	      80000 ACTIF	      3 A3	       1,75	   300000
+CE5	     500000 ACTIF	      1 A2		  3	  2000000
+
+*** CT ***
+
+NUM_COMP      SOLDE STATUT	    CLI AG     MONTANT_BLOQUE DUREE_MOIS ECHEANCE   TAUX_GARANTI
+-------- ---------- -------- ---------- ------ -------------- ---------- ---------- ------------
+CT1	     200000 ACTIF	      1 A1	       200000	      12 02/12/2026	     3,2
+CT2	     100000 ACTIF	      2 A2	       100000	       6 17/11/2026	     2,8
+CT3	      50000 ACTIF	      3 A3		50000	      12 23/10/2026	       3
+
+*** OPS PAR TYPE ***
+
+TYPE_OP 	   NB	   TOTAL
+---------- ---------- ----------
+CB		    3	  -52000
+DEPOT		    4	  940000
+RETRAIT 	    7	 -500000
+VIREMENT	    1	  150000
+
+*** ALERTES ***
+
+ ID_ALERTE TYPE_ALERTE		  NUM_COMP T
+---------- ---------------------- -------- -
+	 5 ECHEANCE_PROCHE	  CT2	   N
+	 6 ECHEANCE_DEPASSEE	  CT3	   N
+
+*** RELEVES ***
+  FROM releves GROUP BY ref_client.num_client, annee ORDER BY cli, annee
+                        *
+ERREUR Ó la ligne 2 :
+ORA-00904: "REF_CLIENT"."NUM_CLIENT" : identificateur non valide
+
+
+*** AFFECTATIONS OUVERTES ***
+
+      CONS AG	  DEBUT
+---------- ------ ----------
+	 1 A1	  12/11/2026
+	 2 A2	  15/09/2018
+	 3 A3	  10/01/2020
+	 4 A2	  12/11/2026
+

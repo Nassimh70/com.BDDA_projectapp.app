@@ -1,0 +1,208 @@
+============================================================
+E10. TYPE RECURSIF : PARRAINAGE
+============================================================
+
+1 ligne mise à jour.
+
+
+1 ligne mise à jour.
+
+
+1 ligne mise à jour.
+
+
+Validation effectuée.
+
+
+NUM_CLIENT NOM		   NOM_PARRAIN	   NOM_GRAND_PARRAIN
+---------- --------------- --------------- --------------------
+	 2 BENALI	   AMRANI
+	 3 CHERIF	   AMRANI
+	 4 DJEBBAR	   AMRANI
+	 5 HADDAD	   BENALI	   AMRANI
+	 6 ZERROUKI	   CHERIF	   AMRANI
+
+5 lignes sélectionnées.
+
+============================================================
+E11. COLLECTION MULTI-NIVEAUX : RELEVES MENSUELS
+============================================================
+
+1 ligne supprimée.
+
+
+1 ligne créée.
+
+
+Validation effectuée.
+
+
+     ANNEE    NB_MOIS
+---------- ----------
+      2026	    4
+
+1 ligne sélectionnée.
+
+VARRAY : 4 -> 5 mois
+Nested table du mois 5 : 3 types
+
+Procédure PL/SQL terminée avec succès.
+
+
+TYPE_OP      NB_TOTAL MONTANT_TOTAL
+---------- ---------- -------------
+DEPOT		   13	     880000
+RETRAIT 	   32	     620000
+VIREMENT	    3	     130000
+CB		    2	      35000
+
+4 lignes sélectionnées.
+
+============================================================
+E12. VUE OBJET AGENCE_VOR ET METHODE MUTATION
+============================================================
+
+Procédure PL/SQL terminée avec succès.
+
+
+Procédure PL/SQL terminée avec succès.
+
+
+Procédure PL/SQL terminée avec succès.
+
+Pas d'erreur.
+
+Corps de type créé.
+
+Pas d'erreur.
+
+Vue créée.
+
+Pas d'erreur.
+
+AGENCE NUM_CONSEILLER CONSEILLER	   PRENOM
+------ -------------- -------------------- ------------------------------
+A1		    1 BENALI		   Karim
+A2		    2 HAMDI		   Sara
+A2		    4 KACI		   Nadia
+A3		    3 TOUATI		   Yacine
+
+4 lignes sélectionnées.
+
+
+AGENCE NUM_COMPTE      SOLDE STATUT
+------ ---------- ---------- ----------
+A1     CC4	      325000 ACTIF
+A1     CC7	      185000 ACTIF
+A2     CC2	      -50000 ACTIF
+A2     CC5		   0 BLOQUE
+A3     CC3	       38000 ACTIF
+A3     CC6	       40000 ACTIF
+
+6 lignes sélectionnées.
+
+
+AGENCE CONSEILLER	    DATE_DEB
+------ -------------------- --------
+A1     BENALI		    10/11/26
+A2     HAMDI		    15/09/18
+A2     KACI		    10/11/26
+A3     TOUATI		    10/01/20
+
+4 lignes sélectionnées.
+
+
+CODE   NOM	       NB_CONSEILLERS NB_COMPTES
+------ --------------- -------------- ----------
+A1     Agence Bejaia C		    1	       2
+       entre
+
+A2     Agence Alger Gr		    2	       2
+       ande Poste
+
+A3     Agence Oran Fro		    1	       2
+       nt de Mer
+
+
+3 lignes sélectionnées.
+
+
+CODE   NB_CONSEILLERS
+------ --------------
+A1		    1
+A2		    2
+A3		    1
+
+3 lignes sélectionnées.
+
+Information : le conseiller 4 n'est pas responsable de l'agence A2.
+Mutation effectuee : conseiller 4 de A2 vers A3.
+
+Procédure PL/SQL terminée avec succès.
+
+
+CODE   NB_CONSEILLERS
+------ --------------
+A1		    1
+A2		    1
+A3		    2
+
+3 lignes sélectionnées.
+
+ALERTE : le conseiller 1 est responsable de l'agence A1 qu'il quitte.
+Mutation effectuee : conseiller 1 de A1 vers A2.
+
+Procédure PL/SQL terminée avec succès.
+
+
+CODE   NB_CONSEILLERS
+------ --------------
+A1		    0
+A2		    2
+A3		    2
+
+3 lignes sélectionnées.
+
+Information : le conseiller 1 n'est pas responsable de l'agence A2.
+Mutation effectuee : conseiller 1 de A2 vers A1.
+
+Procédure PL/SQL terminée avec succès.
+
+Information : le conseiller 4 n'est pas responsable de l'agence A3.
+Mutation effectuee : conseiller 4 de A3 vers A2.
+
+Procédure PL/SQL terminée avec succès.
+
+
+CODE   NB_CONSEILLERS
+------ --------------
+A1		    1
+A2		    2
+A3		    1
+
+3 lignes sélectionnées.
+
+DECLARE
+*
+ERREUR à la ligne 1 :
+ORA-20010: Le conseiller 1 n'est pas en poste dans l'agence A3
+ORA-06512: à "MASTER1.AGENCE_VOR_TYPE", ligne 25
+ORA-06512: à ligne 5
+
+
+DECLARE
+*
+ERREUR à la ligne 1 :
+ORA-20011: Conseiller ou agence introuvable.
+ORA-06512: à "MASTER1.AGENCE_VOR_TYPE", ligne 56
+ORA-06512: à ligne 5
+
+
+DECLARE
+*
+ERREUR à la ligne 1 :
+ORA-20011: Conseiller ou agence introuvable.
+ORA-06512: à "MASTER1.AGENCE_VOR_TYPE", ligne 56
+ORA-06512: à ligne 5
+
+

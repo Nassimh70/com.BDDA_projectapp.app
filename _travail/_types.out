@@ -1,0 +1,25 @@
+
+TYPE_NAME			    TYPECODE
+----------------------------------- --------------------------------------------------------------------------------------------------------------------------------
+ADRESSE_TYPE			    OBJECT
+AGENCE_TYPE			    OBJECT
+AGENCE_VOR_TYPE 		    OBJECT
+CLIENT_TYPE			    OBJECT
+COMPTE_TYPE			    OBJECT
+CONSEILLER_NT_TYPE		    COLLECTION
+CONSEILLER_TYPE 		    OBJECT
+CPTCOURANT_NT_TYPE		    COLLECTION
+CPTCOURANT_TYPE 		    OBJECT
+CPTEPARGNE_TYPE 		    OBJECT
+CPTTERME_TYPE			    OBJECT
+MOIS_ELT_VRY_TYPE		    OBJECT
+MOIS_VRY_TYPE			    COLLECTION
+OPERATION_TYPE			    OBJECT
+SIGNATAIRE_ELT_NT_TYPE		    OBJECT
+SIGNATAIRE_NT_TYPE		    COLLECTION
+TEL_VRY_TYPE			    COLLECTION
+TYPE_STAT_ELT_NT_TYPE		    OBJECT
+TYPE_STAT_NT_TYPE		    COLLECTION
+
+19 lignes sÚlectionnÚes.
+

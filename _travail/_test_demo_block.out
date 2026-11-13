@@ -1,0 +1,10 @@
+Refus attendu : ORA-20001: Compte CC5 non actif (statut BLOQUE) : operation refusee.
+ORA-06512: Ó "MASTER1.TRG_OP_AVANT", ligne 32
+ORA-04088: erreur lors d'exÚcution du dÚclencheur
+'MASTER1.TRG_OP_AVANT'
+
+ProcÚdure PL/SQL terminÚe avec succÞs.
+
+
+Annulation (rollback) effectuÚe.
+
