@@ -1,0 +1,200 @@
+% =====================================================================
+% 01_introduction.tex — introduction générale
+% =====================================================================
+\chapter{Introduction générale}
+\label{chap:introduction}
+
+\section{Contexte et motivation}
+
+Les systèmes d'information bancaires figurent parmi les applications les plus
+exigeantes en matière de modélisation, de contraintes d'intégrité et de
+traçabilité. Une banque ne gère pas seulement des soldes : elle doit identifier
+ses clients, suivre les conseillers et les agences, distinguer plusieurs
+catégories de comptes, enregistrer les opérations, contrôler les droits des
+signataires, appliquer des plafonds et des découverts, alerter sur les
+échéances et conserver un historique des modifications sensibles. Le sujet du
+module \module{} de la formation \formation{} demande précisément de concevoir
+et d'implémenter un tel système sous Oracle, en exploitant les mécanismes du
+modèle relationnel-objet \cite{sujetBDDA}.
+
+Le projet ne se limite donc pas à une série de tables et de requêtes. Il doit
+démontrer la maîtrise des types objet, de l'héritage, des références
+\code{REF}, des collections \code{VARRAY} et \emph{nested tables}, des méthodes
+membres et statiques, du polymorphisme, des types récursifs, des triggers et
+des vues objet. Ces mécanismes sont imposés par le sujet et constituent le
+cœur de l'évaluation. Le rapport présente la démarche suivie, les choix de
+conception, les scripts réalisés, les résultats obtenus et les limites du
+modèle.
+
+\section{Problématique et objectifs}
+
+La problématique générale peut être formulée ainsi : comment représenter, dans
+une base Oracle, un domaine bancaire suffisamment riche pour illustrer les
+apports du relationnel-objet, tout en garantissant les règles de gestion et la
+cohérence des données ? Cette problématique se décompose en plusieurs
+questions techniques :
+
+\begin{itemize}
+  \item comment modéliser une hiérarchie de comptes sans autoriser de compte
+        générique, tout en conservant un traitement polymorphe des frais de
+        tenue ;
+  \item comment relier les objets par des références \code{REF} tout en
+        maintenant l'intégrité référentielle, y compris pour un parrainage
+        récursif ;
+  \item comment stocker des collections de taille variable ou bornée
+        (téléphones, signataires, statistiques mensuelles) et les interroger
+        avec SQL ;
+  \item comment centraliser les règles de sécurité dans des triggers sans
+        provoquer d'erreur de table mutante ;
+  \item comment exposer une vue objet qui agrège des conseillers et des
+        comptes, et qui propose une méthode de mutation ;
+  \item comment rendre l'ensemble rejouable, vérifiable et démontrable en
+        soutenance.
+\end{itemize}
+
+Les objectifs du projet sont les suivants :
+
+\begin{enumerate}
+  \item produire un diagramme de classes UML complet et cohérent avec le
+        sujet ;
+  \item créer un utilisateur dédié, les types, les tables, les contraintes,
+        les séquences et un jeu de données représentatif ;
+  \item réaliser les manipulations de données demandées, notamment celles
+        qui illustrent les contraintes différées et les collections ;
+  \item écrire les requêtes SQL de la partie C, en particulier celles qui
+        déréférencent des objets et interrogent des collections ;
+  \item programmer les sous-programmes, méthodes et triggers de la partie D ;
+  \item mettre en œuvre le type récursif, la collection multi-niveaux et la
+        vue objet de la partie E ;
+  \item valider le tout par un rejeu complet et documenter les résultats.
+\end{enumerate}
+
+\section{Périmètre fonctionnel et technique}
+
+Le périmètre fonctionnel couvre les trois volets du sujet : les clients, les
+conseillers et les agences ; les comptes et leurs opérations ; la
+programmation et les fonctionnalités objet avancées. Les entités principales
+sont les agences, les conseillers, les clients, les comptes courants, les
+comptes d'épargne, les comptes à terme, les opérations, les alertes, l'audit,
+les affectations et les relevés mensuels.
+
+Le périmètre technique est volontairement limité à Oracle Database 21c
+Express Edition, à la base enfichable \code{XEPDB1} et à l'utilisateur
+\code{MASTER1}. Les scripts sont exécutés avec SQL*Plus. Aucune interface
+graphique n'est développée : l'évaluation porte sur le schéma, le code SQL et
+PL/SQL, les triggers et les objets. Cette limitation est assumée et discutée
+dans les perspectives.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Environnement technique du projet.}
+  \label{tab:environnement}
+  \begin{tabularx}{\textwidth}{@{}L{4.2cm}X@{}}
+    \toprule
+    \entete{Élément} & \entete{Configuration retenue} \\
+    \midrule
+    SGBD & Oracle Database 21c Express Edition \\
+    Base enfichable & \code{XEPDB1} \\
+    Utilisateur applicatif & \code{MASTER1} \\
+    Connexion & \code{sqlplus MASTER1/system@localhost:1521/XEPDB1} \\
+    Langage procédural & PL/SQL \\
+    Outil en ligne de commande & SQL*Plus \\
+    Modélisation & UML, source PlantUML et Mermaid \\
+    Versionnement & scripts SQL séparés par partie, plus un script unique \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Démarche méthodologique}
+
+Le projet a été conduit selon une démarche en sept étapes, inspirée de la
+méthode de conception d'une base de données. Cette démarche a guidé la
+production des livrables et la vérification progressive des résultats.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Démarche de réalisation en sept étapes.}
+  \label{tab:demarche}
+  \begin{tabularx}{\textwidth}{@{}C{0.8cm}L{3.2cm}X@{}}
+    \toprule
+    \entete{\#} & \entete{Étape} & \entete{Contenu principal} \\
+    \midrule
+    0 & Cadrage & Compréhension du sujet, hypothèses, choix de conception et plan de travail. \\
+    1 & Conception & Diagramme de classes UML complet, avec héritage, associations, cardinalités, collections et méthodes. \\
+    2 & Schéma & Utilisateur, types, tables, contraintes, séquences et mécanismes de régénération. \\
+    3 & Données & Jeu de test : agences, conseillers, clients, comptes, opérations et signataires. \\
+    4 & Manipulation & Blocs B5a à B5f, procédures \code{change\_Portable} et \code{drop\_client}. \\
+    5 & Requêtes & Requêtes 6.1 à 6.25, avec déréférencement, agrégats et collections. \\
+    6 & Programmation & Sous-programmes catalogués, blocs anonymes, méthodes, triggers et transactions. \\
+    7 & Intégration & Rejeu complet, guide de soutenance, préparation des captures et contrôle final. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+Cette démarche présente l'avantage de séparer clairement la conception, la
+création du schéma, l'exploitation et la validation. Elle permet aussi de
+rejouer le projet partie par partie, ce qui est indispensable lors d'une
+soutenance où le temps est limité.
+
+\section{Organisation du rapport}
+
+Le rapport est organisé en neuf chapitres, suivis d'une conclusion, de
+perspectives, d'une bibliographie et de plusieurs annexes.
+
+\begin{itemize}
+  \item Le chapitre~\ref{chap:architecture} présente l'architecture générale
+        et les choix de conception : partage entre objet et relationnel,
+        héritage des comptes, références, collections, méthodes, triggers et
+        vue objet.
+  \item Le chapitre~\ref{chap:partieA} décrit la partie A : types métier,
+        tables, contraintes, séquences, jeu de données et mécanismes de
+        rejeu.
+  \item Le chapitre~\ref{chap:partieB} présente les manipulations de la
+        partie B, notamment la contrainte différée, la mise à jour d'un
+        \code{VARRAY} et la suppression en cascade applicative.
+  \item Le chapitre~\ref{chap:partieC} analyse les 25 requêtes SQL de la
+        partie C et les techniques de déréférencement ou d'interrogation des
+        collections.
+  \item Le chapitre~\ref{chap:partieD1} traite des sous-programmes
+        catalogués, des blocs anonymes et des méthodes de la partie D.
+  \item Le chapitre~\ref{chap:partieD2} détaille les triggers, les
+        transactions, la clôture de compte et les tests de sécurité.
+  \item Le chapitre~\ref{chap:partieE} présente le type récursif, la
+        collection multi-niveaux et la vue objet de la partie E.
+  \item Le chapitre~\ref{chap:validation} rassemble la validation finale, la
+        démonstration minutée, les 45 questions-réponses et les conseils de
+        soutenance.
+\end{itemize}
+
+La conclusion générale dresse le bilan du projet. Les perspectives proposent
+des extensions réalistes, clairement distinguées de ce qui a été réalisé. Les
+annexes contiennent la liste des livrables, le plan détaillé des captures
+d'écran, les hypothèses de conception et un glossaire.
+
+\section{Conventions de lecture}
+
+Pour faciliter la lecture, les noms de fichiers, de tables, de types et de
+procédures sont composés en police à chasse fixe. Les extraits de code sont
+numérotés et accompagnés d'une légende. Les références aux captures d'écran
+prennent la forme \capture{05} : elles renvoient au plan de l'annexe~\ref{ann:captures},
+qui précise la commande, le résultat attendu et l'emplacement prévu dans le
+rapport.
+
+Les résultats numériques cités dans le rapport correspondent aux sorties du
+rejeu complet conservé dans \code{\_travail/\_FULL.out}. Lorsque la chronologie
+des tests modifie l'état de la base, le rapport le signale explicitement. Cette
+précaution est importante : la partie C s'exécute avant les tests destructifs
+de la partie D, et certains comptes ou opérations ne sont donc plus visibles
+après le rejeu complet.
+
+\section*{Conclusion de l'introduction}
+\addcontentsline{toc}{section}{Conclusion de l'introduction}
+
+Le projet se situe à la rencontre de la modélisation UML, du SQL relationnel
+et de la programmation PL/SQL orientée objet. Le rapport qui suit expose non
+seulement le fonctionnement du système, mais aussi les raisonnements qui ont
+conduit aux choix retenus. Cette explicitation est essentielle : le jury ne
+doit pas seulement constater que le script s'exécute, il doit comprendre
+pourquoi le schéma est conçu ainsi et ce que chaque partie démontre.

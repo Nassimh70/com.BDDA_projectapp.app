@@ -1,2 +1,0 @@
-CREATE TYPE probe_x AS OBJECT (x NUMBER);
-/

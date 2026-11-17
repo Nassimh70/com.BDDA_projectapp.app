@@ -1,0 +1,100 @@
+============================================================
+1. SUPPRESSION DE LA VUE OBJET
+============================================================
+Vue Agence_VOR supprimee.
+
+ProcÚdure PL/SQL terminÚe avec succÞs.
+
+============================================================
+2. SUPPRESSION DES SOUS-PROGRAMMES
+============================================================
+Fonction NB_COMPTES supprimee.
+Fonction SOLDE_TOTAL supprimee.
+Fonction VILLE_CLIENT supprimee.
+Procedure AJOUT_CLIENT supprimee.
+Procedure CHANGE_PORTABLE supprimee.
+Procedure DROP_CLIENT supprimee.
+Procedure MAJ_STATUTS_DORMANTS supprimee.
+Procedure SCAN_ECHEANCES supprimee.
+Procedure VIREMENT supprimee.
+
+ProcÚdure PL/SQL terminÚe avec succÞs.
+
+============================================================
+3. SUPPRESSION DES TRIGGERS
+============================================================
+Trigger TRG_AUDIT_DECOUVERT supprime.
+Trigger TRG_AUDIT_TAUX supprime.
+Trigger TRG_AUDIT_TAUX_TERME supprime.
+Trigger TRG_CT_ECHEANCE supprime.
+Trigger TRG_OP_APRES supprime.
+Trigger TRG_OP_AVANT supprime.
+
+ProcÚdure PL/SQL terminÚe avec succÞs.
+
+============================================================
+4. SUPPRESSION DES TABLES
+============================================================
+Table RELEVES supprimee.
+Table AUDIT supprimee.
+Table ALERTE supprimee.
+Table OPERATION supprimee.
+Table CPT_TERME supprimee.
+Table CPT_EPARGNE supprimee.
+Table CPT_COURANT supprimee.
+Table SIGNATAIRE_NT_ST absente.
+Table CLIENT supprimee.
+Table AFFECTATION supprimee.
+Table AGENCE supprimee.
+Table CONSEILLER supprimee.
+
+ProcÚdure PL/SQL terminÚe avec succÞs.
+
+============================================================
+5. SUPPRESSION DES SEQUENCES
+============================================================
+Sequence SEQ_OPERATION supprimee.
+Sequence SEQ_ALERTE supprimee.
+Sequence SEQ_AUDIT supprimee.
+Sequence SEQ_AFFECTATION supprimee.
+
+ProcÚdure PL/SQL terminÚe avec succÞs.
+
+============================================================
+6. SUPPRESSION DES TYPES
+============================================================
+Type AGENCE_VOR_TYPE supprime.
+Type MOIS_VRY_TYPE supprime.
+Type MOIS_ELT_VRY_TYPE supprime.
+Type TYPE_STAT_NT_TYPE supprime.
+Type TYPE_STAT_ELT_NT_TYPE supprime.
+Type CPTCOURANT_NT_TYPE supprime.
+Type CONSEILLER_NT_TYPE supprime.
+Type OPERATION_TYPE supprime.
+Type CPTTERME_TYPE supprime.
+Type CPTEPARGNE_TYPE supprime.
+Type CPTCOURANT_TYPE supprime.
+Type COMPTE_TYPE supprime.
+Type SIGNATAIRE_NT_TYPE supprime.
+Type SIGNATAIRE_ELT_NT_TYPE supprime.
+Type CLIENT_TYPE supprime.
+Type AGENCE_TYPE supprime.
+Type CONSEILLER_TYPE supprime.
+Type TEL_VRY_TYPE supprime.
+Type ADRESSE_TYPE supprime.
+
+ProcÚdure PL/SQL terminÚe avec succÞs.
+
+============================================================
+7. VERIFICATION - LE SCHEMA DOIT ETRE VIDE
+============================================================
+
+aucune ligne sÚlectionnÚe
+
+*** Objets restants (aucune ligne attendue) ***
+
+aucune ligne sÚlectionnÚe
+
+============================================================
+FIN DE LA REINITIALISATION
+============================================================

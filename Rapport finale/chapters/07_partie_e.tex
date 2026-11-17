@@ -1,0 +1,458 @@
+% =====================================================================
+% 07_partie_e.tex — fonctionnalités objet avancées
+% =====================================================================
+\chapter{Partie E : fonctionnalités objet avancées}
+\label{chap:partieE}
+
+\section{Objectifs de la partie E}
+
+La partie E regroupe les mécanismes objet les plus avancés du projet : un type
+récursif, une collection multi-niveaux et une vue objet avec méthode. Elle
+prolonge la partie A, qui a préparé les types, et la partie D, qui a fourni les
+méthodes. Elle ne crée pas de nouvelle table métier : elle exploite les
+structures existantes pour montrer la navigation objet, l'agrégation de
+collections et la mise à jour d'affectations par une méthode de vue.
+
+\begin{objectifbox}[Trois démonstrations]
+E10 montre le parrainage récursif et la double notation
+\code{c.ref\_parrain.ref\_parrain.nom}. E11 montre un \code{VARRAY} de mois
+contenant une \emph{nested table} de statistiques. E12 montre une vue objet
+dont les collections sont calculées par \code{CAST(MULTISET(...))} et dont la
+méthode \code{mutation} modifie l'historique des affectations.
+\end{objectifbox}
+
+\section{E10 : type récursif et parrainage}
+
+L'attribut \code{ref\_parrain} a été ajouté à \code{client\_type} en partie A
+par \code{ALTER TYPE ... ADD ATTRIBUTE ... CASCADE}. Il est de type
+\code{REF client\_type} : un client peut donc référencer un autre client, et la
+chaîne peut être parcourue sur plusieurs niveaux. La partie A a déjà parrainé
+les clients 2 et 3 par le client 1. E10 ajoute trois liens supplémentaires :
+client 4 vers 1, client 5 vers 2 et client 6 vers 3. Les clients 5 et 6
+obtiennent ainsi un grand-parrain.
+
+\begin{lstlisting}[caption={E10 : mise à jour des liens de parrainage.},label={lst:e10}]
+UPDATE client
+   SET ref_parrain = (SELECT REF(p) FROM client p WHERE p.num_client = 1)
+ WHERE num_client = 4;
+UPDATE client
+   SET ref_parrain = (SELECT REF(p) FROM client p WHERE p.num_client = 2)
+ WHERE num_client = 5;
+UPDATE client
+   SET ref_parrain = (SELECT REF(p) FROM client p WHERE p.num_client = 3)
+ WHERE num_client = 6;
+COMMIT;
+\end{lstlisting}
+
+La requête de contrôle utilise deux fois la notation pointée. Le premier
+\code{ref\_parrain} atteint le parrain direct ; le second atteint son propre
+parrain. Oracle suit la chaîne parce que \code{client\_type} contient
+lui-même l'attribut \code{ref\_parrain}. Un alias de table est indispensable :
+sans \code{c}, Oracle ne sait pas à quelle ligne appliquer le déréférencement
+et lève \code{ORA-00904}.
+
+\begin{lstlisting}[caption={E10 : lecture du parrain et du grand-parrain.},label={lst:e10-lecture}]
+SELECT c.num_client, c.nom,
+       c.ref_parrain.nom             AS nom_parrain,
+       c.ref_parrain.ref_parrain.nom AS nom_grand_parrain
+  FROM client c
+ WHERE c.ref_parrain IS NOT NULL
+ ORDER BY c.num_client;
+\end{lstlisting}
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Résultats du parrainage après E10.}
+  \label{tab:resultats-e10}
+  \begin{tabularx}{\textwidth}{@{}C{1.5cm}L{4.0cm}L{4.0cm}X@{}}
+    \toprule
+    \entete{Client} & \entete{Parrain} & \entete{Grand-parrain} &
+    \entete{Commentaire} \\
+    \midrule
+    2 & AMRANI & --- & Parrain direct. \\
+    3 & AMRANI & --- & Parrain direct. \\
+    4 & AMRANI & --- & Parrain direct. \\
+    5 & BENALI & AMRANI & Chaîne sur deux niveaux. \\
+    6 & CHERIF & AMRANI & Chaîne sur deux niveaux. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\begin{clebox}[Pourquoi le type récursif est-il important ?]
+Un type récursif permet de représenter une relation hiérarchique sans table
+d'association supplémentaire. Ici, le parrainage est une relation orientée :
+chaque client possède au plus un parrain, mais peut avoir plusieurs filleuls.
+La double notation montre que la référence est réellement navigable, et non un
+simple identifiant stocké sous forme de texte.
+\end{clebox}
+
+\section{E11 : collection multi-niveaux \code{releves}}
+
+La table \code{releves} contient une année et un \code{VARRAY(12)} de mois.
+Chaque mois contient un numéro, un nombre d'opérations et une \emph{nested
+table} de statistiques par type d'opération. La structure est donc
+hiérarchique sur trois niveaux : année, mois, type d'opération.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Structure de la collection \code{releves}.}
+  \label{tab:structure-releves}
+  \begin{tabularx}{\textwidth}{@{}L{4.5cm}L{4.6cm}X@{}}
+    \toprule
+    \entete{Élément} & \entete{Type} & \entete{Contenu} \\
+    \midrule
+    \code{releves} & Table relationnelle &
+    \code{annee NUMBER PRIMARY KEY}, \code{mois\_vry mois\_vry\_type}. \\
+    \code{mois\_vry\_type} & \code{VARRAY(12)} &
+    Douze mois au maximum. \\
+    \code{mois\_elt\_vry\_type} & Objet &
+    \code{mois}, \code{nb\_operations}, \code{types}. \\
+    \code{type\_stat\_nt\_type} & \emph{Nested table} &
+    Collection de \code{type\_stat\_elt\_nt\_type}. \\
+    \code{type\_stat\_elt\_nt\_type} & Objet &
+    \code{type\_op}, \code{nb}, \code{montant\_total}. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+Quatre mois sont d'abord insérés, puis un cinquième est ajouté par
+\code{EXTEND(1)}. La nouvelle \emph{nested table} est construite avec un
+constructeur \code{type\_stat\_nt\_type(...)} et affectée au dernier élément
+du \code{VARRAY}. Le bloc affiche le nombre de mois avant et après extension,
+ainsi que le nombre de types du mois ajouté.
+
+\begin{lstlisting}[caption={E11 : insertion de quatre mois.},label={lst:e11-insert},basicstyle=\ttfamily\scriptsize]
+INSERT INTO releves (annee, mois_vry)
+VALUES (2026, mois_vry_type(
+  mois_elt_vry_type(1, 10, type_stat_nt_type(
+    type_stat_elt_nt_type('RETRAIT', 6, 120000),
+    type_stat_elt_nt_type('DEPOT',   3, 200000),
+    type_stat_elt_nt_type('CB',      1,  15000))),
+  mois_elt_vry_type(2, 8, type_stat_nt_type(
+    type_stat_elt_nt_type('RETRAIT', 5,  90000),
+    type_stat_elt_nt_type('DEPOT',   2, 150000),
+    type_stat_elt_nt_type('VIREMENT',1,  50000))),
+  mois_elt_vry_type(3, 12, type_stat_nt_type(
+    type_stat_elt_nt_type('RETRAIT', 7, 140000),
+    type_stat_elt_nt_type('DEPOT',   4, 250000),
+    type_stat_elt_nt_type('CB',      1,  20000))),
+  mois_elt_vry_type(4, 9, type_stat_nt_type(
+    type_stat_elt_nt_type('RETRAIT', 6, 110000),
+    type_stat_elt_nt_type('DEPOT',   2, 180000),
+    type_stat_elt_nt_type('VIREMENT',1,  30000)))
+));
+COMMIT;
+\end{lstlisting}
+
+\begin{lstlisting}[caption={E11 : extension à un cinquième mois.},label={lst:e11-extend}]
+DECLARE
+  v_mois  mois_vry_type;
+  v_types type_stat_nt_type;
+  v_av    NUMBER;
+  v_ap    NUMBER;
+BEGIN
+  SELECT mois_vry INTO v_mois FROM releves WHERE annee = 2026 FOR UPDATE;
+
+  v_av := v_mois.COUNT;
+  v_mois.EXTEND(1);
+  v_types := type_stat_nt_type(
+    type_stat_elt_nt_type('RETRAIT', 8, 160000),
+    type_stat_elt_nt_type('DEPOT',   2, 100000),
+    type_stat_elt_nt_type('VIREMENT',1,  50000));
+  v_mois(v_mois.LAST) := mois_elt_vry_type(5, 11, v_types);
+
+  UPDATE releves SET mois_vry = v_mois WHERE annee = 2026;
+
+  v_types := v_mois(v_mois.LAST).types;
+  v_ap := v_mois.COUNT;
+  DBMS_OUTPUT.PUT_LINE('VARRAY : '||v_av||' -> '||v_ap||' mois');
+  DBMS_OUTPUT.PUT_LINE('Nested table du mois '||v_mois(v_mois.LAST).mois
+    ||' : '||v_types.COUNT||' types');
+  COMMIT;
+END;
+/
+\end{lstlisting}
+
+L'interrogation nécessite deux appels à \code{TABLE} : le premier ouvre le
+\code{VARRAY} des mois, le second ouvre la \emph{nested table} des types. La
+syntaxe \code{TABLE(m.COLUMN\_VALUE.types)} ne fonctionne pas ; il faut écrire
+\code{TABLE(m.types)}. De même, \code{CARDINALITY} sur \code{mois\_vry} lève
+\code{ORA-00932} dans cette version d'Oracle ; on utilise \code{TABLE(...)} et
+\code{COUNT(*)}.
+
+\begin{lstlisting}[caption={E11 : total annuel par type d'opération.},label={lst:e11-total}]
+SELECT t.type_op,
+       SUM(t.nb) AS nb_total,
+       SUM(t.montant_total) AS montant_total
+  FROM releves r, TABLE(r.mois_vry) m, TABLE(m.types) t
+ WHERE r.annee = 2026
+ GROUP BY t.type_op
+ ORDER BY montant_total DESC;
+\end{lstlisting}
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Totaux du relevé 2026 sur cinq mois.}
+  \label{tab:resultats-e11}
+  \begin{tabularx}{0.62\textwidth}{@{}L{3.4cm}C{2.6cm}C{3.2cm}@{}}
+    \toprule
+    \entete{Type} & \entete{Nombre total} & \entete{Montant total (DA)} \\
+    \midrule
+    DEPOT & 13 & 880\,000 \\
+    RETRAIT & 32 & 620\,000 \\
+    VIREMENT & 3 & 130\,000 \\
+    CB & 2 & 35\,000 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\begin{remarquebox}[Lecture des totaux]
+Les totaux portent sur les cinq mois, pas sur les opérations de la table
+\code{operation}. Ils proviennent uniquement du relevé statistique saisi en
+E11. Il ne faut donc pas les comparer aux 20 opérations de la partie C : ce
+sont deux jeux de données indépendants, destinés à des démonstrations
+différentes.
+\end{remarquebox}
+
+\section{E12 : vue objet \code{Agence\_VOR}}
+
+La vue objet \code{Agence\_VOR} expose une agence avec deux collections : les
+conseillers actuellement affectés et les comptes courants de l'agence. Elle
+possède un identifiant objet fondé sur le code de l'agence, ce qui permet de
+l'utiliser comme un objet dans les requêtes et dans la méthode
+\code{mutation}.
+
+\begin{lstlisting}[caption={Type de la vue objet \code{Agence\_VOR}.},label={lst:e12-type}]
+CREATE TYPE agence_vor_type AS OBJECT (
+  code            VARCHAR2(6),
+  nom             VARCHAR2(40),
+  ville           VARCHAR2(40),
+  ref_responsable REF conseiller_type,
+  conseillers     conseiller_nt_type,
+  comptes         cptCourant_nt_type,
+  MEMBER PROCEDURE mutation(
+    nConseiller   NUMBER,
+    nAgenceCible  VARCHAR2
+  )
+);
+\end{lstlisting}
+
+La vue est construite avec \code{CAST(MULTISET(...))}. La première
+sous-requête sélectionne les conseillers dont l'affectation est ouverte et dont
+l'agence correspond à \code{MAKE\_REF(agence, a.code)}. La seconde sélectionne
+les comptes courants de la même agence. \code{MAKE\_REF} est possible parce que
+la table \code{agence} a été déclarée avec
+\code{OBJECT IDENTIFIER IS PRIMARY KEY} : Oracle peut fabriquer une
+\code{REF} à partir de la clé.
+
+\begin{lstlisting}[caption={Création de la vue objet \code{Agence\_VOR}.},label={lst:e12-vue}]
+CREATE OR REPLACE VIEW Agence_VOR OF agence_vor_type
+WITH OBJECT IDENTIFIER (code) AS
+SELECT a.code, a.nom, a.ville, a.ref_responsable,
+       CAST(MULTISET(
+         SELECT VALUE(c)
+           FROM conseiller c, affectation af
+          WHERE af.ref_conseiller = REF(c)
+            AND af.ref_agence = MAKE_REF(agence, a.code)
+            AND af.date_fin IS NULL
+       ) AS conseiller_nt_type) AS conseillers,
+       CAST(MULTISET(
+         SELECT VALUE(cc)
+           FROM cpt_courant cc
+          WHERE cc.ref_agence = MAKE_REF(agence, a.code)
+       ) AS cptCourant_nt_type) AS comptes
+  FROM agence a;
+\end{lstlisting}
+
+Les collections se lisent avec \code{TABLE(v.conseillers)} et
+\code{TABLE(v.comptes)}. La fonction \code{CARDINALITY} fonctionne ici, car il
+s'agit de \emph{nested tables} et non de \code{VARRAY}s. Elle permet de
+compter les conseillers et les comptes par agence sans déplier les collections.
+
+\begin{lstlisting}[caption={Interrogation des collections de la vue objet.},label={lst:e12-requetes}]
+SELECT v.code, k.nom, k.prenom
+  FROM Agence_VOR v, TABLE(v.conseillers) k;
+
+SELECT v.code, c.num_compte, c.solde
+  FROM Agence_VOR v, TABLE(v.comptes) c;
+
+SELECT v.code, v.nom,
+       CARDINALITY(v.conseillers) AS nb_conseillers,
+       CARDINALITY(v.comptes)     AS nb_comptes
+  FROM Agence_VOR v
+ ORDER BY v.code;
+\end{lstlisting}
+
+\section{La méthode \code{mutation}}
+
+La méthode \code{mutation} reçoit un numéro de conseiller et un code d'agence
+cible. Elle vérifie que le conseiller existe et qu'il est actuellement affecté
+à l'agence source. Si ce n'est pas le cas, elle lève \code{ORA-20010}. Si le
+conseiller ou l'agence cible est introuvable, elle lève \code{ORA-20011}. Elle
+signale ensuite si le conseiller est responsable de l'agence qu'il quitte,
+ferme l'affectation courante et en ouvre une nouvelle.
+
+\begin{lstlisting}[caption={Méthode \code{mutation} de la vue objet.},label={lst:e12-mutation}]
+MEMBER PROCEDURE mutation(nConseiller NUMBER, nAgenceCible VARCHAR2) IS
+  v_ref_cons    REF conseiller_type;
+  v_ref_ag_cur  REF agence_type;
+  v_ref_ag_cib  REF agence_type;
+  v_resp        NUMBER := 0;
+  v_nb          NUMBER := 0;
+BEGIN
+  SELECT REF(c) INTO v_ref_cons
+    FROM conseiller c WHERE c.num_conseiller = nConseiller;
+
+  SELECT REF(a) INTO v_ref_ag_cur
+    FROM agence a WHERE a.code = SELF.code;
+
+  SELECT REF(a) INTO v_ref_ag_cib
+    FROM agence a WHERE a.code = nAgenceCible;
+
+  SELECT COUNT(*) INTO v_nb
+    FROM affectation af
+   WHERE af.ref_conseiller = v_ref_cons
+     AND af.ref_agence = v_ref_ag_cur
+     AND af.date_fin IS NULL;
+
+  IF v_nb = 0 THEN
+    RAISE_APPLICATION_ERROR(-20010,
+      'Le conseiller n''est pas en poste dans l''agence source.');
+  END IF;
+
+  SELECT COUNT(*) INTO v_resp
+    FROM agence a
+   WHERE a.code = SELF.code
+     AND a.ref_responsable = v_ref_cons;
+
+  IF v_resp > 0 THEN
+    DBMS_OUTPUT.PUT_LINE('ALERTE : le conseiller est responsable '
+                         ||'de l''agence qu''il quitte.');
+  END IF;
+
+  UPDATE affectation
+     SET date_fin = GREATEST(SYSDATE, date_debut) + 1/86400
+   WHERE ref_conseiller = v_ref_cons
+     AND ref_agence = v_ref_ag_cur
+     AND date_fin IS NULL;
+
+  INSERT INTO affectation (id_affectation, ref_conseiller, ref_agence,
+                           date_debut, date_fin)
+  VALUES (seq_affectation.NEXTVAL, v_ref_cons, v_ref_ag_cib, SYSDATE, NULL);
+EXCEPTION
+  WHEN NO_DATA_FOUND THEN
+    RAISE_APPLICATION_ERROR(-20011, 'Conseiller ou agence introuvable.');
+END;
+\end{lstlisting}
+
+\begin{attentionbox}[Pourquoi ajouter une seconde à \code{date\_fin} ?]
+La contrainte \code{CK\_AFF\_DATES} impose \code{date\_fin > date\_debut}. Si
+la mutation a lieu le jour même de l'ouverture de l'affectation,
+\code{SYSDATE} peut être égal à \code{date\_debut}, ce qui viole la contrainte
+et produit \code{ORA-02290}. L'expression
+\code{GREATEST(SYSDATE, date\_debut) + 1/86400} garantit une différence d'au
+moins une seconde. C'est une correction simple, mais indispensable pour les
+tests de mutation immédiate.
+\end{attentionbox}
+
+\begin{clebox}[Le responsable n'est pas remplacé]
+La méthode signale que le conseiller quitte une agence dont il est responsable,
+mais elle ne modifie pas \code{agence.ref\_responsable}. Le sujet demande de
+signaler le changement, pas de changer le responsable. Cette décision relève
+d'une règle de management qui ne peut pas être automatisée sans risque. La
+méthode laisse donc la décision au gestionnaire.
+\end{clebox}
+
+\section{Résultats E12}
+
+La vue contient trois lignes : A1, A2 et A3. A1 a un conseiller et deux comptes
+(CC4, CC7) ; A2 a deux conseillers et deux comptes (CC2, CC5) ; A3 a un
+conseiller et deux comptes (CC3, CC6). Les mutations réussies déplacent KACI
+(4) de A2 vers A3, puis BENALI (1) de A1 vers A2. Les tests de restauration
+ramènent 1 vers A1 et 4 vers A2. Les compteurs de conseillers sont donc
+restaurés : A1 = 1, A2 = 2, A3 = 1.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Résultats des tests de la vue objet et de la mutation.}
+  \label{tab:resultats-e12}
+  \begin{tabularx}{\textwidth}{@{}L{6.4cm}L{4.5cm}X@{}}
+    \toprule
+    \entete{Test} & \entete{Résultat attendu} & \entete{Commentaire} \\
+    \midrule
+    Vue \code{Agence\_VOR} & 3 lignes : A1, A2, A3 &
+    Une ligne par agence. \\
+    Conseillers A1/A2/A3 & 1 / 2 / 1 & Affectations ouvertes. \\
+    Comptes A1/A2/A3 & 2 / 2 / 2 & CC4 et CC7 ; CC2 et CC5 ; CC3 et CC6. \\
+    KACI (4) de A2 vers A3 & Succès & Mutation d'un non-responsable. \\
+    BENALI (1) de A1 vers A2 & Succès, avec alerte &
+    Le conseiller est responsable de A1. \\
+    \code{A3.mutation(1, 'A2')} & \code{ORA-20010} &
+    Le conseiller 1 n'est pas affecté à A3. \\
+    \code{mutation(99, 'A2')} & \code{ORA-20011} &
+    Conseiller inexistant. \\
+    \code{mutation(1, 'A9')} & \code{ORA-20011} &
+    Agence cible inexistante. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+Après les tests, la table \code{affectation} contient neuf lignes : cinq
+affectations initiales et quatre mutations historisées. Quatre lignes sont
+fermées, cinq sont ouvertes. La vue ne compte que les affectations ouvertes.
+L'historique est donc conservé, et la vue reste cohérente avec l'état courant.
+
+\begin{attentionbox}[Rejouer E12]
+La vue et le type \code{agence\_vor\_type} sont supprimés en début de partie E.
+Lorsqu'on réutilise le même identifiant objet dans une nouvelle transaction, il
+faut valider la transaction précédente par \code{COMMIT}. Sinon, Oracle peut
+conserver l'ancien OID et refuser la réutilisation. Les scripts de test valident
+après chaque mutation pour éviter ce problème.
+\end{attentionbox}
+
+\section{Pièges de la partie E}
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Pièges de la partie E et solutions.}
+  \label{tab:pieges-E}
+  \begin{tabularx}{\textwidth}{@{}L{5.1cm}L{4.3cm}X@{}}
+    \toprule
+    \entete{Piège} & \entete{Symptôme} & \entete{Solution} \\
+    \midrule
+    \code{CARDINALITY} sur \code{mois\_vry} & \code{ORA-00932} &
+    \code{TABLE(...)} + \code{COUNT(*)}. \\
+    \code{TABLE(m.\allowbreak COLUMN\_VALUE.\allowbreak types)} &
+    \code{ORA-00904} &
+    \code{TABLE(m.types)}. \\
+    \code{date\_fin = SYSDATE} & \code{ORA-02290} sur
+    \code{CK\_AFF\_DATES} &
+    \code{GREATEST(SYSDATE, date\_debut) + 1/86400}. \\
+    Mutation sur un conseiller absent & \code{ORA-20010} &
+    C'est un test attendu. \\
+    Mutation sur un inconnu & \code{ORA-20011} &
+    C'est un test attendu. \\
+    \code{MAKE\_REF} sans OID basé sur la PK &
+    \code{ORA-22979} ou impossible &
+    \code{agence} a \code{OBJECT IDENTIFIER IS PRIMARY KEY}. \\
+    Réutilisation d'un OID sans \code{COMMIT} &
+    Ancien OID conservé &
+    Valider la transaction avant de réutiliser l'identifiant. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Conclusion de la partie E}
+
+La partie E montre les mécanismes objet les plus expressifs du projet. Le type
+récursif permet de naviguer dans une hiérarchie de parrainage sans table
+supplémentaire. La collection multi-niveaux stocke un relevé annuel complet
+dans une seule colonne, tout en restant interrogeable par double
+\code{TABLE}. La vue objet agrège des collections calculées et expose une
+méthode qui modifie l'historique des affectations. Ces trois démonstrations
+complètent l'héritage, les \code{REF} et les méthodes des parties précédentes.

@@ -1,0 +1,404 @@
+% =====================================================================
+% 06_partie_d.tex — sous-programmes, blocs anonymes et méthodes
+% =====================================================================
+\chapter{Partie D : sous-programmes et méthodes}
+\label{chap:partieD1}
+
+\section{Objectifs de la programmation PL/SQL}
+
+La partie D transforme le schéma en un système actif. Elle ajoute des
+sous-programmes catalogués, des blocs anonymes, des méthodes de types objet et
+des triggers. Ce chapitre couvre les deux premières catégories, ainsi que les
+méthodes. Les triggers, les transactions et la clôture de compte sont traités
+au chapitre~\ref{chap:partieD2}, car ils modifient l'état de la base et
+nécessitent une chronologie précise.
+
+\begin{objectifbox}[Trois niveaux de programmation]
+Le projet distingue trois niveaux : les sous-programmes catalogués, appelables
+directement en SQL*Plus ; les blocs anonymes, utilisés pour les démonstrations
+ponctuelles ; et les méthodes de types objet, qui encapsulent les règles dans
+les objets eux-mêmes. Cette séparation évite de mélanger la logique métier et
+les scripts de test.
+\end{objectifbox}
+
+\section{Sous-programmes catalogués}
+
+Neuf sous-programmes catalogués sont utilisés dans le projet. Trois sont des
+fonctions de lecture, quatre sont des procédures de gestion et deux proviennent
+de la partie B. Le tableau~\ref{tab:sous-programmes} rappelle leur signature,
+leur rôle et leur comportement transactionnel.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Sous-programmes catalogués.}
+  \label{tab:sous-programmes}
+  \footnotesize
+  \begin{tabularx}{\textwidth}{@{}L{4.0cm}L{5.6cm}X@{}}
+    \toprule
+    \entete{Sous-programme} & \entete{Signature} & \entete{Rôle et transaction} \\
+    \midrule
+    \code{nb\_comptes} &
+    \code{FUNCTION nb\_comptes RETURN NUMBER} &
+    Nombre total de comptes (CC + CE + CT). Lecture seule. \\
+    \code{solde\_total} &
+    \code{FUNCTION solde\_total(paramcli IN NUMBER)} &
+    Somme des soldes d'un client. Lecture seule. \\
+    \code{ville\_client} &
+    \code{FUNCTION ville\_client(paramcli IN NUMBER)} &
+    Ville d'un client. Lecture seule. \\
+    \code{ajout\_client} &
+    \code{PROCEDURE ajout\_client(...)} &
+    Ajout complet d'un client, parrain optionnel. Pas de \code{COMMIT}. \\
+    \code{virement} &
+    \code{PROCEDURE virement(cptsrc, cptdest, montant, cli)} &
+    Virement atomique entre deux comptes courants, commission
+    inter-agences. Pas de \code{COMMIT}. \\
+    \code{maj\_statuts\_dormants} &
+    \code{PROCEDURE maj\_statuts\_dormants} &
+    Passe en \code{DORMANT} les comptes courants sans opération depuis
+    douze mois. Pas de \code{COMMIT}. \\
+    \code{scan\_echeances} &
+    \code{PROCEDURE scan\_echeances} &
+    Crée les alertes d'échéance pour les comptes à terme. \code{COMMIT}. \\
+    \code{change\_Portable} &
+    \code{PROCEDURE change\_Portable(...)} &
+    Modifie le deuxième téléphone. \code{COMMIT} en succès,
+    \code{ROLLBACK} en erreur. \\
+    \code{drop\_client} &
+    \code{PROCEDURE drop\_client(...)} &
+    Supprime un client et ses dépendances. \code{COMMIT} ou
+    \code{ROLLBACK}. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\begin{clebox}[Pourquoi \code{virement} ne fait-il pas \code{COMMIT} ?]
+Un virement peut faire partie d'une transaction plus large. Le \code{COMMIT}
+appartient à l'appelant. La procédure utilise un \code{SAVEPOINT} et un
+\code{ROLLBACK TO} pour garantir l'atomicité des deux écritures, sans imposer
+la validation. Cette conception est essentielle pour tester le rollback
+global.
+\end{clebox}
+
+\section{Le virement atomique}
+
+La procédure \code{virement} vérifie que le montant est strictement positif et
+que les comptes source et destination sont différents. Elle récupère les
+\code{REF} des comptes et du client, calcule la commission inter-agences, puis
+insère un débit et un crédit. En cas d'erreur, elle revient au point de
+sauvegarde : les deux mouvements sont annulés ensemble.
+
+\begin{lstlisting}[caption={Procédure \code{virement} : atomicité par \code{SAVEPOINT}.},label={lst:virement}]
+CREATE OR REPLACE PROCEDURE virement (
+  cptsrc  IN VARCHAR2,
+  cptdest IN VARCHAR2,
+  montant IN NUMBER,
+  cli     IN NUMBER
+) IS
+  v_ref_src  REF cptCourant_type;
+  v_ref_dest REF cptCourant_type;
+  v_ref_cli  REF client_type;
+  v_ag_src   VARCHAR2(6);
+  v_ag_dest  VARCHAR2(6);
+  v_comm     NUMBER(12,2) := 0;
+BEGIN
+  SAVEPOINT av_virement;
+
+  IF montant <= 0 THEN
+    RAISE_APPLICATION_ERROR(-20020,
+      'Le montant doit etre strictement positif.');
+  END IF;
+  IF cptsrc = cptdest THEN
+    RAISE_APPLICATION_ERROR(-20021,
+      'Comptes source et destination identiques.');
+  END IF;
+
+  SELECT REF(x) INTO v_ref_src
+    FROM cpt_courant x WHERE x.num_compte = cptsrc;
+  SELECT REF(x) INTO v_ref_dest
+    FROM cpt_courant x WHERE x.num_compte = cptdest;
+  SELECT REF(c) INTO v_ref_cli
+    FROM client c WHERE c.num_client = cli;
+
+  SELECT x.ref_agence.code INTO v_ag_src
+    FROM cpt_courant x WHERE x.num_compte = cptsrc;
+  SELECT x.ref_agence.code INTO v_ag_dest
+    FROM cpt_courant x WHERE x.num_compte = cptdest;
+  IF v_ag_src <> v_ag_dest THEN
+    v_comm := GREATEST(ROUND(montant * 0.01, 2), 100);
+  END IF;
+
+  INSERT INTO operation (id_op, ref_client, ref_compte, date_op,
+                         montant, type_op, commission)
+  VALUES (seq_operation.NEXTVAL, v_ref_cli, v_ref_src, TRUNC(SYSDATE),
+          -montant, 'VIREMENT', v_comm);
+
+  INSERT INTO operation (id_op, ref_client, ref_compte, date_op,
+                         montant, type_op, commission)
+  VALUES (seq_operation.NEXTVAL, v_ref_cli, v_ref_dest, TRUNC(SYSDATE),
+          montant, 'VIREMENT', 0);
+
+  DBMS_OUTPUT.PUT_LINE('virement OK : '||montant||' DA de '||cptsrc
+                       ||' vers '||cptdest||' (commission='||v_comm||')');
+EXCEPTION
+  WHEN OTHERS THEN
+    ROLLBACK TO av_virement;
+    DBMS_OUTPUT.PUT_LINE('virement ANNULE : '||SQLERRM);
+END;
+/
+\end{lstlisting}
+
+\begin{remarquebox}[Commission inter-agences]
+La commission vaut 1~\% du montant, avec un minimum de 100~DA, uniquement si
+les agences source et destination diffèrent. Elle est portée par l'opération de
+débit et reste nulle sur le crédit. Ce choix évite de créer une troisième
+opération de commission et garde la trace du prélèvement sur le compte source.
+\end{remarquebox}
+
+\section{Blocs anonymes D7}
+
+Les blocs anonymes illustrent des traitements ponctuels : lecture d'un élément
+de \code{VARRAY}, parcours d'un curseur, curseur paramétré, extension d'une
+collection et calcul d'intérêts. Ils ne créent pas d'objet persistant, mais ils
+montrent la maîtrise des structures PL/SQL.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Blocs anonymes D7a à D7e.}
+  \label{tab:blocs-anonymes}
+  \begin{tabularx}{\textwidth}{@{}C{0.9cm}L{4.7cm}L{4.4cm}X@{}}
+    \toprule
+    \entete{Bloc} & \entete{Consigne} & \entete{Technique} &
+    \entete{Résultat} \\
+    \midrule
+    7a & Téléphone travail (2\up{e} élément) du client 3 &
+    \code{v\_tel(2)} + test \code{NULL} & \code{0777-11-22-33}. \\
+    7b & Même information pour tous les titulaires de CC &
+    Curseur + \code{FOR} &
+    Affiche les 6 clients, certains « non renseigné ». \\
+    7c & Curseur paramétré par un seuil, titulaire, solde, nombre de
+    signataires & Curseur paramétré + \code{NO\_DATA\_FOUND} +
+    \code{aucun\_compte} &
+    Seuil 100\,000 : CC2, CC3, CC5, CC6 ; seuil $-1\,000\,000$ :
+    \code{aucun\_compte}. \\
+    7d & Ajouter un 3\up{e} téléphone avec \code{EXTEND}, \code{LIMIT},
+    \code{COUNT}, \code{LAST} & Client 98 temporaire &
+    \code{COUNT} 2 $\rightarrow$ 3 ; 4\up{e} refusé ; client 98 supprimé
+    ensuite. \\
+    7e & Total des intérêts annuels des CE d'une agence &
+    Curseur + \code{ROUND(solde * taux / 100, 2)} &
+    A1 : 10\,150~DA. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+Le bloc 7e est particulièrement utile pour vérifier la cohérence des calculs
+d'intérêts. Pour l'agence A1, il additionne les intérêts de CE1 et CE4 :
+$150\,000 \times 2,5\,\% = 3\,750$ et
+$320\,000 \times 2\,\% = 6\,400$, soit 10\,150~DA. CE4 existe encore à ce
+moment ; il est supprimé plus tard par \code{fermeCompte('CE4')}.
+
+\begin{lstlisting}[caption={Bloc 7e : total des intérêts annuels de l'agence A1.},label={lst:bloc-7e}]
+DECLARE
+  CURSOR c_epargne (p_agence VARCHAR2) IS
+    SELECT ce.num_compte, ce.solde, ce.taux_interet
+      FROM cpt_epargne ce, agence a
+     WHERE ce.ref_agence = REF(a)
+       AND a.code = p_agence
+     ORDER BY ce.num_compte;
+  v_interet NUMBER;
+  v_total   NUMBER := 0;
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('Interets annuels des comptes d epargne de A1 :');
+  FOR r IN c_epargne('A1') LOOP
+    v_interet := ROUND(r.solde * r.taux_interet / 100, 2);
+    DBMS_OUTPUT.PUT_LINE('  '||r.num_compte
+                         ||' : solde='||r.solde
+                         ||' taux='||r.taux_interet||'%'
+                         ||' interet='||v_interet);
+    v_total := v_total + v_interet;
+  END LOOP;
+  DBMS_OUTPUT.PUT_LINE('  TOTAL ANNUEL = '||v_total);
+END;
+/
+\end{lstlisting}
+
+\section{Méthodes des types objet}
+
+Les méthodes sont ajoutées aux types par \code{ALTER TYPE ... ADD MEMBER},
+puis implantées dans les corps de types. Chaque \code{ALTER TYPE} est protégé
+contre l'erreur \code{ORA-22324} afin que le script puisse être rejoué sans
+recréer la partie A. Oracle n'accepte qu'un seul membre par instruction
+\code{ALTER TYPE}.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Méthodes des types objet et résultats clés.}
+  \label{tab:methodes}
+  \begin{tabularx}{\textwidth}{@{}L{3.4cm}L{4.7cm}X@{}}
+    \toprule
+    \entete{Type} & \entete{Méthode} & \entete{Rôle et résultat clé} \\
+    \midrule
+    \code{client\_type} & \code{nbCepargne} &
+    Nombre de CE du client : 2, 1, 1, 1, 0, 0. \\
+    \code{client\_type} & \code{soldeTotal} &
+    Somme CC + CE + CT : 3\,348\,500 ; 300\,000 ; 168\,000 ; 830\,000 ;
+    0 ; 40\,000. \\
+    \code{client\_type} & \code{supprimeTel(indice)} &
+    Supprime un téléphone. Client 4 : indice 2 supprimé puis restauré ;
+    client 5 : indice 2 non renseigné. \\
+    \code{client\_type} & \code{afficheInterets} &
+    Affiche les intérêts des CE. Client 1 : 18\,750~DA. \\
+    \code{cptCourant\_type} & \code{nbSignataire} /
+    \code{nbSignataire(droit)} &
+    Nombre de signataires, éventuellement par droit. Surcharge. \\
+    \code{cptCourant\_type} & \code{estTitulaire(cli)} &
+    Booléen : le client est-il titulaire ? Testé en PL/SQL. \\
+    \code{cptCourant\_type} & \code{estSignataire(cli)} &
+    Booléen : le client est-il signataire ? Testé en PL/SQL. \\
+    \code{cptCourant\_type} & \code{supprimeSign(cli)} &
+    Retire un signataire. CC7 : 3 $\rightarrow$ 2, puis restauration. \\
+    \code{cptCourant\_type} & \code{peutRetirer(cli, montant)} &
+    Vérifie les droits et le découvert.
+    \code{peutRetirer(4, -1000) = TRUE}. \\
+    \code{cptCourant\_type} & \code{passeMvt(cli, somme)} &
+    Insère une opération et met à jour le solde. CC7 $+10\,000 \rightarrow
+    195\,000$ ; $-5\,000 \rightarrow 180\,000$ (tests séparés). \\
+    \code{cptCourant\_type} & \code{fraisTenue} &
+    Frais de tenue : 1\,200~DA pour un CC, 0 pour CE/CT. \\
+    \code{cptEpargne\_type} & \code{calculeInterets} &
+    Solde + intérêts. CE5 : 515\,000. \\
+    \code{cptEpargne\_type} & \code{sortieAnticipee} &
+    Solde avec pénalité de 5~\%. CE5 : 475\,000. \\
+    \code{cptTerme\_type} & \code{calculeInterets} &
+    Solde + intérêts proratisés. CT1 : 206\,400. \\
+    \code{cptTerme\_type} & \code{sortieAnticipee} &
+    Solde avec pénalité de 5~\%. CT1 : 190\,000. \\
+    \code{compte\_type} & \code{fermeCompte(cpt)} (statique) &
+    Clôture un compte. CE4 : 320\,000 ; CC1 : 2\,498\,500 et cinq
+    opérations. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\begin{clebox}[Pourquoi \code{calculeInterets} retourne-t-il le solde plus les intérêts ?]
+La méthode simule le montant disponible à l'échéance : pour l'épargne,
+\code{solde * (1 + taux/100)} ; pour le terme,
+\code{solde * (1 + taux/100 * durée/12)}. Les intérêts seuls sont visibles
+dans \code{afficheInterets} : 3\,750 + 15\,000 = 18\,750~DA pour le client 1.
+\end{clebox}
+
+\begin{lstlisting}[caption={Calcul des intérêts et de la sortie anticipée.},label={lst:interets}]
+MEMBER FUNCTION calculeInterets RETURN NUMBER IS
+BEGIN
+  RETURN ROUND(SELF.solde * (1 + SELF.taux_interet / 100), 2);
+END;
+
+MEMBER FUNCTION sortieAnticipee RETURN NUMBER IS
+BEGIN
+  RETURN ROUND(SELF.solde * 0.95, 2);
+END;
+\end{lstlisting}
+
+Pour un compte à terme, la durée intervient dans le calcul :
+\code{solde * (1 + (taux\_garanti / 100) * (duree\_mois / 12))}. La pénalité de
+sortie anticipée reste de 5~\%, quelle que soit la durée restante. Ce choix
+simplifie la règle métier et la rend facile à expliquer.
+
+\section{Clôture de compte}
+
+La procédure statique \code{fermeCompte} cherche le compte dans
+\code{cpt\_courant}, puis dans \code{cpt\_epargne}, puis dans
+\code{cpt\_terme}. Elle affiche le solde avant clôture, supprime les opérations
+si c'est un compte courant, puis supprime le compte. Elle valide par
+\code{COMMIT}. Si le compte n'existe pas, elle affiche un message et annule.
+
+\begin{attentionbox}[Procédure statique]
+\code{fermeCompte} est déclarée \code{STATIC} dans \code{compte\_type} : elle
+est appelée sur le type, et non sur une instance. L'appel
+\code{compte\_type.fermeCompte('CC1')} ne dépend donc pas d'un objet
+\code{compte\_type} préalable. C'est cohérent avec une opération de clôture
+identifiée par un numéro de compte.
+\end{attentionbox}
+
+\section{Tests et résultats}
+
+Les tests des sous-programmes, des blocs anonymes et des méthodes sont
+exécutés avant les triggers, sauf pour \code{passeMvt} et \code{fermeCompte},
+qui nécessitent les triggers et sont testés plus tard. Le
+tableau~\ref{tab:resultats-D1} récapitule les résultats attendus.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Résultats des tests D1, D7 et D8.}
+  \label{tab:resultats-D1}
+  \begin{tabularx}{\textwidth}{@{}L{5.2cm}L{4.6cm}X@{}}
+    \toprule
+    \entete{Test} & \entete{Commande ou méthode} & \entete{Résultat attendu} \\
+    \midrule
+    Nombre de comptes & \code{SELECT nb\_comptes() FROM dual;} &
+    Somme des CC, CE et CT. \\
+    Solde total client 1 & \code{SELECT solde\_total(1) FROM dual;} &
+    3\,348\,500. \\
+    Ville client 1 & \code{SELECT ville\_client(1) FROM dual;} &
+    Béjaïa. \\
+    Ajout client 97 & \code{ajout\_client(97, ...)} &
+    Client ajouté, puis supprimé. \\
+    Nb épargne par client & \code{c.nbCepargne()} &
+    2, 1, 1, 1, 0, 0. \\
+    Solde total par client & \code{c.soldeTotal()} &
+    3\,348\,500 ; 300\,000 ; 168\,000 ; 830\,000 ; 0 ; 40\,000. \\
+    Intérêts client 1 & \code{v\_client.\allowbreak afficheInterets()} &
+    18\,750~DA. \\
+    Nombre de signataires & \code{cc.nbSignataire()} &
+    CC1:1, CC2:1, CC3:2, CC4:3, CC5:0, CC6:0, CC7:3. \\
+    Test de retrait & \code{peutRetirer(4, -1000)} & \code{TRUE}. \\
+    Épargne CE5 & \code{calculeInterets()} / \code{sortieAnticipee()} &
+    515\,000 / 475\,000. \\
+    Terme CT1 & \code{calculeInterets()} / \code{sortieAnticipee()} &
+    206\,400 / 190\,000. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Pièges de la programmation PL/SQL}
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Pièges de la partie D1.}
+  \label{tab:pieges-D1}
+  \begin{tabularx}{\textwidth}{@{}L{5.0cm}L{4.8cm}X@{}}
+    \toprule
+    \entete{Piège} & \entete{Symptôme} & \entete{Solution} \\
+    \midrule
+    Ajouter un membre déjà présent & \code{ORA-22324}. &
+    Protéger l'\code{ALTER TYPE} par une gestion d'exception ou tester
+    \code{user\_type\_attrs}. \\
+    \code{ALTER TYPE} multiple & Erreur de syntaxe. &
+    Un seul \code{ADD MEMBER} par instruction. \\
+    \code{COMMIT} dans une procédure réutilisable &
+    Le rollback global ne fonctionne plus. &
+    Laisser le \code{COMMIT} à l'appelant, sauf opération autonome. \\
+    \code{BOOLEAN} en SQL & \code{ORA-00902}. &
+    Utiliser \code{BOOLEAN} uniquement en PL/SQL, ou convertir en
+    \code{CHAR(1)}. \\
+    \code{VALUE} sur une table objet & Objet non récupéré. &
+    Utiliser \code{SELECT VALUE(c) INTO ...}. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Conclusion de la partie D1}
+
+Les sous-programmes et les méthodes donnent au schéma une réelle capacité de
+traitement. Ils encapsulent les calculs de soldes, d'intérêts, de droits et de
+clôture. Le choix de ne pas valider dans \code{virement} ou
+\code{ajout\_client} prépare les tests transactionnels du chapitre suivant. Les
+méthodes polymorphes, en particulier \code{fraisTenue} et
+\code{calculeInterets}, montrent que le comportement dépend du type réel de
+l'objet et non d'un test conditionnel externe.

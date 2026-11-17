@@ -57,7 +57,7 @@ Conseils de capture :
 | N° | Titre | Commande / source | Ce qu'on doit voir | Où l'insérer | Priorité |
 |---|---|---|---|---|---|
 | 01 | Connexion à la base | `sqlplus MASTER1/system@localhost:1521/XEPDB1` puis `SELECT USER FROM dual;` | `MASTER1`, version Oracle, date. | Page de garde / annexe environnement | P1 |
-| 02 | Arborescence des livrables | Capture de l'explorateur Windows sur `D:\bdda` | Les fichiers `partie_A...` à `partie_E...`, `projet_bdda_banque.sql`, `GUIDE_SOUTENANCE.md`, `uml/`. | Section « Livrables » | P1 |
+| 02 | Arborescence des livrables | Capture de l'explorateur Windows sur `D:\bdda` | Les fichiers `partie_A...` à `partie_E...`, `projet_bdda_banque.sql`, `demo_soutenance.sql`, `GUIDE_SOUTENANCE.md`, `uml/`. | Section « Livrables » | P1 |
 | 03 | Diagramme UML | `uml/banque.puml` rendu (PlantUML) ou `uml/banque.mermaid` | Classes, héritage, REF, collections. | Section « Modèle de données » | P1 |
 | 04 | Diagramme UML — version texte | `uml/banque.txt` | Version lisible si le rendu graphique manque. | Annexe | P2 |
 
@@ -69,7 +69,7 @@ Conseils de capture :
 
 | N° | Titre | Commande / source | Ce qu'on doit voir | Où l'insérer | Priorité |
 |---|---|---|---|---|---|
-| 05 | Types métier | `SELECT type_name, typecode FROM user_types ORDER BY type_name;` | 19 types : `ADRESSE_TYPE`, `CLIENT_TYPE`, `COMPTE_TYPE`, `CPTCOURANT_TYPE`, etc. | Partie A — types | P1 |
+| 05 | Types métier | `SELECT type_name, typecode FROM user_types ORDER BY type_name;` | 18 types en partie A (19 au final avec `AGENCE_VOR_TYPE`) : `ADRESSE_TYPE`, `CLIENT_TYPE`, `COMPTE_TYPE`, `CPTCOURANT_TYPE`, etc. | Partie A — types | P1 |
 | 06 | Tables | `SELECT table_name FROM user_tables ORDER BY table_name;` | 12 tables, dont `SIGNATAIRE_NT_ST`. | Partie A — tables | P1 |
 | 07 | Contraintes | `SELECT constraint_name, constraint_type, table_name FROM user_constraints WHERE table_name IN (...);` | PK, FK, CHECK, UNIQUE. | Partie A — contraintes | P1 |
 | 08 | Clients | `SELECT c.num_client, c.nom, c.prenom, c.adresse.ville FROM client c ORDER BY c.num_client;` | 6 clients. | Partie A — données | P1 |
@@ -117,7 +117,7 @@ Conseils de capture :
 | 30 | 6.25 — suppression CT4 | Requête 6.25 + `SELECT` après | CT4 supprimé ; CT1, CT2, CT3 restants. | Partie C — 6.25 | P1 |
 | 31 | 6.1 / 6.2 — formats | Requêtes 6.1 et 6.2 | Colonnes lisibles, clients et comptes. | Partie C — 6.1/6.2 | P2 |
 | 32 | 6.12 — client avec le plus de CE | Requête 6.12 | Client 1 (2 CE). | Partie C — 6.12 | P2 |
-| 33 | 6.23 — comptes dormants | Requête 6.23 | Comptes sans opération depuis 12 mois. | Partie C — 6.23 | P2 |
+| 33 | 6.23 — comptes dormants | Requête 6.23 | CC5 et CC6, sans opération depuis 12 mois. | Partie C — 6.23 | P2 |
 
 > **Astuce :** pour 6.24, si tu as déjà exécuté la partie D, l'opération de 1 500 000 DA n'existe plus. Utilise `_C.out` ou capture avant D. Ne « réinvente » pas le résultat.
 
@@ -139,16 +139,18 @@ Conseils de capture :
 | 43 | D8 — `virement` inter-agences | Bloc virement CC4 → CC3 | 323 900 / 39 000, commission 100. | Partie D — virement | P1 |
 | 44 | D8 — `virement` rollback | Bloc CC3 → CC4 60 000 | `ORA-20004`, CC4 reste 325 000. | Partie D — virement | P1 |
 | 45 | D8 — `fermeCompte` | Bloc `fermeCompte('CE4')` puis `('CC1')` | CE4 320 000 ; CC1 2 498 500 + 5 opérations. | Partie D — fermeture | P1 |
-| 46 | D9 — refus trigger statut | Bloc opération sur CC5 | `ORA-20001`. | Partie D — triggers | P1 |
-| 47 | D9 — refus droits | Bloc client sans droit | `ORA-20002`. | Partie D — triggers | P1 |
-| 48 | D9 - refus plafond | Bloc 210 000 sur CC4 | `ORA-20003`. | Partie D - triggers | P1 |
-| 49 | D9 — refus découvert | Bloc 100 000 sur CC2 | `ORA-20004`. | Partie D — triggers | P1 |
-| 50 | D9 — succès + solde | Bloc dépôt 10 000 sur CC7 | 185 000 → 195 000. | Partie D — triggers | P1 |
-| 51 | D9 — alertes | `SELECT * FROM alerte;` | `SOLDE_NEGATIF`, `OPERATION_SUSPECTE`, `ECHEANCE_PROCHE`, `ECHEANCE_DEPASSEE`. | Partie D — alertes | P1 |
-| 52 | D9 — audit | `SELECT * FROM "AUDIT";` | Lignes d'audit après modification de taux/découvert. | Partie D — audit | P2 |
+| 46 | D9 — refus trigger statut | Bloc opération du titulaire (client 5) sur CC5 | `ORA-20001`. | Partie D — triggers | P1 |
+| 47 | D9 — refus droits | Bloc client 6 (non signataire) sur CC1 | `ORA-20002`. | Partie D — triggers | P1 |
+| 48 | D9 - refus plafond | Bloc retrait 210 000 par le signataire X (client 3) sur CC4 | `ORA-20003`. | Partie D - triggers | P1 |
+| 49 | D9 — refus découvert | Bloc retrait 60 000 par le titulaire (client 3) sur CC3 | `ORA-20004`. | Partie D — triggers | P1 |
+| 50 | D9 — succès + solde | Bloc retrait 1 000 par le signataire D (client 2) sur CC7 | 185 000 → 184 000. | Partie D — triggers | P1 |
+| 51 | D9 — alertes finales | `SELECT * FROM alerte;` après `scan_echeances` | `ECHEANCE_PROCHE` CT2 et `ECHEANCE_DEPASSEE` CT3. Les alertes des tests 9-10 sont annulées par `ROLLBACK`. | Partie D — alertes | P1 |
+| 52 | D9 — audit | `SELECT * FROM "AUDIT";` pendant les tests 13-15, avant `ROLLBACK` | Lignes d'audit ; l'audit final est vide (0 ligne). | Partie D — audit | P2 |
 | 53 | D9 — `scan_echeances` | `EXEC scan_echeances;` puis `SELECT * FROM alerte;` | Alertes CT2/CT3, sans doublon. | Partie D — échéances | P2 |
 
 > **Astuce :** les blocs de test sont déjà dans `partie_D_programmation.sql`. Pour une capture propre, exécuter le bloc seul dans SQL*Plus et capturer la sortie `DBMS_OUTPUT`.
+
+> **Ordre critique :** prendre les captures 39 à 44 **avant** la capture 45 (`fermeCompte('CE4')` puis `('CC1')`). Après la clôture, `nbCepargne()` du client 4 vaut 0, `soldeTotal()` ne contient plus CC1/CE4, et les soldes de CC1 ne sont plus disponibles.
 
 ---
 
@@ -163,7 +165,7 @@ Conseils de capture :
 | 58 | E12 — collections conseillers | `SELECT v.code, k.nom FROM Agence_VOR v, TABLE(v.conseillers) k;` | A1 : 1 ; A2 : 2 ; A3 : 1. | Partie E — 12 | P1 |
 | 59 | E12 — collections comptes | `SELECT v.code, c.num_compte, c.solde FROM Agence_VOR v, TABLE(v.comptes) c;` | A1 : CC4/CC7 ; A2 : CC2/CC5 ; A3 : CC3/CC6. | Partie E — 12 | P1 |
 | 60 | E12 — mutation | Bloc `mutation` + requête des compteurs | A2 2→1, A3 1→2, puis restauration. | Partie E — 12 | P1 |
-| 61 | E12 — erreurs attendues | Bloc mutation conseiller 1 vers A3, inconnu, agence inconnue | `ORA-20010`, `ORA-20011`. | Partie E — 12 | P2 |
+| 61 | E12 — erreurs attendues | Bloc `A3.mutation(1, 'A2')`, conseiller 99, agence A9 | `ORA-20010`, puis deux `ORA-20011`. | Partie E — 12 | P2 |
 
 > **Astuce :** la méthode `mutation` modifie l'état. Pour une capture, exécuter le bloc de test complet (avec les mutations de retour) ou utiliser `_FULL.out`.
 
@@ -176,7 +178,7 @@ Conseils de capture :
 | 62 | 0 objet invalide | `SELECT object_name, object_type, status FROM user_objects WHERE status <> 'VALID';` | `aucune ligne sélectionnée`. | Validation | P1 |
 | 63 | Nombre d'objets | `SELECT object_type, COUNT(*) FROM user_objects GROUP BY object_type;` | FUNCTION 3, INDEX 21, LOB 1, PROCEDURE 6, SEQUENCE 4, TABLE 12, TRIGGER 6, TYPE 26, TYPE BODY 6, VIEW 1. | Validation | P1 |
 | 64 | Rejeu du script unique | `@projet_bdda_banque.sql` puis fin de sortie | `FIN DU SCRIPT UNIQUE - PARTIES A A E`, aucune erreur de compilation. | Validation | P1 |
-| 65 | État final | Requêtes de comptage | 6 clients, 6 CC, 4 CE, 3 CT, 15 opérations, 9 signataires, 2 alertes. | Validation | P1 |
+| 65 | État final | Requêtes de comptage | 6 clients, 6 CC, 4 CE, 3 CT, 15 opérations, 9 signataires, 2 alertes, 9 affectations (historique). | Validation | P1 |
 | 66 | Sortie complète | `_travail/_FULL.out` | Toutes les sections A→E. | Annexe | P2 |
 
 ---

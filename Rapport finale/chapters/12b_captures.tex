@@ -1,0 +1,325 @@
+% =====================================================================
+% 12b_captures.tex — plan des captures d'écran
+% =====================================================================
+\chapter{Captures à produire}
+\label{ann:captures}
+
+\section{Mode d'emploi}
+
+Les captures sont destinées au rapport PDF et à la soutenance. Elles doivent
+être lisibles, ordonnées et cohérentes avec le texte. La règle principale est
+chronologique : la partie C s'exécute avant les tests destructifs de la partie
+D. Si toutes les captures sont prises après le rejeu complet, quatre résultats
+ne sont plus visibles : CC1, CE4, l'opération de 1\,500\,000~DA et CT4.
+
+Deux solutions sont possibles. La première consiste à capturer la partie C
+juste après \code{partie\_C\allowbreak\_requetes.sql}, avant la partie D. La
+seconde consiste à utiliser les sorties conservées
+\code{\_travail/\allowbreak\_C.out} et
+\code{\_travail/\allowbreak\_FULL.out}. Il ne faut jamais réinventer un
+résultat disparu.
+
+\begin{attentionbox}[Chronologie des captures]
+Les captures 39 à 44 doivent être prises avant la capture 45
+(\code{fermeCompte}). Après la clôture, \code{nbCepargne()} du client 4 vaut 0,
+\code{soldeTotal()} ne contient plus CC1 ni CE4, et les soldes de CC1 ne sont
+plus disponibles.
+\end{attentionbox}
+
+\section{Préparation de l'environnement}
+
+Avant les captures, activer les paramètres SQL*Plus et formater les colonnes
+larges. Une capture doit contenir la commande et le résultat, avec les accents
+et les chiffres lisibles.
+
+\begin{lstlisting}[caption={Paramètres de capture dans SQL*Plus.},label={lst:captures-param}]
+SET SERVEROUTPUT ON SIZE UNLIMITED
+SET LINESIZE 200
+SET PAGESIZE 100
+SET DEFINE OFF
+SET FEEDBACK ON
+SET VERIFY OFF
+
+COLUMN nom FORMAT A15
+COLUMN prenom FORMAT A15
+COLUMN num_compte FORMAT A10
+COLUMN statut FORMAT A10
+COLUMN type_op FORMAT A10
+COLUMN type_alerte FORMAT A22
+COLUMN adresse FORMAT A50
+\end{lstlisting}
+
+\section{Liste ordonnée des 66 captures}
+
+{\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{@{}C{0.7cm}L{3.2cm}L{5.4cm}L{4.3cm}C{0.9cm}@{}}
+\caption{Plan des 66 captures, dans l'ordre de production.}
+\label{tab:captures}\\
+\toprule
+\entete{N°} & \entete{Titre et section} & \entete{Commande ou source} &
+\entete{Ce qu'on doit voir} & \entete{Prio.} \\
+\midrule
+\endfirsthead
+\toprule
+\entete{N°} & \entete{Titre et section} & \entete{Commande ou source} &
+\entete{Ce qu'on doit voir} & \entete{Prio.} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+\multicolumn{5}{@{}l}{\textbf{Environnement et UML}}\\
+\addlinespace
+01 & Connexion à la base &
+\code{sqlplus}
+\code{MASTER1/\allowbreak system@\allowbreak localhost:1521/\allowbreak XEPDB1}
+puis
+\code{SELECT USER FROM dual;} &
+\code{MASTER1}, version Oracle, date. & P1 \\
+02 & Arborescence des livrables &
+Explorateur Windows sur \code{D:\textbackslash bdda} &
+Scripts A à E, script maître, démo, guide, \code{uml/}. & P1 \\
+03 & Diagramme UML &
+\code{uml/banque.puml} ou \code{uml/banque.mermaid} &
+Classes, héritage, \code{REF}, collections. & P1 \\
+04 & UML en version texte &
+\code{uml/banque.txt} &
+Version lisible si le rendu graphique manque. & P2 \\
+\addlinespace
+\multicolumn{5}{@{}l}{\textbf{Partie A — schéma et données}}\\
+\addlinespace
+05 & Types métier &
+\code{SELECT type\_name, typecode FROM user\_types ORDER BY type\_name;} &
+18 types en partie A, 19 au final avec \code{AGENCE\_VOR\_TYPE}. & P1 \\
+06 & Tables &
+\code{SELECT table\_name FROM user\_tables ORDER BY table\_name;} &
+12 tables, dont \code{SIGNATAIRE\_NT\_ST}. & P1 \\
+07 & Contraintes &
+\code{SELECT constraint\_name, constraint\_type, table\_name} et
+\code{FROM user\_constraints} &
+PK, FK, CHECK, UNIQUE. & P1 \\
+08 & Clients &
+\code{SELECT c.num\_client, c.nom, c.prenom, c.adresse.ville FROM client c;} &
+6 clients. & P1 \\
+09 & Téléphones (\code{VARRAY}) &
+\code{SELECT c.num\_client, t.COLUMN\_VALUE FROM client c, TABLE(c.telephones) t;} &
+1 à 3 téléphones, certains \code{NULL}. & P1 \\
+10 & Comptes courants &
+\code{SELECT cc.num\_compte, cc.solde, cc.statut,}
+\code{CARDINALITY(cc.signataires) FROM cpt\_courant cc;} &
+7 CC au départ, dont CC5 \code{BLOQUE}. & P1 \\
+11 & Comptes d'épargne &
+\code{SELECT ce.num\_compte, ce.solde, ce.taux\_interet, ce.plafond\_depot}
+\code{FROM cpt\_epargne ce;} &
+5 CE, dont CE2 à 3,49. & P1 \\
+12 & Comptes à terme &
+\code{SELECT ct.num\_compte, ct.montant\_bloque, ct.duree\_mois,}
+\code{ct.date\_echeance FROM cpt\_terme ct;} &
+4 CT, dont CT4 à 0. & P1 \\
+13 & Opérations &
+\code{SELECT id\_op, date\_op, montant, type\_op FROM operation;} &
+20 opérations au départ. & P1 \\
+14 & Signataires &
+\code{SELECT cc.num\_compte, s.ref\_client.nom, s.droit FROM cpt\_courant cc,}
+\code{TABLE(cc.signataires) s;} &
+Droits \code{X}, \code{R}, \code{D}. & P1 \\
+15 & Agences, conseillers, affectations &
+\code{SELECT a.code, a.nom, a.ref\_responsable.nom FROM agence a;} et
+\code{SELECT * FROM affectation;} &
+3 agences, 4 conseillers, historique. & P2 \\
+16 & Séquences &
+\code{SELECT sequence\_name, last\_number FROM user\_sequences;} &
+\code{SEQ\_OPERATION}, \code{SEQ\_ALERTE}, \code{SEQ\_AUDIT},
+\code{SEQ\_AFFECTATION}. & P2 \\
+\addlinespace
+\multicolumn{5}{@{}l}{\textbf{Partie B — manipulations}}\\
+\addlinespace
+17 & B5a — client 99 &
+\code{SELECT * FROM client WHERE num\_client = 99;} &
+\code{OUKACI Ahmed}, Béjaïa, un téléphone. & P1 \\
+18 & B5b — CC99 sans titulaire &
+\code{SELECT num\_compte, solde, statut FROM cpt\_courant}
+\code{WHERE num\_compte = 'CC99';} puis \code{UPDATE} et \code{COMMIT} &
+Compte existant avant l'\code{UPDATE}, titulaire après. & P1 \\
+19 & B5c — date par défaut &
+\code{SELECT id\_op, date\_op, montant, type\_op FROM operation} &
+\code{date\_op} = date du jour sans saisie. & P1 \\
+20 & B5d — signataire \code{D} &
+\code{SELECT s.ref\_client.nom, s.droit FROM cpt\_courant cc,}
+\code{TABLE(cc.signataires) s WHERE cc.num\_compte = 'CC99';} &
+Un signataire avec droit \code{D}. & P1 \\
+21 & B5e — \code{change\_Portable} &
+\code{SELECT c.num\_client, t.COLUMN\_VALUE FROM client c,}
+\code{TABLE(c.telephones) t WHERE c.num\_client IN (3, 99);} &
+Client 99 : 1 puis 2 téléphones ; client 3 : \code{0777-11-22-33}. & P1 \\
+22 & B5f — \code{drop\_client} avant/après &
+\code{SELECT COUNT(*) FROM client WHERE num\_client = 99;} &
+1 puis 0 ; aucun orphelin. & P1 \\
+23 & B5f — contrôle des dépendances &
+\code{SELECT COUNT(*) FROM operation WHERE ref\_client = ...;} et
+\code{SELECT COUNT(*) FROM cpt\_courant WHERE ref\_client = ...;} &
+0 après suppression. & P2 \\
+\addlinespace
+\multicolumn{5}{@{}l}{\textbf{Partie C — requêtes (avant la partie D)}}\\
+\addlinespace
+24 & 6.10 — solde négatif & Requête 6.10 &
+CC2 : $-50\,000$, titulaire BENALI, conseiller HAMDI. & P1 \\
+25 & 6.15 — top 3 clients & Requête 6.15 &
+Client 1 : 3\,348\,500 ; client 4 : 830\,000 ; client 2 : 300\,000. & P1 \\
+26 & 6.16a — \code{VARRAY} & Requête 6.16a &
+Client 1 : 3 téléphones, 2 renseignés. & P1 \\
+27 & 6.18a / 6.20 — \emph{nested table} & Requêtes 6.18a et 6.20 &
+CC7 : 3 signataires ; adresse complète. & P1 \\
+28 & 6.22 — échéances & Requête 6.22 &
+CT2 : 5 jours ; CT1 : 20 jours. & P1 \\
+29 & 6.24 — opération $>1$~M & Requête 6.24 &
+Opération de 1\,500\,000~DA sur CC1. & P1 \\
+30 & 6.25 — suppression CT4 & Requête 6.25 puis \code{SELECT} après &
+CT4 supprimé ; CT1, CT2, CT3 restants. & P1 \\
+31 & 6.1 / 6.2 — formats & Requêtes 6.1 et 6.2 &
+Colonnes lisibles, clients et comptes. & P2 \\
+32 & 6.12 — client avec le plus de CE & Requête 6.12 &
+Client 1 (2 CE). & P2 \\
+33 & 6.23 — comptes dormants & Requête 6.23 &
+CC5 et CC6, sans opération depuis 12 mois. & P2 \\
+\addlinespace
+\multicolumn{5}{@{}l}{\textbf{Partie D — programmation PL/SQL}}\\
+\addlinespace
+34 & D7a — téléphone client 3 & Bloc D7a &
+\code{0777-11-22-33}. & P1 \\
+35 & D7b — tous les titulaires & Bloc D7b &
+6 clients, certains « non renseigné ». & P2 \\
+36 & D7c — curseur paramétré & Bloc D7c, seuil 100\,000 puis
+$-1\,000\,000$ &
+CC2, CC3, CC5, CC6 ; puis \code{aucun\_compte}. & P1 \\
+37 & D7d - \code{EXTEND}, \code{LIMIT}, \code{COUNT}, \code{LAST} & Bloc D7d &
+Client 98 : 2 puis 3 téléphones ; 4\up{e} refusé. & P1 \\
+38 & D7e — total intérêts A1 & Bloc D7e &
+10\,150~DA. & P1 \\
+39 & D8 — \code{nbCepargne} / \code{soldeTotal} &
+\code{SELECT c.num\_client, c.nom, c.nbCepargne(), c.soldeTotal()}
+\code{FROM client c;} &
+2/1/1/1/0/0 et les soldes totaux. & P1 \\
+40 & D8 — intérêts et frais &
+\code{SELECT ce.num\_compte, ce.calculeInterets(), ce.sortieAnticipee()}
+\code{FROM cpt\_epargne ce;} &
+CE5 : 515\,000 / 475\,000. & P1 \\
+41 & D8 — \code{passeMvt} & Bloc \code{passeMvt} + \code{ROLLBACK} &
+CC7 : 185\,000 puis 195\,000, puis rollback. & P1 \\
+42 & D8 — \code{virement} même agence & Bloc virement CC4 vers CC7 &
+324\,000 / 186\,000, commission 0. & P1 \\
+43 & D8 — \code{virement} inter-agences & Bloc virement CC4 vers CC3 &
+323\,900 / 39\,000, commission 100. & P1 \\
+44 & D8 — \code{virement} rollback & Bloc CC3 vers CC4, 60\,000 &
+\code{ORA-20004}, CC4 reste à 325\,000. & P1 \\
+45 & D8 — \code{fermeCompte} &
+\code{fermeCompte('CE4')} puis \code{('CC1')} &
+CE4 320\,000 ; CC1 2\,498\,500 et 5 opérations. & P1 \\
+46 & D9 — refus statut & Bloc opération du titulaire (client 5) sur CC5 &
+\code{ORA-20001}. & P1 \\
+47 & D9 — refus droits & Bloc client 6 (non signataire) sur CC1 &
+\code{ORA-20002}. & P1 \\
+48 & D9 — refus plafond & Bloc retrait 210\,000 par le signataire X (client 3)
+sur CC4 & \code{ORA-20003}. & P1 \\
+49 & D9 — refus découvert & Bloc retrait 60\,000 par le titulaire (client 3)
+sur CC3 & \code{ORA-20004}. & P1 \\
+50 & D9 — succès + solde & Bloc retrait 1\,000 par le signataire D (client 2)
+sur CC7 & 185\,000 puis 184\,000. & P1 \\
+51 & D9 — alertes finales & \code{SELECT * FROM alerte;} après
+\code{scan\_echeances} &
+\code{ECHEANCE\_PROCHE} CT2 et \code{ECHEANCE\_DEPASSEE} CT3. & P1 \\
+52 & D9 — audit & \code{SELECT * FROM "AUDIT";} pendant les tests 13 à 15 &
+Lignes d'audit ; l'audit final est vide. & P2 \\
+53 & D9 — \code{scan\_echeances} & \code{EXEC scan\_echeances;} puis
+\code{SELECT * FROM alerte;} &
+Alertes CT2/CT3, sans doublon. & P2 \\
+\addlinespace
+\multicolumn{5}{@{}l}{\textbf{Partie E — objet avancé}}\\
+\addlinespace
+54 & E10 — parrainage & Requête à double notation &
+Clients 2/3/4 vers AMRANI ; 5 vers BENALI/AMRANI ; 6 vers CHERIF/AMRANI. & P1 \\
+55 & E11 — 5 mois &
+\code{SELECT r.annee, COUNT(*) FROM releves r, TABLE(r.mois\_vry) m}
+\code{GROUP BY r.annee;} &
+2026 : 5 mois. & P1 \\
+56 & E11 — totaux par type & Requête double \code{TABLE} &
+DEPOT 13/880\,000 ; RETRAIT 32/620\,000 ; VIREMENT 3/130\,000 ;
+CB 2/35\,000. & P1 \\
+57 & E12 — vue objet & \code{SELECT code, nom, ville FROM Agence\_VOR;} &
+3 agences. & P1 \\
+58 & E12 — collections conseillers &
+\code{SELECT v.code, k.nom FROM Agence\_VOR v, TABLE(v.conseillers) k;} &
+A1 : 1 ; A2 : 2 ; A3 : 1. & P1 \\
+59 & E12 — collections comptes &
+\code{SELECT v.code, c.num\_compte, c.solde FROM Agence\_VOR v,}
+\code{TABLE(v.comptes) c;} &
+A1 : CC4/CC7 ; A2 : CC2/CC5 ; A3 : CC3/CC6. & P1 \\
+60 & E12 — mutation & Bloc \code{mutation} + requête des compteurs &
+A2 2 vers 1, A3 1 vers 2, puis restauration. & P1 \\
+61 & E12 — erreurs attendues &
+\code{A3.mutation(1, 'A2')}, conseiller 99, agence A9 &
+\code{ORA-20010}, puis deux \code{ORA-20011}. & P2 \\
+\addlinespace
+\multicolumn{5}{@{}l}{\textbf{Validation finale et rejeu}}\\
+\addlinespace
+62 & Zéro objet invalide &
+\code{SELECT object\_name, object\_type, status FROM user\_objects}
+\code{WHERE status <> 'VALID';} &
+Aucune ligne sélectionnée. & P1 \\
+63 & Nombre d'objets &
+\code{SELECT object\_type, COUNT(*) FROM user\_objects GROUP BY object\_type;} &
+FUNCTION 3, INDEX 21, LOB 1, PROCEDURE 6, SEQUENCE 4, TABLE 12, TRIGGER 6,
+TYPE 26, TYPE BODY 6, VIEW 1. & P1 \\
+64 & Rejeu du script unique &
+\code{@projet\_bdda\_banque.sql} puis fin de sortie &
+\code{FIN DU SCRIPT UNIQUE - PARTIES A A E}, aucune erreur de compilation. & P1 \\
+65 & État final & Requêtes de comptage &
+6 clients, 6 CC, 4 CE, 3 CT, 15 opérations, 9 signataires, 2 alertes,
+9 affectations. & P1 \\
+66 & Sortie complète & \code{\_travail/\_FULL.out} &
+Toutes les sections A à E. & P2 \\
+\end{longtable}
+}
+
+\section{Ordre recommandé}
+
+\begin{enumerate}
+  \item 01--04 : environnement et UML.
+  \item 05--16 : partie A.
+  \item 17--23 : partie B.
+  \item 24--33 : partie C, avant la partie D.
+  \item 34--53 : partie D.
+  \item 54--61 : partie E.
+  \item 62--66 : validation finale.
+\end{enumerate}
+
+Si tout doit être refait, suivre cet ordre :
+
+\begin{enumerate}
+  \item exécuter \code{partie\_A\allowbreak\_schema.sql},
+        \code{partie\_B\allowbreak\_manipulations.sql} et
+        \code{partie\_C\allowbreak\_requetes.sql} ;
+  \item prendre les captures de la partie C ;
+  \item exécuter \code{partie\_D\allowbreak\_programmation.sql} et
+        \code{partie\_E\allowbreak\_objet\_avance.sql} ;
+  \item prendre les captures des parties D et E ;
+  \item terminer par \code{projet\_bdda\_banque.sql} pour prouver le rejeu
+        complet.
+\end{enumerate}
+
+\section{Checklist des captures}
+
+\begin{itemize}
+  \item Chaque capture contient la commande et le résultat.
+  \item Les accents et les chiffres sont lisibles.
+  \item La partie C est capturée avant les suppressions de D.
+  \item Les captures 6.24 et 6.25 sont présentes, ou justifiées par
+        \code{\_C.out}.
+  \item La capture « zéro objet invalide » est présente.
+  \item La capture du rejeu complet est présente.
+  \item Les captures sont numérotées et référencées dans le texte.
+  \item Le diagramme UML est présent.
+  \item Les captures d'erreurs ORA sont légendées « erreur attendue ».
+  \item Les captures ne montrent pas de données personnelles réelles : le jeu
+        de données est fictif.
+\end{itemize}

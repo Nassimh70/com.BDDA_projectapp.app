@@ -57,6 +57,7 @@ Le script unique `projet_bdda_banque.sql` rejoue les parties A → E. Il a été
 | `ETAPE_0_CADRAGE.md` | Hypothèses H1–H14 et choix de conception | — |
 | `GUIDE_SOUTENANCE.md` | Ce guide | — |
 | `CAPTURES_A_FAIRE.md` | Liste ordonnée des captures pour le rapport PDF | — |
+| `demo_soutenance.sql` | Démonstration de 10 minutes, tous les mouvements annulés par `ROLLBACK` | Oui |
 
 > **Ce qu'il faut dire :** « Le script de création d'utilisateur est fourni séparément. Je ne me connecte jamais en SYSTEM ou SYS pour le projet : je travaille avec `MASTER1`, qui possède les objets. »
 
@@ -135,7 +136,7 @@ SQL> @purge_donnees.sql
                                           +----------+
 ```
 
-Le diagramme complet est dans `uml/banque.puml` (PlantUML), `uml/banque.mermaid` (Mermaid) et `uml/banque.txt` (version texte, utile si l'outil de rendu n'est pas disponible).
+> Le schéma ASCII ci-dessus est simplifié : `cptTerme_type` est aussi un sous-type de `compte_type`. Le diagramme complet est dans `uml/banque.puml` (PlantUML), `uml/banque.mermaid` (Mermaid) et `uml/banque.txt` (version texte, utile si l'outil de rendu n'est pas disponible).
 
 ## 2.2 Tables objet et tables relationnelles : le partage
 
@@ -157,9 +158,9 @@ Le diagramme complet est dans `uml/banque.puml` (PlantUML), `uml/banque.mermaid`
 ```sql
 CREATE TYPE compte_type AS OBJECT (
   num_compte    VARCHAR2(10),
-  solde         NUMBER(14,2),
-  statut        VARCHAR2(10),
+  solde         NUMBER(12,2),
   date_ouverture DATE,
+  statut        VARCHAR2(10),
   ref_client    REF client_type,
   ref_agence    REF agence_type,
   MEMBER FUNCTION fraisTenue RETURN NUMBER
@@ -250,9 +251,9 @@ Elle est construite avec `CAST(MULTISET(...))` et `MAKE_REF(agence, a.code)`. Le
 | `agence` avec OID basé sur la PK | Nécessaire pour `MAKE_REF(agence, a.code)` dans la vue objet. | OID système → `MAKE_REF` impossible. |
 | `affectation` relationnelle | Historique daté, plusieurs lignes par conseiller. | Attribut `ref_agence` unique dans `conseiller_type`. |
 | `ref_parrain` ajouté par `ALTER TYPE` | Le sujet demande le parrainage ; cela montre aussi l'évolution d'un type. | Recréer `client_type` from scratch → perte des dépendances. |
-| `CHECK(ref_client IS NOT NULL) DEFERRABLE` | B5b insère un compte sans titulaire puis le met à jour. | `NOT NULL` immédiat → B5b impossible. |
+| `CHECK(ref_client IS NOT NULL) DEFERRABLE` sur `cpt_courant` | B5b insère un compte courant sans titulaire puis le met à jour. | `NOT NULL` immédiat → B5b impossible. |
 | Trigger sur `operation`, pas sur la *nested table* | Oracle interdit les triggers sur le stockage d'une *nested table* (`ORA-22812`). | Trigger sur `signataire_nt_st` → impossible. |
-| `virement` sans `COMMIT` | Le appelant doit pouvoir enchaîner ou annuler. | `COMMIT` interne → impossible de tester le rollback global. |
+| `virement` sans `COMMIT` | L'appelant doit pouvoir enchaîner ou annuler. | `COMMIT` interne → impossible de tester le rollback global. |
 | `fermeCompte` avec `COMMIT` | C'est une opération de clôture définitive, testée en dernier. | Pas de `COMMIT` → la suppression ne persiste pas. |
 | `date_fin = GREATEST(SYSDATE, date_debut) + 1/86400` | Évite `ORA-02290` sur `CK_AFF_DATES` lors d'une mutation le même jour. | `date_fin = SYSDATE` → `date_fin <= date_debut` possible. |
 
@@ -497,7 +498,7 @@ Elle fait `COMMIT` en cas de succès et `ROLLBACK` dans le `WHEN OTHERS`. Elle a
 | 6.7b | Clients avec un seul CE | `GROUP BY ... HAVING COUNT(*) = 1` | Clients 2, 3, 4. |
 | 6.8 | Clients ayant opéré sur CC7 | Jointure `operation` | Clients 2, 3, 4. |
 | 6.9a | Opérations CC7 par le propriétaire | `o.ref_client = cc.ref_client` | Opérations de client 4. |
-| 6.9b | Opérations CC7 par non-propriétaires | `o.ref_client <> cc.ref_client` | Opérations de clients 1/2. |
+| 6.9b | Opérations CC7 par non-propriétaires | `o.ref_client <> cc.ref_client` | Opérations de clients 2 et 3. |
 | 6.10 | CC à solde négatif + titulaire + conseiller | Jointures + `solde < 0` | CC2 : -50 000. |
 | 6.11a | Nombre de CE par client | `GROUP BY` | 4 lignes : 2, 1, 1, 1 (clients 1 à 4). |
 | 6.11b | Idem avec clients sans CE | `LEFT JOIN` / `NVL` | 6 lignes, dont 0. |
@@ -693,7 +694,7 @@ Il vérifie, dans cet ordre :
 - `AFTER INSERT OR UPDATE OF date_echeance` sur `cpt_terme`.
 - Si l'échéance est dans 8 jours ou moins : alerte `ECHEANCE_PROCHE`.
 - Si l'échéance est dépassée : alerte `ECHEANCE_DEPASSEE`.
-- Évite les doublons avec `NOT EXISTS` sur `alerte`.
+- Évite les doublons avec un test `COUNT(*) = 0` sur `alerte` (même compte, même type, `traitee = 'N'`).
 
 ### Triggers d'audit
 
@@ -710,7 +711,7 @@ Il vérifie, dans cet ordre :
 | Test 2 : client 6 sur CC1 (pas de droit de débit) | `ORA-20002`. |
 | Test 3 : client 5 (droit `R`) sur CC7 | `ORA-20002`. |
 | Test 4 : retrait de 60 000 sur CC3 | `ORA-20004` (découvert). |
-| Test 5 : retrait de 210 000 sur CC4 | `ORA-20003` (plafond 200 000). |
+| Test 5 : retrait de 210 000 par le signataire `X` (client 3) sur CC4 | `ORA-20003` (plafond 200 000). |
 | Test 6 : retrait de 1 000 par signataire `D` (client 2) sur CC7 | Succès, solde 185 000 → 184 000. |
 | Test 7 : retrait de 1 000 par signataire `X` (client 3) sur CC4 | Succès, solde 325 000 → 324 000. |
 | Test 8 : CB sur CC6 | Solde 40 000 → 39 000 ; `nb_op_cb` 0 → 1. |
@@ -721,7 +722,9 @@ Il vérifie, dans cet ordre :
 | Tests 13–15 : audit | Lignes dans `"AUDIT"` (taux CE1, découvert CC1, taux garanti CT1). |
 | Test 16 : `scan_echeances` | Alertes CT2/CT3, sans doublon. |
 
-> **Preuve :** `_FULL.out`, section « D9. TRIGGERS ». Les erreurs sont dans des blocs `BEGIN ... EXCEPTION WHEN OTHERS THEN DBMS_OUTPUT.PUT_LINE('Refus attendu : '||SQLERRM); END;`.
+> **Important :** les tests 6 à 15 se terminent par `ROLLBACK`. Les alertes `SOLDE_NEGATIF`, `OPERATION_SUSPECTE`, `ECHEANCE_PROCHE` (CT99) et `ECHEANCE_DEPASSEE` (CT98) sont donc transitoires ; après le script, il ne reste que les alertes CT2/CT3 créées par `scan_echeances` (test 16), et l'audit final est vide.
+
+> **Preuve :** `_FULL.out`, section « D9. TRIGGERS ». Les tests 1 à 5 sont dans des blocs `BEGIN ... EXCEPTION WHEN OTHERS THEN DBMS_OUTPUT.PUT_LINE('Refus attendu : '||SQLERRM); END;` ; les autres laissent volontairement l'erreur ou le résultat s'afficher.
 
 ## 6.6 `passeMvt` et `virement` en détail
 
@@ -950,6 +953,7 @@ SELECT v.code, c.num_compte, c.solde
 - Mutations réussies : KACI (4) de A2 vers A3, puis BENALI (1) de A1 vers A2 ; restauration ensuite de 1 vers A1 et de 4 vers A2.
 - Erreurs attendues : `A3.mutation(1, 'A2')` → `ORA-20010` (le conseiller 1 n'est pas affecté à A3) ; conseiller 99 → `ORA-20011` ; agence A9 → `ORA-20011`.
 - Après les tests, les compteurs de **conseillers** de la vue sont restaurés : A1 = 1, A2 = 2, A3 = 1.
+- La table `affectation` conserve l'historique : 9 lignes au final (5 initiales + 4 mutations), dont 4 fermées. La vue ne compte que les affectations ouvertes (`date_fin IS NULL`).
 
 > **Preuve :** `_FULL.out`, section « PARTIE_E_OBJET_AVANCE.SQL ».
 
@@ -971,6 +975,8 @@ SELECT v.code, c.num_compte, c.solde
 ## 8.1 Script de démonstration minuté
 
 > **Objectif :** montrer que le projet fonctionne, que tu comprends les choix, et que tu sais réagir aux erreurs. Ne montre pas tout : choisis les preuves les plus parlantes.
+>
+> **Version exécutable :** `demo_soutenance.sql` reprend les blocs ci-dessous dans l'ordre. Tous les mouvements sont annulés par `ROLLBACK` ; l'état final reste 6 clients / 6 CC / 4 CE / 3 CT / 15 opérations / 9 signataires / 2 alertes / 9 affectations. Le script a été testé : 0 objet invalide.
 
 ### 0:00–0:40 — Introduction
 
@@ -1002,7 +1008,7 @@ SELECT COUNT(*) AS comptes_courants FROM cpt_courant;
 
 **À dire :**
 
-> « Il y a 19 types métier. Les comptes sont une hiérarchie : `compte_type` est non instanciable, et il y a une table par sous-type. Les clients ont un VARRAY de 3 téléphones et une nested table de signataires. La table `client` garde un OID système pour que les REF puissent être insérés dans la nested table. »
+> « Il y a 19 types métier. Les comptes sont une hiérarchie : `compte_type` est non instanciable, et il y a une table par sous-type. Les clients ont un VARRAY de 3 téléphones ; les comptes courants ont une nested table de signataires. La table `client` garde un OID système pour que les REF puissent être insérés dans la nested table. »
 
 **Preuve UML :** montrer `uml/banque.puml` ou `uml/banque.mermaid`.
 
@@ -1069,7 +1075,7 @@ SELECT ce.num_compte, ce.solde, ce.calculeInterets() AS a_l_echeance,
  ORDER BY ce.num_compte;
 ```
 
-> **Chronologie :** après la clôture de CE4 par `fermeCompte`, le client 4 n'a plus aucun compte d'épargne : `nbCepargne()` affiche 0, alors que le tableau 6.3 donnait 1 avant cette clôture.
+> **Chronologie :** après la clôture de CE4 par `fermeCompte`, le client 4 n'a plus aucun compte d'épargne : `nbCepargne()` affiche 0, alors que le tableau 6.3 donnait 1 avant cette clôture. De même, `soldeTotal()` ne contient plus CC1 ni CE4 : les valeurs de 6.3 sont celles d'avant les tests destructifs. Si on veut montrer les valeurs initiales, il faut utiliser `_FULL.out` ou exécuter la requête avant `fermeCompte`.
 
 **Puis `passeMvt` :**
 
@@ -1119,7 +1125,7 @@ BEGIN
   INSERT INTO operation (id_op, ref_client, ref_compte, date_op,
                          montant, type_op, commission)
   VALUES (seq_operation.NEXTVAL,
-          (SELECT REF(c) FROM client c WHERE c.num_client = 4),
+          (SELECT REF(c) FROM client c WHERE c.num_client = 3),
           (SELECT REF(cc) FROM cpt_courant cc WHERE cc.num_compte = 'CC4'),
           TRUNC(SYSDATE), -210000, 'RETRAIT', 0);
   DBMS_OUTPUT.PUT_LINE('Inattendu : accepte');
@@ -1340,11 +1346,11 @@ SELECT COUNT(*) AS objets_invalides
 **Si on insiste :** CE5 : 500 000 × 1,03 = 515 000 ; sortie 475 000. CT1 : 200 000 × 1,032 = 206 400 ; sortie 190 000. `afficheInterets` affiche les intérêts seuls : 3 750 + 15 000 = 18 750 pour le client 1.
 
 **Q34. Comment fonctionne `maj_statuts_dormants` ?**  
-**Réponse courte :** Elle passe en `DORMANT` les comptes ACTIF sans opération depuis 12 mois.  
+**Réponse courte :** Elle passe en `DORMANT` les comptes courants ACTIF sans opération depuis 12 mois.  
 **Si on insiste :** Le test est fait dans un bloc avec `ROLLBACK` pour ne pas modifier l'état final. Le résultat affiché est « 1 compte(s) passe(s) DORMANT ».
 
 **Q35. Comment `scan_echeances` évite-t-elle les doublons ?**  
-**Réponse courte :** Avec `NOT EXISTS` sur `alerte` pour le même compte et le même type, avec `traitee = 'N'`.  
+**Réponse courte :** Avec un test `COUNT(*) = 0` sur `alerte` pour le même compte et le même type, avec `traitee = 'N'`.  
 **Si on insiste :** Le trigger `trg_ct_echeance` crée les alertes à l'insertion/mise à jour ; `scan_echeances` fait un balayage global pour les comptes existants.
 
 ### Partie E
@@ -1373,7 +1379,7 @@ SELECT COUNT(*) AS objets_invalides
 
 **Q41. Pourquoi y a-t-il des erreurs ORA dans la sortie ?**  
 **Réponse courte :** Ce sont des tests d'exception volontaires.  
-**Si on insiste :** `ORA-20001` à `ORA-20004` pour les triggers, `ORA-20010`/`ORA-20011` pour la mutation, et les `ORA-06512`/`ORA-04088` associés. Ils sont capturés par `EXCEPTION WHEN OTHERS` et affichés comme « Refus attendu ». Aucune erreur de compilation.
+**Si on insiste :** `ORA-20001` à `ORA-20004` pour les triggers, `ORA-20010`/`ORA-20011` pour la mutation, et les `ORA-06512`/`ORA-04088` associés. Les cinq tests de triggers sont capturés par `EXCEPTION WHEN OTHERS` et affichés comme « Refus attendu » ; les tests `passeMvt`, `virement` et `mutation` laissent volontairement l'erreur s'afficher pour prouver le refus. Aucune erreur de compilation.
 
 **Q42. Pourquoi 0 objet invalide est-il important ?**  
 **Réponse courte :** Parce qu'après `ALTER TYPE ... CASCADE`, les objets dépendants peuvent devenir INVALID.  
@@ -1424,6 +1430,7 @@ SELECT COUNT(*) AS objets_invalides
 | Clients | 6 |
 | Conseillers | 4 |
 | Agences | 3 |
+| Affectations (final) | 9 (5 initiales + 4 mutations historisées) |
 | Comptes courants (final) | 6 |
 | Comptes d'épargne (final) | 4 |
 | Comptes à terme (final) | 3 |

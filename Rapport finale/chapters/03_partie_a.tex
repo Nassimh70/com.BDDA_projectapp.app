@@ -1,0 +1,486 @@
+% =====================================================================
+% 03_partie_a.tex — schéma, types, contraintes et données
+% =====================================================================
+\chapter{Partie A : schéma, contraintes et données}
+\label{chap:partieA}
+
+\section{Objectifs de la partie A}
+
+La partie A établit le socle du projet. Elle crée l'utilisateur applicatif, les
+types métier, les tables, les contraintes, les séquences et un jeu de données
+représentatif, en suivant les conventions de SQL*Plus \cite{oracleSQLPlus}. Elle doit également garantir que l'ensemble peut être supprimé
+puis recréé sans intervention manuelle. Cette exigence de rejeu est
+particulièrement importante lors d'une soutenance : elle permet de repartir
+d'un état propre si une démonstration a modifié les données.
+
+\begin{objectifbox}[Résultat attendu]
+À la fin de la partie A, la base contient 18 types métier, 11 tables logiques
+(dont le stockage de la \emph{nested table} des signataires), 4 séquences et un
+jeu de données couvrant les principaux cas de test. Aucun objet ne doit être
+invalide.
+\end{objectifbox}
+
+\section{Les types métier}
+
+Les types métier sont créés dans un ordre imposé par leurs dépendances. Un type
+qui référence un autre type doit être créé après lui. Par exemple,
+\code{client\_type} référence \code{adresse\_type}, \code{tel\_vry\_type} et
+\code{conseiller\_type} ; il ne peut donc être déclaré avant eux. La
+table~\ref{tab:types-metier} récapitule les dix-huit types de la partie A.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Types métier créés en partie A.}
+  \label{tab:types-metier}
+  \footnotesize
+  \begin{tabularx}{\textwidth}{@{}L{5.4cm}L{3.1cm}X@{}}
+    \toprule
+    \entete{Type} & \entete{Nature} & \entete{Rôle} \\
+    \midrule
+    \code{adresse\_type} & Objet &
+    \code{num\_rue}, \code{rue}, \code{ville}, \code{code\_postal}. \\
+    \code{tel\_vry\_type} & \code{VARRAY(3)} &
+    Téléphones d'un client. \\
+    \code{conseiller\_type} & Objet &
+    \code{num\_conseiller}, \code{nom}, \code{prenom}, \code{specialite}. \\
+    \code{agence\_type} & Objet &
+    \code{code}, \code{nom}, \code{ville}, \code{ref\_responsable}. \\
+    \code{client\_type} & Objet &
+    Identité, adresse, téléphones, conseiller, parrain. \\
+    \code{signataire\_elt\allowbreak\_nt\_type} & Objet &
+    \code{ref\_client REF client\_type}, \code{droit CHAR(1)}. \\
+    \code{signataire\_nt\_type} & \emph{Nested table} &
+    Collection de signataires. \\
+    \code{compte\_type} & Objet, \code{NOT FINAL NOT INSTANTIABLE} &
+    Super-classe des comptes. \\
+    \code{cptCourant\_type} & Objet \code{UNDER compte\_type} &
+    Découvert, \code{nb\_op\_cb}, signataires ; opérations via la table
+    \code{operation}. \\
+    \code{cptEpargne\_type} & Objet \code{UNDER compte\_type} &
+    Taux d'intérêt, plafond de dépôt. \\
+    \code{cptTerme\_type} & Objet \code{UNDER compte\_type} &
+    Montant bloqué, durée, échéance, taux garanti. \\
+    \code{operation\_type} & Objet &
+    Opération sur un compte courant. \\
+    \code{conseiller\_nt\_type} & \emph{Nested table} &
+    Collection de conseillers pour la vue objet. \\
+    \code{cptCourant\_nt\_type} & \emph{Nested table} &
+    Collection de comptes courants pour la vue objet. \\
+    \code{type\_stat\_elt\allowbreak\_nt\_type} & Objet &
+    \code{type\_op}, \code{nb}, \code{montant\_total}. \\
+    \code{type\_stat\_nt\_type} & \emph{Nested table} &
+    Collection de statistiques. \\
+    \code{mois\_elt\_vry\_type} & Objet &
+    \code{mois}, \code{nb\_operations}, \code{types}. \\
+    \code{mois\_vry\_type} & \code{VARRAY(12)} &
+    Mois d'un relevé annuel. \\
+    \code{agence\_vor\_type} & Objet (partie E) &
+    Type de la vue objet \code{Agence\_VOR}. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\begin{remarquebox}[Pourquoi 26 lignes de type dans \code{USER\_OBJECTS} ?]
+La partie A crée 18 types, et la partie E ajoute \code{agence\_vor\_type}, soit
+19 types métier. Pourtant, la vue \code{USER\_OBJECTS} en affiche 26 : Oracle
+crée des types internes \code{SYS\_YOID...} et conserve une version
+supplémentaire de \code{CLIENT\_TYPE} après l'évolution
+\code{ALTER TYPE ... ADD ATTRIBUTE}. Ce décalage n'est pas une anomalie ; il
+provient du catalogue.
+\end{remarquebox}
+
+\section{Création de l'utilisateur et des privilèges}
+
+Le script \code{00\_creation\_utilisateur.sql} doit être exécuté par un
+administrateur, et non par \code{MASTER1}. Il crée l'utilisateur s'il n'existe
+pas, puis accorde les privilèges nécessaires : connexion, création de tables,
+de types, de vues, de procédures, de séquences et de triggers. Il accorde
+également les droits sur \code{DBMS\_SCHEDULER} et un quota illimité sur
+l'espace de travail.
+
+\begin{lstlisting}[caption={Création idempotente de l'utilisateur \code{MASTER1}.},label={lst:creation-utilisateur}]
+DECLARE
+  v_nb NUMBER;
+BEGIN
+  SELECT COUNT(*) INTO v_nb FROM dba_users WHERE username = 'MASTER1';
+  IF v_nb = 0 THEN
+    EXECUTE IMMEDIATE 'CREATE USER MASTER1 IDENTIFIED BY system';
+    DBMS_OUTPUT.PUT_LINE('Utilisateur MASTER1 cree.');
+  ELSE
+    DBMS_OUTPUT.PUT_LINE('Utilisateur MASTER1 deja present : aucune creation.');
+  END IF;
+END;
+/
+
+GRANT CREATE SESSION   TO MASTER1;
+GRANT CREATE TABLE     TO MASTER1;
+GRANT CREATE TYPE      TO MASTER1;
+GRANT CREATE VIEW      TO MASTER1;
+GRANT CREATE PROCEDURE TO MASTER1;
+GRANT CREATE SEQUENCE  TO MASTER1;
+GRANT CREATE TRIGGER   TO MASTER1;
+GRANT CREATE JOB       TO MASTER1;
+GRANT EXECUTE ON DBMS_SCHEDULER TO MASTER1;
+GRANT UNLIMITED TABLESPACE TO MASTER1;
+ALTER USER MASTER1 QUOTA UNLIMITED ON USERS;
+\end{lstlisting}
+
+\begin{attentionbox}[Sécurité]
+Le mot de passe \code{system} est utilisé ici uniquement parce que
+l'environnement est local et pédagogique. Dans un contexte réel, il faudrait un
+mot de passe robuste, des profils de ressources, une séparation des rôles et
+une journalisation des connexions. Cette limite est reprise dans les
+perspectives.
+\end{attentionbox}
+
+\section{Les tables}
+
+Le schéma comporte onze tables logiques, auxquelles s'ajoute la table physique
+\code{signataire\_nt\_st} créée par Oracle pour stocker la \emph{nested table}
+des signataires. Le tableau~\ref{tab:tables} présente leur nature et leur
+contenu attendu.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Tables du schéma et contenu attendu.}
+  \label{tab:tables}
+  \begin{tabularx}{\textwidth}{@{}L{3.4cm}L{3.8cm}X@{}}
+    \toprule
+    \entete{Table} & \entete{Type} & \entete{Contenu} \\
+    \midrule
+    \code{conseiller} & Objet & 4 conseillers. \\
+    \code{agence} & Objet & 3 agences. \\
+    \code{affectation} & Relationnelle & Historique conseiller/agence. \\
+    \code{client} & Objet & 6 clients. \\
+    \code{cpt\_courant} & Objet &
+    7 comptes courants au départ, 6 après les tests destructifs. \\
+    \code{cpt\_epargne} & Objet &
+    5 comptes d'épargne au départ, 4 après \code{fermeCompte('CE4')}. \\
+    \code{cpt\_terme} & Objet &
+    4 comptes à terme au départ, 3 après la requête 6.25. \\
+    \code{operation} & Objet &
+    20 opérations au départ, 15 après la suppression de CC1. \\
+    \code{alerte} & Relationnelle &
+    Alertes d'échéance et de solde. \\
+    \code{"AUDIT"} & Relationnelle &
+    Journal des modifications de taux et de découvert. \\
+    \code{releves} & Relationnelle + \code{VARRAY} &
+    Relevé annuel multi-niveaux. \\
+    \code{signataire\_nt\_st} & Stockage de \emph{nested table} &
+    Table physique créée par \code{NESTED TABLE ... STORE AS}. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\begin{attentionbox}[Le mot réservé \code{AUDIT}]
+\code{AUDIT} est un mot réservé d'Oracle. Sans guillemets,
+\code{CREATE TABLE AUDIT} échoue avec \code{ORA-00903}. La table est donc
+toujours écrite \code{"AUDIT"}, à la création comme dans les insertions et les
+requêtes. Cette contrainte de nommage est volontairement conservée pour
+montrer la maîtrise des identifiants délimités.
+\end{attentionbox}
+
+\section{Types, tables et contraintes : extraits significatifs}
+
+Le type \code{client\_type} illustre à lui seul plusieurs mécanismes : attributs
+structurés, collection \code{VARRAY}, référence vers un conseiller et évolution
+par \code{ALTER TYPE}. Le parrainage est ajouté après la création initiale, car
+le sujet le demande en partie E tout en l'utilisant dès la partie A pour
+insérer deux clients parrainés.
+
+\begin{lstlisting}[caption={Création de \code{client\_type} et ajout du parrainage.},label={lst:client-type}]
+BEGIN
+  EXECUTE IMMEDIATE q'[
+    CREATE TYPE client_type AS OBJECT (
+      num_client     NUMBER,
+      nom            VARCHAR2(30),
+      prenom         VARCHAR2(30),
+      date_naissance DATE,
+      num_secu       VARCHAR2(20),
+      adresse        adresse_type,
+      telephones     tel_vry_type,
+      email          VARCHAR2(60),
+      date_entree    DATE,
+      ref_conseiller REF conseiller_type
+    )]';
+END;
+/
+
+ALTER TYPE client_type ADD ATTRIBUTE ref_parrain REF client_type CASCADE;
+\end{lstlisting}
+
+Le recours à \code{EXECUTE IMMEDIATE} n'est pas un caprice de style. Sur
+l'installation utilisée, un \code{CREATE TYPE} direct dans SQL*Plus ferme
+silencieusement la session. Le bloc PL/SQL avec \code{q'[...]'} contourne ce
+comportement et permet de vérifier les erreurs avec \code{SHOW ERRORS}.
+
+La table \code{cpt\_courant} montre la contrainte différée utilisée par B5b.
+Elle est bien \code{NOT NULL} sur le titulaire, mais la vérification est
+repoussée au \code{COMMIT}. La \emph{nested table} des signataires est stockée
+dans une table dédiée, sur laquelle des contraintes de domaine sont ajoutées.
+
+\begin{lstlisting}[caption={Table \code{cpt\_courant} et stockage des signataires.},label={lst:cpt-courant}]
+CREATE TABLE cpt_courant OF cptCourant_type (
+  num_compte PRIMARY KEY,
+  CONSTRAINT ck_cc_client    CHECK (ref_client IS NOT NULL)
+                             DEFERRABLE INITIALLY DEFERRED,
+  CONSTRAINT ck_cc_agence    CHECK (ref_agence IS NOT NULL),
+  CONSTRAINT ck_cc_statut    CHECK (statut IN ('ACTIF','BLOQUE','DORMANT')),
+  CONSTRAINT ck_cc_decouvert CHECK (decouvert >= 0),
+  CONSTRAINT ck_cc_nbcb      CHECK (nb_op_cb >= 0)
+)
+NESTED TABLE signataires STORE AS signataire_nt_st;
+
+ALTER TABLE signataire_nt_st
+  ADD CONSTRAINT ck_sig_droit CHECK (droit IN ('X','R','D'));
+ALTER TABLE signataire_nt_st
+  ADD CONSTRAINT ck_sig_droit_nn CHECK (droit IS NOT NULL);
+\end{lstlisting}
+
+\section{Contraintes et valeurs par défaut}
+
+Les contraintes ne se limitent pas aux clés primaires. Elles encodent des
+règles métier : un compte doit avoir un titulaire, un statut appartient à un
+domaine fermé, un taux d'épargne reste strictement inférieur à 3,5~\%, une
+durée de compte à terme appartient à l'ensemble $\{6, 12, 24, 36\}$ mois, et un
+découvert ne peut pas être négatif. Le tableau~\ref{tab:contraintes} en donne
+une vue synthétique.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Contraintes et valeurs par défaut.}
+  \label{tab:contraintes}
+  \begin{tabularx}{\textwidth}{@{}L{5.2cm}L{3.4cm}X@{}}
+    \toprule
+    \entete{Contrainte} & \entete{Table} & \entete{Rôle} \\
+    \midrule
+    PK sur \code{num\_client}, \code{num\_conseiller}, \code{code}, etc. &
+    Toutes & Identifiants. \\
+    \code{UNIQUE(num\_secu)} & \code{client} &
+    Un numéro de sécurité sociale unique. \\
+    \code{CHECK(ref\_client IS NOT NULL)} &
+    \code{cpt\_courant}, \code{cpt\_epargne}, \code{cpt\_terme} &
+    Un compte doit avoir un titulaire. Sur \code{cpt\_courant} seulement, la
+    contrainte est \code{DEFERRABLE INITIALLY DEFERRED} pour B5b. \\
+    \code{CHECK(droit IN ('X',\allowbreak'R',\allowbreak'D'))} &
+    \code{signataire\_nt\_st} &
+    Domaine des droits. \\
+    \code{CHECK(statut IN ('ACTIF',\allowbreak'BLOQUE',\allowbreak'DORMANT'))}
+    & Comptes &
+    Domaine du statut. \\
+    \code{CHECK(type\_op IN ('DEPOT',\allowbreak'RETRAIT',\allowbreak
+    'VIREMENT',\allowbreak'CB'))} &
+    \code{operation} & Domaine du type d'opération. \\
+    \code{CHECK(taux\_interet >= 0 AND taux\_interet < 3.5)} &
+    \code{cpt\_epargne} & Limite du taux d'épargne. \\
+    \code{CHECK(duree\_mois IN (6,12,24,36))} & \code{cpt\_terme} &
+    Durées autorisées. \\
+    \code{CHECK(decouvert >= 0)} & \code{cpt\_courant} &
+    Découvert positif ou nul. \\
+    \code{DEFAULT SYSDATE} & \code{operation.\allowbreak date\_op} &
+    Date d'opération par défaut. \\
+    \code{DEFAULT 'ACTIF'} & Statut des comptes &
+    Statut par défaut. \\
+    FK sur les \code{REF} & Comptes, opérations, agence &
+    Intégrité référentielle. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\begin{clebox}[La contrainte différée de B5b]
+La contrainte \code{ck\_cc\_client} est \code{DEFERRABLE INITIALLY DEFERRED}.
+Elle interdit toujours un compte sans titulaire, mais la vérification a lieu au
+\code{COMMIT} et non à l'insertion. C'est ce qui permet d'insérer \code{CC99}
+sans titulaire, puis de le mettre à jour avant validation. Les contraintes
+équivalentes de \code{cpt\_epargne} et \code{cpt\_terme} restent immédiates.
+\end{clebox}
+
+\section{Séquences}
+
+Quatre séquences fournissent les identifiants des objets qui ne possèdent pas
+de clé naturelle. Les opérations et les affectations commencent à 100, afin de
+distinguer immédiatement les identifiants générés des petits identifiants de
+test.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Séquences du schéma.}
+  \label{tab:sequences}
+  \begin{tabularx}{0.75\textwidth}{@{}L{4.2cm}X@{}}
+    \toprule
+    \entete{Séquence} & \entete{Utilisation} \\
+    \midrule
+    \code{seq\_operation} & Identifiants d'opération. \\
+    \code{seq\_alerte} & Identifiants d'alerte. \\
+    \code{seq\_audit} & Identifiants d'audit. \\
+    \code{seq\_affectation} & Identifiants d'affectation. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Jeu de données initial}
+
+Le jeu de données est conçu pour couvrir les cas limites : clients avec zéro,
+un, deux ou trois téléphones ; compte courant bloqué ; compte d'épargne proche
+du taux maximal ; compte à terme dont l'échéance est proche, dépassée ou très
+ancienne ; opérations de montants et de types variés. Le
+tableau~\ref{tab:jeu-donnees} en donne la synthèse.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Jeu de données initial de la partie A.}
+  \label{tab:jeu-donnees}
+  \begin{tabularx}{\textwidth}{@{}L{3.3cm}C{1.6cm}X@{}}
+    \toprule
+    \entete{Élément} & \entete{Quantité} & \entete{Détail} \\
+    \midrule
+    Agences & 3 &
+    A1 Béjaïa Centre, A2 Alger Grande Poste, A3 Oran Front de Mer. \\
+    Conseillers & 4 &
+    BENALI Karim, HAMDI Sara, TOUATI Yacine, KACI Nadia. \\
+    Clients & 6 &
+    AMRANI Ali, BENALI Samia, CHERIF Mohamed, DJEBBAR Lina, HADDAD Omar,
+    ZERROUKI Nour. \\
+    Comptes courants & 7 &
+    CC1 à CC7, dont CC5 \code{BLOQUE}. \\
+    Comptes d'épargne & 5 &
+    CE1 à CE5, dont CE2 à 3,49~\% (proche de la limite de 3,5~\%). \\
+    Comptes à terme & 4 &
+    CT1 à CT4 ; CT4 a un montant nul et une échéance de plus d'un an pour la
+    suppression 6.25. \\
+    Opérations & 20 &
+    Dépôts, retraits, virements et opérations CB. \\
+    Signataires & 10 &
+    Droits \code{X}, \code{R} et \code{D} sur au moins quatre comptes. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\begin{remarquebox}[Pourquoi un quatrième compte à terme ?]
+\code{CT4} est un cas de test volontairement prévu pour la requête 6.25 :
+\code{montant\_bloque = 0} et échéance de plus d'un an. Les autres comptes à
+terme ont un montant bloqué strictement positif et ne doivent pas être
+supprimés. Sans \code{CT4}, la requête de suppression ne démontrerait rien.
+\end{remarquebox}
+
+Le chargement des clients illustre la variété des \code{VARRAY} : le client 1
+possède trois téléphones, le client 2 en possède deux avec un \code{NULL} au
+milieu, le client 3 un seul téléphone non nul, et le client 5 un seul
+téléphone. Cette variété est exploitée par la procédure
+\code{change\_Portable} de la partie B.
+
+\section{Rejeu et purge}
+
+Le début de \code{partie\_A\_schema.sql} supprime les objets dans l'ordre
+inverse des dépendances : vue, tables, séquences, puis types. Cet ordre est
+indispensable ; supprimer un type encore référencé par une table produit une
+erreur. Le script utilise \code{CASCADE CONSTRAINTS PURGE} pour les tables et
+\code{FORCE} pour les types.
+
+\begin{lstlisting}[caption={Nettoyage initial du schéma.},label={lst:purge-schema},basicstyle=\ttfamily\scriptsize]
+DROP VIEW Agence_VOR;
+DROP TABLE releves CASCADE CONSTRAINTS PURGE;
+DROP TABLE "AUDIT" CASCADE CONSTRAINTS PURGE;
+DROP TABLE alerte CASCADE CONSTRAINTS PURGE;
+DROP TABLE operation CASCADE CONSTRAINTS PURGE;
+DROP TABLE cpt_terme CASCADE CONSTRAINTS PURGE;
+DROP TABLE cpt_epargne CASCADE CONSTRAINTS PURGE;
+DROP TABLE cpt_courant CASCADE CONSTRAINTS PURGE;
+DROP TABLE client CASCADE CONSTRAINTS PURGE;
+DROP TABLE affectation CASCADE CONSTRAINTS PURGE;
+DROP TABLE agence CASCADE CONSTRAINTS PURGE;
+DROP TABLE conseiller CASCADE CONSTRAINTS PURGE;
+DROP SEQUENCE seq_operation;
+DROP SEQUENCE seq_alerte;
+DROP SEQUENCE seq_audit;
+DROP SEQUENCE seq_affectation;
+DROP TYPE agence_vor_type FORCE;
+DROP TYPE mois_vry_type FORCE;
+DROP TYPE mois_elt_vry_type FORCE;
+DROP TYPE type_stat_nt_type FORCE;
+DROP TYPE type_stat_elt_nt_type FORCE;
+DROP TYPE cptCourant_nt_type FORCE;
+DROP TYPE conseiller_nt_type FORCE;
+DROP TYPE operation_type FORCE;
+DROP TYPE cptTerme_type FORCE;
+DROP TYPE cptEpargne_type FORCE;
+DROP TYPE cptCourant_type FORCE;
+DROP TYPE compte_type FORCE;
+DROP TYPE signataire_nt_type FORCE;
+DROP TYPE signataire_elt_nt_type FORCE;
+DROP TYPE client_type FORCE;
+DROP TYPE agence_type FORCE;
+DROP TYPE conseiller_type FORCE;
+DROP TYPE tel_vry_type FORCE;
+DROP TYPE adresse_type FORCE;
+\end{lstlisting}
+
+Deux scripts de maintenance complètent ce dispositif.
+\code{purge\_donnees.sql} vide les données avec des \code{DELETE} contrôlés,
+sans supprimer la structure. Le script unique
+\code{projet\_bdda\_banque.sql} est une concaténation physique des parties A à
+E, et non un script d'inclusion \code{@}. Cette choice évite les problèmes de
+chemin et permet de déposer un seul fichier exécutable.
+
+\begin{attentionbox}[Le script unique n'est pas un script de production]
+Le script supprime et recrée tout. Il est conçu pour un TP et une démonstration,
+pas pour une base en exploitation. Sur une base réelle, on utiliserait des
+migrations versionnées, une sauvegarde préalable et des scripts de retour
+arrière. La purge séparée permet de vider les données sans toucher au schéma.
+\end{attentionbox}
+
+\section{Points de contrôle et pièges}
+
+La partie A doit être validée avant de passer à la suite. Les contrôles
+portent sur l'absence d'objets invalides, la présence des contraintes, le
+nombre de lignes et la possibilité de rejouer le script. Les captures
+n°~01 à n°~11 illustrent ces étapes : connexion, création de l'utilisateur,
+types, tables, contraintes, séquences, données et contrôle final.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Pièges rencontrés dans la partie A et solutions.}
+  \label{tab:pieges-partieA}
+  \begin{tabularx}{\textwidth}{@{}L{4.7cm}L{5.1cm}X@{}}
+    \toprule
+    \entete{Piège} & \entete{Symptôme} & \entete{Solution} \\
+    \midrule
+    \code{CREATE TYPE} direct dans SQL*Plus &
+    La session se ferme silencieusement. &
+    Utiliser \code{BEGIN EXECUTE IMMEDIATE q'[...]'; END; /}. \\
+    Ligne terminée par un tiret &
+    SQL*Plus la prend pour une continuation. &
+    Éviter les lignes qui finissent par un tiret. \\
+    \code{AUDIT} sans guillemets &
+    \code{ORA-00903 : nom de table non valide}. &
+    Écrire \code{"AUDIT"}. \\
+    \code{ALTER TABLE} pour ajouter un attribut à une table objet &
+    \code{ORA-22856}. &
+    Utiliser \code{ALTER TYPE ... ADD ATTRIBUTE ... CASCADE}. \\
+    Contrainte de même nom sur deux tables &
+    \code{ORA-02264}. &
+    Les noms de contraintes sont uniques dans le schéma ; préfixer. \\
+    \code{REF} basé sur la PK dans une \emph{nested table} &
+    \code{ORA-22979}. &
+    Garder l'OID système pour \code{client}. \\
+    \code{CARDINALITY} sur un \code{VARRAY} &
+    \code{ORA-00932}. &
+    Utiliser \code{TABLE(...)} et \code{COUNT(*)}. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Conclusion de la partie A}
+
+La partie A fournit un schéma complet, contraint et rejouable. Elle ne se
+contente pas de créer des tables : elle encode les règles métier, prépare les
+collections de la partie E et met en place les mécanismes de rejeu. Les
+contraintes différées, les OID et les types récursifs sont déjà présents, ce
+qui permet aux parties suivantes de se concentrer sur les manipulations et les
+traitements.

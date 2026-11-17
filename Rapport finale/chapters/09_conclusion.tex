@@ -1,0 +1,81 @@
+% =====================================================================
+% 09_conclusion.tex — conclusion générale
+% =====================================================================
+\chapter{Conclusion}
+\label{chap:conclusion}
+
+Le projet réalise une base bancaire complète sur Oracle 21c XE, en combinant
+le modèle relationnel et le modèle objet. Il couvre les trois volets du sujet :
+les clients, conseillers et agences ; les comptes courants, d'épargne et à
+terme ; les opérations sur comptes courants. Il ajoute les mécanismes
+programmables demandés : fonctions, procédures, méthodes, triggers, type
+récursif, collection multi-niveaux et vue objet.
+
+La partie A établit un schéma contraint et rejouable. Les types métier sont
+créés dans l'ordre des dépendances, les comptes reposent sur une super-classe
+non instanciable, les téléphones utilisent un \code{VARRAY} et les signataires
+une \emph{nested table}. Les contraintes ne sont pas décoratives : elles
+encodent le statut, le découvert, le taux, la durée et le titulaire. La
+contrainte différée de \code{cpt\_courant} prépare B5b sans affaiblir la règle
+métier.
+
+La partie B montre que le schéma supporte des manipulations réelles. Le client
+99 est créé avec un seul téléphone, puis \code{change\_Portable} étend le
+\code{VARRAY}. CC99 est inséré sans titulaire dans une transaction, puis mis à
+jour avant le \code{COMMIT}. La date d'opération est prise par défaut, un
+signataire est ajouté dans la \emph{nested table} et \code{drop\_client}
+supprime toutes les dépendances. Ces scénarios vérifient à la fois les
+contraintes et les limites du modèle.
+
+La partie C démontre que le modèle objet reste interrogeable. Les \code{REF} se
+déréférencent, les collections se déplient avec \code{TABLE(...)}, les
+agrégats et les fonctions de classement restent disponibles. Les résultats
+montrent un compte courant à découvert, un top trois des soldes, des échéances
+proches et une opération de plus d'un million de dinars. La chronologie est
+essentielle : ces résultats sont ceux d'avant les tests destructifs de la
+partie D.
+
+La partie D transforme le schéma en système actif. Les sous-programmes
+encapsulent les soldes, les ajouts de clients et les virements. Les blocs
+anonymes illustrent les curseurs et les collections. Les méthodes ajoutent le
+polymorphisme de \code{fraisTenue}, le calcul des intérêts et la clôture de
+compte. Les triggers garantissent le statut, les droits, le plafond, le
+découvert, la mise à jour du solde et la traçabilité. Le trigger
+\code{COMPOUND} résout proprement le problème de la table mutante.
+
+La partie E complète le dispositif avec trois mécanismes avancés. Le type
+récursif permet de naviguer de parrain en grand-parrain. La collection
+multi-niveaux stocke un relevé annuel dans une seule colonne et reste
+interrogeable par double \code{TABLE}. La vue objet agrège les conseillers et
+les comptes d'une agence, et sa méthode \code{mutation} ferme puis rouvre une
+affectation en conservant l'historique.
+
+Le projet atteint ses objectifs techniques. Le script complet a été rejoué de
+zéro, sans erreur de compilation, avec zéro objet invalide. Les seules erreurs
+Oracle présentes dans les sorties sont des tests d'exception volontaires. Les
+contraintes, les triggers et les méthodes se répondent : les règles métier ne
+sont pas seulement documentées, elles sont exécutées par la base.
+
+Le projet a aussi des limites, assumées et documentées. Les opérations portent
+uniquement sur les comptes courants, car \code{operation\_type.ref\_compte}
+est un \code{REF cptCourant\_type}. Le virement relie deux comptes courants.
+Le responsable d'agence n'est pas remplacé automatiquement lors d'une mutation.
+Il n'y a ni interface graphique, ni tests de concurrence, ni séparation fine
+des privilèges. Ces limites ne sont pas des oublis : elles délimitent le
+périmètre du mini-projet et ouvrent les perspectives présentées au chapitre
+suivant.
+
+Sur le plan méthodologique, le projet a suivi une démarche incrémentale. Chaque
+partie a été exécutée et relue avant la suivante. Les comportements Oracle ont
+été testés sur l'installation réelle, ce qui a évité plusieurs impasses :
+\code{CREATE TYPE} direct, \code{ORA-22979} sur les \code{REF} d'OID primaire,
+\code{ORA-04091} sur la table mutante et \code{ORA-02290} sur les dates de
+mutation. Les hypothèses de cadrage ont été confrontées au comportement de la
+base, puis corrigées lorsque nécessaire.
+
+Le résultat est un livrable reproductible : un script maître, des scripts
+séparés par partie, un jeu de données, un guide de soutenance, une liste de
+captures et un rapport. La base peut être remise dans son état initial, puis
+rejouée intégralement. Cette propriété est importante pour l'évaluation et
+pour la démonstration : elle garantit que les résultats présentés ne dépendent
+pas d'un état caché.

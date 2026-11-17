@@ -462,10 +462,10 @@ CE5	       500000		 3
 
 NUM_COMPTE MONTANT_BLOQUE DUREE_MOIS ECHEANCE
 ---------- -------------- ---------- ----------
-CT1		   200000	  12 02/12/2026
-CT2		   100000	   6 17/11/2026
-CT3		    50000	  12 23/10/2026
-CT4			0	  36 08/10/2025
+CT1		   200000	  12 03/12/2026
+CT2		   100000	   6 18/11/2026
+CT3		    50000	  12 24/10/2026
+CT4			0	  36 09/10/2025
 
 4 lignes sélectionnées.
 
@@ -581,7 +581,7 @@ Validation effectuée.
 
      ID_OP TYPE_OP	 MONTANT COMMISSION DATE_OP		DATE_SYS
 ---------- ---------- ---------- ---------- ------------------- -------------------
-       100 DEPOT	   50000	  0 12/11/2026 20:52:13 12/11/2026 20:52:13
+       100 DEPOT	   50000	  0 13/11/2026 12:01:19 13/11/2026 12:01:19
 
 1 ligne sélectionnée.
 
@@ -769,10 +769,10 @@ CE3		80000 01/05/2018	 1,75	     300000
 
 NUM_COMPTE	SOLDE DATE_OUVER MONTANT_BLOQUE DUREE_MOIS DATE_ECHEA TAUX_GARANTI
 ---------- ---------- ---------- -------------- ---------- ---------- ------------
-CT4		    0 08/10/2022	      0 	36 08/10/2025	       1,5
-CT3		50000 23/10/2025	  50000 	12 23/10/2026		 3
-CT2	       100000 17/05/2026	 100000 	 6 17/11/2026	       2,8
-CT1	       200000 02/12/2025	 200000 	12 02/12/2026	       3,2
+CT4		    0 09/10/2022	      0 	36 09/10/2025	       1,5
+CT3		50000 24/10/2025	  50000 	12 24/10/2026		 3
+CT2	       100000 18/05/2026	 100000 	 6 18/11/2026	       2,8
+CT1	       200000 03/12/2025	 200000 	12 03/12/2026	       3,2
 
 4 lignes sélectionnées.
 
@@ -843,10 +843,10 @@ NUM_CLIENT NOM		  VILLE
 
 NUM_CLIENT NOM		  DATE_OP	MONTANT TYPE_OP
 ---------- -------------- ---------- ---------- ----------
-	 4 DJEBBAR	  23/09/2026	 300000 DEPOT
-	 2 BENALI	  03/10/2026	 -40000 RETRAIT
-	 3 CHERIF	  13/10/2026	 -60000 RETRAIT
-	 3 CHERIF	  23/10/2026	 -15000 CB
+	 4 DJEBBAR	  24/09/2026	 300000 DEPOT
+	 2 BENALI	  04/10/2026	 -40000 RETRAIT
+	 3 CHERIF	  14/10/2026	 -60000 RETRAIT
+	 3 CHERIF	  24/10/2026	 -15000 CB
 
 4 lignes sélectionnées.
 
@@ -856,7 +856,7 @@ NUM_CLIENT NOM		  DATE_OP	MONTANT TYPE_OP
 
      ID_OP DATE_OP	 MONTANT TYPE_OP    CLIENT
 ---------- ---------- ---------- ---------- ------------------------------
-	17 23/09/2026	  300000 DEPOT	    DJEBBAR
+	17 24/09/2026	  300000 DEPOT	    DJEBBAR
 
 1 ligne sélectionnée.
 
@@ -866,9 +866,9 @@ NUM_CLIENT NOM		  DATE_OP	MONTANT TYPE_OP
 
      ID_OP DATE_OP	 MONTANT TYPE_OP    CLIENT
 ---------- ---------- ---------- ---------- ------------------------------
-	18 03/10/2026	  -40000 RETRAIT    BENALI
-	19 13/10/2026	  -60000 RETRAIT    CHERIF
-	20 23/10/2026	  -15000 CB	    CHERIF
+	18 04/10/2026	  -40000 RETRAIT    BENALI
+	19 14/10/2026	  -60000 RETRAIT    CHERIF
+	20 24/10/2026	  -15000 CB	    CHERIF
 
 3 lignes sélectionnées.
 
@@ -1139,8 +1139,8 @@ NUM_CLIENT NOM		  PRENOM       VILLE
 
 NUM_COMPTE MONTANT_BLOQUE DATE_ECHEA JOURS_RESTANTS
 ---------- -------------- ---------- --------------
-CT2		   100000 17/11/2026		  5
-CT1		   200000 02/12/2026		 20
+CT2		   100000 18/11/2026		  5
+CT1		   200000 03/12/2026		 20
 
 2 lignes sélectionnées.
 
@@ -1151,7 +1151,7 @@ CT1		   200000 02/12/2026		 20
 NUM_COMPTE	SOLDE STATUT	 DERNIERE_O
 ---------- ---------- ---------- ----------
 CC5		    0 BLOQUE
-CC6		40000 ACTIF	 08/10/2025
+CC6		40000 ACTIF	 09/10/2025
 
 2 lignes sélectionnées.
 
@@ -1161,7 +1161,7 @@ CC6		40000 ACTIF	 08/10/2025
 
      ID_OP DATE_OP	 MONTANT TYPE_OP    NUM_CLIENT CLIENT			      NUM_COMPTE
 ---------- ---------- ---------- ---------- ---------- ------------------------------ ----------
-	 5 10/11/2026	 1500000 DEPOT		     1 AMRANI			      CC1
+	 5 11/11/2026	 1500000 DEPOT		     1 AMRANI			      CC1
 
 1 ligne sélectionnée.
 
@@ -1171,7 +1171,7 @@ CC6		40000 ACTIF	 08/10/2025
 
 NUM_COMPTE MONTANT_BLOQUE DATE_ECHEA
 ---------- -------------- ----------
-CT4			0 08/10/2025
+CT4			0 09/10/2025
 
 1 ligne sélectionnée.
 
@@ -1185,9 +1185,9 @@ Validation effectuée.
 
 NUM_COMPTE MONTANT_BLOQUE DATE_ECHEA
 ---------- -------------- ----------
-CT1		   200000 02/12/2026
-CT2		   100000 17/11/2026
-CT3		    50000 23/10/2026
+CT1		   200000 03/12/2026
+CT2		   100000 18/11/2026
+CT3		    50000 24/10/2026
 
 3 lignes sélectionnées.
 
@@ -1391,11 +1391,11 @@ MOIS_VRY_TYPE															 TYPE			 VALID
 OPERATION_TYPE															 TYPE			 VALID
 SIGNATAIRE_ELT_NT_TYPE														 TYPE			 VALID
 SIGNATAIRE_NT_TYPE														 TYPE			 VALID
-SYS_YOID0000078150$														 TYPE			 VALID
-SYS_YOID0000078183$														 TYPE			 VALID
-SYS_YOID0000078185$														 TYPE			 VALID
-SYS_YOID0000078187$														 TYPE			 VALID
-SYS_YOID0000078189$														 TYPE			 VALID
+SYS_YOID0000078211$														 TYPE			 VALID
+SYS_YOID0000078244$														 TYPE			 VALID
+SYS_YOID0000078246$														 TYPE			 VALID
+SYS_YOID0000078248$														 TYPE			 VALID
+SYS_YOID0000078250$														 TYPE			 VALID
 TEL_VRY_TYPE															 TYPE			 VALID
 TYPE_STAT_ELT_NT_TYPE														 TYPE			 VALID
 TYPE_STAT_NT_TYPE														 TYPE			 VALID
@@ -1449,11 +1449,11 @@ MOIS_VRY_TYPE															 TYPE			 VALID
 OPERATION_TYPE															 TYPE			 VALID
 SIGNATAIRE_ELT_NT_TYPE														 TYPE			 VALID
 SIGNATAIRE_NT_TYPE														 TYPE			 VALID
-SYS_YOID0000078150$														 TYPE			 VALID
-SYS_YOID0000078183$														 TYPE			 VALID
-SYS_YOID0000078185$														 TYPE			 VALID
-SYS_YOID0000078187$														 TYPE			 VALID
-SYS_YOID0000078189$														 TYPE			 VALID
+SYS_YOID0000078211$														 TYPE			 VALID
+SYS_YOID0000078244$														 TYPE			 VALID
+SYS_YOID0000078246$														 TYPE			 VALID
+SYS_YOID0000078248$														 TYPE			 VALID
+SYS_YOID0000078250$														 TYPE			 VALID
 TEL_VRY_TYPE															 TYPE			 VALID
 TYPE_STAT_ELT_NT_TYPE														 TYPE			 VALID
 TYPE_STAT_NT_TYPE														 TYPE			 VALID

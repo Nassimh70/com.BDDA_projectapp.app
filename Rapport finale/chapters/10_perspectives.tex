@@ -1,0 +1,211 @@
+% =====================================================================
+% 10_perspectives.tex — perspectives et prolongements
+% =====================================================================
+\chapter{Perspectives}
+\label{chap:perspectives}
+
+\section{Introduction}
+
+Les perspectives ne corrigent pas des erreurs : elles prolongent un projet qui
+atteint son périmètre. Elles se répartissent en quatre axes : élargir le modèle
+métier, renforcer la sécurité et l'exploitation, ajouter une interface et
+mettre en place des tests systématiques. Chaque proposition indique ce qu'elle
+apporterait et ce qu'elle demanderait comme travail.
+
+\section{Élargir le modèle métier}
+
+\subsection{Opérations polymorphes sur tous les types de comptes}
+
+Aujourd'hui, \code{operation\_type.ref\_compte} est un
+\code{REF cptCourant\_type}. Cette décision rend l'interdiction structurelle,
+mais elle empêche les dépôts sur un compte d'épargne et les virements vers un
+compte à terme. Une évolution consisterait à créer une super-classe
+\code{operation\_type} non instanciable, avec des sous-types
+\code{operation\_courant\_type}, \code{operation\_epargne\_type} et
+\code{operation\_terme\_type}. Une autre solution serait une table d'opérations
+avec un discriminant et une référence générique vers \code{compte\_type}.
+
+Cette évolution demanderait de revoir les triggers, les méthodes de calcul de
+solde et les requêtes d'agrégation. Elle apporterait une couverture complète
+des mouvements d'épargne et de terme, ainsi qu'un vrai polymorphisme des
+opérations.
+
+\subsection{Virement entre comptes de nature différente}
+
+Le virement actuel relie deux comptes courants. Un virement courant vers
+épargne pourrait être autorisé si le compte destination accepte un crédit et si
+le plafond de dépôt est respecté. Il faudrait alors vérifier la nature des
+comptes, appliquer les règles de plafond et adapter la commission. La
+commission inter-agences resterait calculée sur le compte source.
+
+\subsection{Responsable d'agence et intérim}
+
+La méthode \code{mutation} signale qu'un conseiller responsable quitte son
+agence, mais ne désigne pas de remplaçant. On pourrait ajouter une table
+\code{interim\_agence} ou une procédure \code{nomme\_responsable} qui vérifie
+l'appartenance du nouveau responsable à l'agence, la date de prise de fonction
+et l'absence de conflit. Cette évolution relèverait d'une règle de management
+explicite, validée par le métier.
+
+\subsection{Plafond des dépôts d'épargne}
+
+Le plafond de dépôt est présent comme attribut, mais aucun mouvement d'épargne
+n'est créé dans le périmètre actuel. Si les opérations d'épargne étaient
+ajoutées, il faudrait un contrôle \code{solde + montant <= plafond\_depot},
+soit par contrainte, soit par trigger. La solution dépendrait du niveau de
+confiance accordé aux insertions directes.
+
+\subsection{Gestion des décès, successions et comptes joints}
+
+Le modèle ne gère pas les comptes joints, les successions ni les procurations.
+On pourrait ajouter une table de titulaires multiples, des rôles datés et des
+règles de blocage. Ces ajouts toucheraient la clé primaire des comptes, la
+notion de titulaire et les droits de signature. Ils demanderaient une étude
+juridique et métier, au-delà du périmètre technique du mini-projet.
+
+\section{Renforcer la sécurité et l'exploitation}
+
+\subsection{Séparation des rôles et privilèges minimaux}
+
+Le projet utilise un seul utilisateur, \code{MASTER1}, avec des privilèges
+étendus. Une base réelle séparerait les rôles : administrateur, gestionnaire
+d'agence, conseiller, auditeur, application. Chaque rôle recevrait uniquement
+les droits nécessaires, et les accès seraient journalisés. Les vues pourraient
+masquer les données sensibles, comme le numéro de sécurité sociale.
+
+\subsection{Mots de passe et chiffrement}
+
+Le mot de passe \code{system} est pédagogique. Il faudrait un mot de passe
+robuste, une politique d'expiration, et éventuellement le chiffrement des
+colonnes sensibles. Oracle propose des mécanismes de chiffrement transparent
+et de masquage de données ; leur mise en place demanderait une licence et une
+configuration adaptées.
+
+\subsection{Audit autonome}
+
+Les triggers d'audit écrivent dans la même transaction que la modification.
+Un \code{ROLLBACK} annule donc la trace. Pour un audit de sécurité, il faudrait
+une journalisation autonome, par exemple avec \code{DBMS\_SCHEDULER}, une table
+d'audit hors transaction ou Oracle Audit Vault. Cette évolution changerait la
+nature de l'audit : il ne serait plus transactionnel mais persistant.
+
+\subsection{Surveillance et alertes}
+
+Les alertes sont stockées dans une table et consultées par requête. On pourrait
+ajouter une notification par courriel ou par file d'attente, un tableau de bord
+et un acquittement des alertes. Un job planifié pourrait exécuter
+\code{scan\_echeances} chaque nuit et marquer les alertes traitées.
+
+\section{Ajouter une interface et des services}
+
+\subsection{Interface graphique}
+
+Le projet n'a pas d'interface. Une application web ou bureau pourrait exposer
+les clients, les comptes, les opérations et les alertes. Elle appellerait les
+procédures existantes plutôt que d'écrire directement dans les tables, afin de
+conserver les contrôles. Les méthodes \code{passeMvt} et \code{virement}
+constitueraient la couche de service.
+
+\subsection{API et séparation des couches}
+
+Une API REST pourrait exposer les opérations de lecture et d'écriture. Il
+faudrait alors gérer l'authentification, les autorisations, la validation des
+entrées et les transactions. La couche base resterait responsable des règles
+métier, mais l'API devrait traduire les erreurs applicatives
+(\code{ORA-20001} à \code{ORA-20030}) en messages compréhensibles.
+
+\subsection{États et exports}
+
+On pourrait ajouter des états imprimables : relevé de compte, attestation de
+solde, historique des opérations, liste des alertes. Ces états utiliseraient
+les vues et les collections existantes, avec une mise en forme adaptée. Un
+export CSV ou PDF compléterait l'interface.
+
+\section{Tester, mesurer et industrialiser}
+
+\subsection{Tests automatisés}
+
+Les tests actuels sont des scripts SQL commentés. On pourrait les organiser
+avec un cadre de test comme \code{utPLSQL}, qui vérifie les résultats attendus
+et produit un rapport. Les tests couvriraient les contraintes, les triggers,
+les méthodes, les virements et les mutations. Ils seraient exécutés à chaque
+modification du schéma.
+
+\subsection{Tests de concurrence}
+
+Le projet ne teste pas deux transactions simultanées. Il faudrait vérifier le
+comportement du plafond journalier, des mises à jour de solde et des mutations
+lorsque deux sessions travaillent en parallèle. On pourrait utiliser
+\code{DBMS\_LOCK}, des niveaux d'isolation adaptés et des tests de verrouillage.
+C'est un point important pour une base bancaire réelle.
+
+\subsection{Migrations versionnées}
+
+Le script unique supprime et recrée tout. Pour une exploitation, il faudrait
+des migrations versionnées : un historique des changements, des scripts de
+montée de version et des scripts de retour arrière. Des outils comme Flyway ou
+Liquibase pourraient être utilisés, avec une validation en préproduction.
+
+\subsection{Performances et index}
+
+Le projet possède 21 index, principalement ceux des clés primaires et des
+contraintes d'unicité. Une charge réelle demanderait une analyse des plans
+d'exécution, des index sur les colonnes de recherche, des statistiques à jour
+et peut-être des vues matérialisées pour les agrégats. Les requêtes du rapport
+serviraient de base à cette analyse.
+
+\subsection{Documentation et formation}
+
+Le rapport, le guide de soutenance et les commentaires SQL constituent une
+première documentation. Une base réelle demanderait un dictionnaire de données,
+un manuel d'exploitation, des procédures de sauvegarde et de restauration, et
+une formation des utilisateurs. La documentation des hypothèses et des limites
+serait maintenue à jour.
+
+\section{Priorisation}
+
+Toutes ces perspectives ne se valent pas. Les plus rentables à court terme
+sont les tests automatisés, la séparation des rôles et un interface de
+consultation. Les opérations polymorphes et le virement multi-types demandent
+une refonte du modèle et des triggers ; elles constituent la prochaine étape
+technique naturelle. La gestion des successions et des comptes joints relève
+d'une décision métier et juridique plus large.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Priorisation indicative des perspectives.}
+  \label{tab:priorisation-perspectives}
+  \begin{tabularx}{\textwidth}{@{}L{4.4cm}L{2.4cm}X@{}}
+    \toprule
+    \entete{Perspective} & \entete{Horizon} & \entete{Justification} \\
+    \midrule
+    Tests automatisés & Court terme &
+    Sécurise les modifications et documente les résultats. \\
+    Séparation des rôles & Court terme &
+    Réduit les risques et prépare une exploitation réelle. \\
+    Interface de consultation & Court terme &
+    Rend les données accessibles sans SQL. \\
+    Opérations polymorphes & Moyen terme &
+    Étend le périmètre métier et exploite le modèle objet. \\
+    Audit autonome & Moyen terme &
+    Conserve les traces malgré les rollbacks. \\
+    Tests de concurrence & Moyen terme &
+    Vérifie la robustesse des triggers et des soldes. \\
+    Migrations versionnées & Moyen terme &
+    Prépare une exploitation professionnelle. \\
+    Comptes joints et successions & Long terme &
+    Dépend de règles métier et juridiques. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Conclusion des perspectives}
+
+Le projet est complet dans son périmètre, mais il n'est pas figé. Les
+perspectives montrent que les choix actuels peuvent évoluer sans être remis en
+cause : le modèle objet facilite l'ajout de sous-types, les procédures
+centralisent les règles et les triggers protègent les insertions directes. La
+priorité doit aller à la sécurité, aux tests et à l'interface, avant d'élargir
+le modèle métier. Cette progression correspond à une industrialisation
+raisonnable d'un prototype pédagogique.

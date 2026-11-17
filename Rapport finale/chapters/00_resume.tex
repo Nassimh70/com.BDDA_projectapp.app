@@ -1,0 +1,74 @@
+% =====================================================================
+% 00_resume.tex — résumé, abstract et mots-clés
+% =====================================================================
+\chapter*{Résumé}
+\addcontentsline{toc}{chapter}{Résumé}
+\markboth{Résumé}{Résumé}
+
+Ce rapport présente la conception et la réalisation d'un système d'information bancaire
+en bases de données relationnelle-objet sous Oracle Database 21c Express Edition.
+Le projet couvre la gestion des clients, des conseillers, des agences, des comptes
+(courant, épargne et à terme), des opérations et des signataires. Il met en œuvre
+les mécanismes objets d'Oracle : types objet, héritage avec \code{compte\_type}
+déclaré \code{NOT FINAL NOT INSTANTIABLE}, références \code{REF} avec intégrité
+référentielle, collections \code{VARRAY} et \emph{nested tables}, méthodes membres
+et statiques, polymorphisme, type récursif de parrainage et vue objet.
+
+La démarche suit sept étapes : cadrage, conception UML, création du schéma,
+insertion du jeu de données, manipulations, requêtes SQL, programmation PL/SQL
+et fonctionnalités objet avancées. Le schéma final comporte 19 types métier,
+11 tables logiques et une table de stockage de \emph{nested table}, 4 séquences,
+6 triggers, 9 sous-programmes catalogués et une vue objet. Le script unique
+\code{projet\_bdda\_banque.sql} régénère l'ensemble des parties A à E et a été
+rejoué intégralement : aucun objet invalide n'est signalé et les seules erreurs
+\code{ORA-} observées correspondent à des tests d'exception volontaires.
+
+Les tests valident les règles de gestion : contrôle des droits, plafond journalier
+de retrait, découvert autorisé, commission inter-agences, alertes d'échéance,
+audit des taux et des découverts, calcul des intérêts, clôture de compte et
+mutation d'un conseiller. Le rapport documente également les limites du modèle,
+les choix de conception et une préparation complète à la soutenance orale.
+
+\vspace{0.5cm}
+\noindent\textbf{Mots-clés :} Oracle 21c, base de données relationnelle-objet,
+types objet, héritage, \code{REF}, \code{VARRAY}, \emph{nested table}, PL/SQL,
+triggers, vue objet, UML.
+
+\clearpage
+
+\begin{otherlanguage}{english}
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+\markboth{Abstract}{Abstract}
+
+This report presents the design and implementation of a banking information
+system using Oracle Database 21c Express Edition and its object-relational
+features. The project manages customers, advisors, branches, accounts (current,
+savings and term deposits), operations and signatories. It relies on object
+types, inheritance with a \code{NOT FINAL NOT INSTANTIABLE} account supertype,
+\code{REF} references with referential integrity, \code{VARRAY} and nested-table
+collections, member and static methods, polymorphism, a recursive sponsorship
+type and an object view.
+
+The methodology follows seven stages: scoping, UML design, schema creation,
+test-data loading, data manipulation, SQL queries, PL/SQL programming and
+advanced object features. The final schema contains 19 business types, 11 logical
+tables plus one nested-table storage table, 4 sequences, 6 triggers, 9 stored
+subprograms and one object view. The single script
+\code{projet\_bdda\_banque.sql} regenerates parts A to E and has been replayed
+from scratch: no invalid object remains, and the only \code{ORA-} errors are
+intentional exception tests.
+
+The tests validate access rights, the daily withdrawal limit, the authorised
+overdraft, the inter-branch commission, maturity alerts, rate and overdraft
+auditing, interest calculation, account closure and advisor transfers. The
+report also discusses the model's limitations, the design rationale and a
+complete defence preparation.
+
+\vspace{0.5cm}
+\noindent\textbf{Keywords:} Oracle 21c, object-relational database, object types,
+inheritance, \code{REF}, \code{VARRAY}, nested table, PL/SQL, triggers, object
+view, UML.
+\end{otherlanguage}
+
+\clearpage

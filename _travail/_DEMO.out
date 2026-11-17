@@ -1,0 +1,259 @@
+############################################################
+0. ENVIRONNEMENT ET CONTROLE
+############################################################
+
+UTILISATEUR
+--------------------------------------------------------------------------------------------------------------------------------
+MASTER1
+
+1 ligne sÚlectionnÚe.
+
+
+OBJETS_INVALIDES
+----------------
+	       0
+
+1 ligne sÚlectionnÚe.
+
+
+OBJECT_TYPE			NB
+----------------------- ----------
+FUNCTION			 3
+INDEX				21
+LOB				 1
+PROCEDURE			 6
+SEQUENCE			 4
+TABLE				12
+TRIGGER 			 6
+TYPE				26
+TYPE BODY			 6
+VIEW				 1
+
+10 lignes sÚlectionnÚes.
+
+############################################################
+1. PARTIE A : TYPES, TABLES, DONNEES
+############################################################
+
+NB_TYPES_METIER
+---------------
+	     19
+
+1 ligne sÚlectionnÚe.
+
+
+NB_CLIENTS
+----------
+	 6
+
+1 ligne sÚlectionnÚe.
+
+
+     NB_CC
+----------
+	 6
+
+1 ligne sÚlectionnÚe.
+
+
+     NB_CE
+----------
+	 4
+
+1 ligne sÚlectionnÚe.
+
+
+     NB_CT
+----------
+	 3
+
+1 ligne sÚlectionnÚe.
+
+############################################################
+2. PARTIE C : DEUX REQUETES PHARES
+############################################################
+*** 6.10 : compte courant a solde negatif ***
+
+NUM_COMPTE	SOLDE TITULAIRE 		     CONSEILLER
+---------- ---------- ------------------------------ ------------------------------
+CC2	       -50000 BENALI			     HAMDI
+
+1 ligne sÚlectionnÚe.
+
+*** 6.20 : signataires de CC7 avec adresse ***
+
+NUM_CLIENT NOM
+---------- ------------------------------
+ADRESSE 																			    D
+------------------------------------------------------------------------------------------------------------------------------------------------------------------- -
+	 2 BENALI
+5 Rue Didouche Mourad, Alger																	    D
+
+	 3 CHERIF
+8 Boulevard de l ALN, Oran																	    X
+
+	 5 HADDAD
+22 Rue de la Gare, Alger																	    R
+
+
+3 lignes sÚlectionnÚes.
+
+############################################################
+3. PARTIE D : METHODES
+############################################################
+*** nbCepargne et soldeTotal (etat final, apres fermeture de CE4) ***
+
+NUM_CLIENT NOM				  NB_EPARGNE SOLDE_TOTAL
+---------- ------------------------------ ---------- -----------
+	 1 AMRANI				   2	  850000
+	 2 BENALI				   1	  300000
+	 3 CHERIF				   1	  168000
+	 4 DJEBBAR				   0	  510000
+	 5 HADDAD				   0	       0
+	 6 ZERROUKI				   0	   40000
+
+6 lignes sÚlectionnÚes.
+
+*** calculeInterets et sortieAnticipee des comptes d epargne ***
+
+NUM_COMPTE	SOLDE A_L_ECHEANCE SORTIE_ANTICIPEE
+---------- ---------- ------------ ----------------
+CE1	       150000	    153750	     142500
+CE2	       250000	    258725	     237500
+CE3		80000	     81400	      76000
+CE5	       500000	    515000	     475000
+
+4 lignes sÚlectionnÚes.
+
+*** passeMvt : +10 000 sur CC7 par le titulaire (client 4), puis ROLLBACK ***
+passeMvt OK : compte CC7 montant 10000
+CC7 : 185000 -> 195000
+ROLLBACK : CC7 revient a 185000.
+
+ProcÚdure PL/SQL terminÚe avec succÞs.
+
+############################################################
+4. PARTIE D : TRIGGERS DE SECURITE
+############################################################
+*** Refus 1 : compte CC5 BLOQUE ***
+Refus attendu : ORA-20001: Compte CC5 non actif (statut BLOQUE) : operation refusee.
+ORA-06512: Ó "MASTER1.TRG_OP_AVANT", ligne 32
+ORA-04088: erreur lors d'exÚcution du dÚclencheur
+'MASTER1.TRG_OP_AVANT'
+
+ProcÚdure PL/SQL terminÚe avec succÞs.
+
+*** Refus 2 : plafond journalier de 200 000 DA sur CC4 ***
+Refus attendu : ORA-20003: Plafond journalier de retrait (200000 DA) depasse sur CC4.
+ORA-06512: Ó "MASTER1.TRG_OP_AVANT", ligne 59
+ORA-04088: erreur lors d'exÚcution du dÚclencheur
+'MASTER1.TRG_OP_AVANT'
+
+ProcÚdure PL/SQL terminÚe avec succÞs.
+
+*** Succes : depot de 10 000 sur CC6, puis ROLLBACK ***
+CC6 : 40000 -> 50000
+ROLLBACK : CC6 revient a 40000.
+
+ProcÚdure PL/SQL terminÚe avec succÞs.
+
+############################################################
+5. PARTIE D : VIREMENTS
+############################################################
+*** Virement same-agence CC4 -> CC7 de 1000 DA, puis ROLLBACK ***
+Avant : CC4=325000 CC7=185000
+virement OK : 1000 DA de CC4 vers CC7 (commission=0)
+Apres : CC4=324000 CC7=186000 (commission 0)
+
+ProcÚdure PL/SQL terminÚe avec succÞs.
+
+*** Virement inter-agences CC4 (A1) -> CC3 (A3) de 1000 DA, puis ROLLBACK ***
+Avant : CC4=325000 CC3=38000
+virement OK : 1000 DA de CC4 vers CC3 (commission=100)
+Apres : CC4=323900 CC3=39000 (commission 100)
+
+ProcÚdure PL/SQL terminÚe avec succÞs.
+
+*** Virement atomique refuse CC3 -> CC4 de 60 000 DA ***
+CC4 avant = 325000
+virement ANNULE : ORA-20004: Decouvert autorise depasse sur CC3.
+CC4 apres = 325000 (doit rester 325000)
+
+ProcÚdure PL/SQL terminÚe avec succÞs.
+
+############################################################
+6. PARTIE E : VUE OBJET AGENCE_VOR
+############################################################
+
+CODE   NOM					VILLE
+------ ---------------------------------------- ----------------------------------------
+A1     Agence Bejaia Centre			Bejaia
+A2     Agence Alger Grande Poste		Alger
+A3     Agence Oran Front de Mer 		Oran
+
+3 lignes sÚlectionnÚes.
+
+*** Conseillers par agence ***
+
+AGENCE NUM_CONSEILLER NOM			     PRENOM
+------ -------------- ------------------------------ ------------------------------
+A1		    1 BENALI			     Karim
+A2		    2 HAMDI			     Sara
+A2		    4 KACI			     Nadia
+A3		    3 TOUATI			     Yacine
+
+4 lignes sÚlectionnÚes.
+
+*** Comptes courants par agence ***
+
+AGENCE NUM_COMPTE      SOLDE STATUT
+------ ---------- ---------- ----------
+A1     CC4	      325000 ACTIF
+A1     CC7	      185000 ACTIF
+A2     CC2	      -50000 ACTIF
+A2     CC5		   0 BLOQUE
+A3     CC3	       38000 ACTIF
+A3     CC6	       40000 ACTIF
+
+6 lignes sÚlectionnÚes.
+
+*** Parrain et grand-parrain (type recursif) ***
+
+NUM_CLIENT NOM				  PARRAIN			 GRAND_PARRAIN
+---------- ------------------------------ ------------------------------ ------------------------------
+	 1 AMRANI
+	 2 BENALI			  AMRANI
+	 3 CHERIF			  AMRANI
+	 4 DJEBBAR			  AMRANI
+	 5 HADDAD			  BENALI			 AMRANI
+	 6 ZERROUKI			  CHERIF			 AMRANI
+
+6 lignes sÚlectionnÚes.
+
+############################################################
+7. CONTROLE FINAL : ETAT INCHANGE
+############################################################
+
+OBJETS_INVALIDES
+----------------
+	       0
+
+1 ligne sÚlectionnÚe.
+
+
+OBJET		     NB
+------------ ----------
+AFFECTATIONS	      9
+ALERTES 	      2
+CC		      6
+CE		      4
+CLIENTS 	      6
+CT		      3
+OPERATIONS	     15
+SIGNATAIRES	      9
+
+8 lignes sÚlectionnÚes.
+
+============================================================
+FIN DE LA DEMONSTRATION
+============================================================

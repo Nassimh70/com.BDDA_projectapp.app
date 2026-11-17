@@ -1,7 +1,0 @@
-SET ECHO ON
-SET FEEDBACK ON
-SELECT 'AVANT' FROM dual;
-CREATE TYPE t20 AS OBJECT (x NUMBER);
-SELECT 'APRES' FROM dual;
-SELECT object_name, status FROM user_objects WHERE object_name='T20';
-EXIT

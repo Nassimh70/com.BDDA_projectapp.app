@@ -1,0 +1,190 @@
+% =====================================================================
+% 12a_livrables.tex — livrables et organisation du dépôt
+% =====================================================================
+\chapter{Livrables et organisation du dépôt}
+\label{ann:livrables}
+
+\section{Arborescence}
+
+Le dépôt est organisé par partie, avec un script maître et des sorties de
+preuve. Les scripts SQL sont à la racine ; le rapport LaTeX est dans le
+sous-dossier \code{Rapport finale}.
+
+\begin{lstlisting}[caption={Organisation des fichiers du projet.},label={lst:arborescence},language={}]
+D:\bdda\
+|-- 00_creation_utilisateur.sql
+|-- partie_A_schema.sql
+|-- partie_B_manipulations.sql
+|-- partie_C_requetes.sql
+|-- partie_D_programmation.sql
+|-- partie_E_objet_avance.sql
+|-- projet_bdda_banque.sql
+|-- demo_soutenance.sql
+|-- purge_donnees.sql
+|-- reset_schema.sql
+|-- GUIDE_SOUTENANCE.md
+|-- CAPTURES_A_FAIRE.md
+|-- ETAPE_0_CADRAGE.md
+|-- sujet.txt
+|-- uml\
+|   |-- banque.puml
+|   |-- banque.mermaid
+|   `-- banque.txt
+|-- _travail\
+|   |-- _A.out ... _E.out
+|   |-- _FULL.out
+|   |-- _DEMO.out
+|   `-- _runFULL.bat
+`-- Rapport finale\
+    |-- main.tex
+    |-- config\
+    |-- chapters\
+    |-- images\
+    |-- bibliography\
+    `-- README.md
+\end{lstlisting}
+
+\section{Description des livrables}
+
+{\small
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{@{}L{5.9cm}L{2.9cm}L{6.1cm}@{}}
+\caption{Description des fichiers livrés.}\label{tab:livrables}\\
+\toprule
+\entete{Fichier} & \entete{Rôle} & \entete{Contenu} \\
+\midrule
+\endfirsthead
+\toprule
+\entete{Fichier} & \entete{Rôle} & \entete{Contenu} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+\code{00\_creation\_utilisateur.sql} & Administration &
+Création idempotente de \code{MASTER1}, privilèges et quota. À exécuter par un
+administrateur, non exécuté pendant le projet. \\
+\code{partie\_A\_schema.sql} & Schéma &
+Types, tables, contraintes, séquences et jeu de données. \\
+\code{partie\_B\_manipulations.sql} & Manipulations &
+B5a à B5f, ajout du client 99, contrainte différée, \code{VARRAY}, suppression
+en cascade. \\
+\code{partie\_C\_requetes.sql} & Requêtes &
+25 requêtes SQL, dont les variantes 6.3a, 6.7b, 6.9a, 6.11b, 6.16b, 6.18b,
+6.19c, 6.21b. \\
+\code{partie\_D\_programmation.sql} & Programmation &
+Sous-programmes, blocs anonymes, méthodes, triggers et tests D9. \\
+\code{partie\_E\_objet\_avance.sql} & Objet avancé &
+E10, E11, E12 : parrainage, relevés multi-niveaux, vue objet et mutation. \\
+\code{projet\_bdda\_banque.sql} & Script maître &
+Concaténation A à E, exécutable seul, avec contrôle final. \\
+\code{demo\_soutenance.sql} & Démonstration &
+Séquence de dix minutes, mouvements annulés par \code{ROLLBACK}. \\
+\code{purge\_donnees.sql} & Maintenance &
+Vidage des données sans suppression du schéma. \\
+\code{reset\_schema.sql} & Maintenance &
+Remise à zéro du schéma pour un rejeu propre. \\
+\code{GUIDE\_SOUTENANCE.md} & Guide &
+Démonstration, 45 questions-réponses, pièges et chiffres clés. \\
+\code{CAPTURES\_A\_FAIRE.md} & Preuves &
+Liste ordonnée de 66 captures, priorités et chronologie. \\
+\code{ETAPE\_0\_CADRAGE.md} & Conception &
+Hypothèses H1 à H14, choix D1 à D20, environnement vérifié. \\
+\code{uml/} & Modèle &
+Diagramme PlantUML, version Mermaid et description textuelle. \\
+\code{\_travail/} & Preuves &
+Sorties \code{\_A.out} à \code{\_E.out}, \code{\_FULL.out},
+\code{\_DEMO.out}. \\
+\code{Rapport finale/} & Rapport &
+Sources LaTeX, figures, bibliographie, PDF compilé et README. \\
+\end{longtable}
+}
+
+\section{Environnement d'exécution}
+
+L'environnement cible est Oracle Database 21c Express Edition, avec la base
+pluggable \code{XEPDB1} et l'utilisateur \code{MASTER1}. La connexion utilisée
+pendant le projet est :
+
+\begin{lstlisting}[caption={Connexion SQL*Plus au schéma du projet.},label={lst:connexion},language={}]
+sqlplus MASTER1/system@localhost:1521/XEPDB1
+\end{lstlisting}
+
+\begin{attentionbox}[Ne pas utiliser SYSTEM]
+Les scripts applicatifs doivent être exécutés avec \code{MASTER1}. Une
+connexion \code{SYSTEM} ou \code{SYS} créerait les objets dans le mauvais
+schéma et fausserait les contrôles. Seul
+\code{00\_creation\_utilisateur.sql} est destiné à un administrateur.
+\end{attentionbox}
+
+Les scripts commencent par les paramètres SQL*Plus suivants :
+
+\begin{lstlisting}[caption={Paramètres communs aux scripts SQL.},label={lst:parametres-sql}]
+SET SERVEROUTPUT ON SIZE UNLIMITED
+SET LINESIZE 200
+SET PAGESIZE 100
+SET DEFINE OFF
+SET FEEDBACK ON
+SET VERIFY OFF
+\end{lstlisting}
+
+\code{SERVEROUTPUT} active \code{DBMS\_OUTPUT}, \code{LINESIZE} évite les
+retours à la ligne parasites, \code{DEFINE OFF} désactive la substitution
+\code{\&}, et \code{VERIFY OFF} allège les sorties.
+
+\section{Rejeu complet}
+
+Le rejeu complet se fait avec le script maître. Il supprime puis recrée les
+objets, insère les données et exécute les parties B à E. Le contrôle final
+vérifie l'absence d'objets invalides.
+
+\begin{lstlisting}[caption={Rejeu complet et contrôle final.},label={lst:rejeu},language={}]
+sqlplus -S -L MASTER1/system@localhost:1521/XEPDB1 @projet_bdda_banque.sql
+
+SELECT COUNT(*) AS objets_invalides
+  FROM user_objects
+ WHERE status <> 'VALID';
+\end{lstlisting}
+
+Le script peut aussi être exécuté partie par partie, dans l'ordre A, B, C, D,
+E. Cet ordre est important : la partie C doit être capturée avant les tests
+destructifs de la partie D. Le script \code{reset\_schema.sql} remet le schéma
+à zéro si nécessaire.
+
+\section{Preuves conservées}
+
+Les sorties complètes sont conservées dans \code{\_travail}. Elles permettent
+de montrer un résultat sans modifier l'état courant de la base.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Sorties de preuve conservées.}
+  \label{tab:preuves}
+  \begin{tabularx}{\textwidth}{@{}L{3.8cm}L{3.2cm}X@{}}
+    \toprule
+    \entete{Fichier} & \entete{Portée} & \entete{Utilisation} \\
+    \midrule
+    \code{\_A.out} & Partie A & Création du schéma et données. \\
+    \code{\_B.out} & Partie B & B5a à B5f. \\
+    \code{\_C.out} & Partie C & Requêtes 6.1 à 6.25, avant D. \\
+    \code{\_D.out} & Partie D & Méthodes, triggers, clôture. \\
+    \code{\_E.out} & Partie E & Parrainage, relevés, vue objet. \\
+    \code{\_FULL.out} & A à E & Rejeu complet, 56\,549 octets. \\
+    \code{\_DEMO.out} & Démonstration & Sortie de \code{demo\_soutenance.sql}. \\
+    \code{\_runFULL.bat} & Rejeu & Lancement automatisé du script maître. \\
+    \code{\_RESET.out} & Maintenance & Sortie de la remise à zéro. \\
+    \code{\_verif\_reset.out} & Maintenance & Contrôle après remise à zéro. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Compilation du rapport}
+
+Le rapport utilise XeLaTeX et Biber. La commande recommandée est :
+
+\begin{lstlisting}[caption={Compilation du rapport.},label={lst:compilation},language={}]
+latexmk -xelatex -interaction=nonstopmode -halt-on-error main.tex
+\end{lstlisting}
+
+En cas de compilation manuelle, l'ordre est : \code{xelatex}, \code{biber},
+\code{xelatex}, \code{xelatex}. Le PDF produit est \code{main.pdf}.

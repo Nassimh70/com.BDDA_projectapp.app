@@ -1,0 +1,107 @@
+% =====================================================================
+% packages.tex — chargement des packages et configuration globale
+% Rapport de mini-projet BDDA — Oracle 21c XE
+% Compilation : XeLaTeX
+% =====================================================================
+
+% ---------- Police et langue -----------------------------------------
+\usepackage{fontspec}
+\setmainfont{texgyrepagella}[
+  Extension      = .otf,
+  UprightFont    = *-regular,
+  BoldFont       = *-bold,
+  ItalicFont     = *-italic,
+  BoldItalicFont = *-bolditalic,
+  Ligatures      = TeX
+]
+\setsansfont{texgyreheros}[
+  Extension      = .otf,
+  UprightFont    = *-regular,
+  BoldFont       = *-bold,
+  ItalicFont     = *-italic,
+  BoldItalicFont = *-bolditalic,
+  Ligatures      = TeX
+]
+\setmonofont{texgyrecursor}[
+  Extension      = .otf,
+  UprightFont    = *-regular,
+  BoldFont       = *-bold,
+  ItalicFont     = *-italic,
+  BoldItalicFont = *-bolditalic,
+  Scale          = 0.92
+]
+
+\usepackage[english,main=french]{babel}
+\usepackage[autostyle=true,french=guillemets]{csquotes}
+
+% ---------- Mise en page ----------------------------------------------
+\usepackage{geometry}
+\geometry{
+  a4paper,
+  top       = 2.45cm,
+  bottom    = 2.45cm,
+  left      = 2.65cm,
+  right     = 2.35cm,
+  headheight= 15pt,
+  headsep   = 0.65cm,
+  footskip  = 1.0cm
+}
+
+\usepackage{setspace}
+\setstretch{1.15}
+
+\usepackage{xcolor}
+\definecolor{navy}{HTML}{1F3864}
+\definecolor{navyLight}{HTML}{2E5597}
+\definecolor{grayText}{HTML}{4D4D4D}
+\definecolor{grayLight}{HTML}{F2F4F7}
+\definecolor{codebg}{HTML}{F7F8FA}
+\definecolor{codeframe}{HTML}{C9D1DC}
+\definecolor{teal}{HTML}{1F6F78}
+\definecolor{burgundy}{HTML}{8B1E3F}
+
+% ---------- Figures, tableaux, mathématiques --------------------------
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{caption}
+\usepackage{enumitem}
+\usepackage{etoolbox}
+\usepackage{pdflscape}
+\usepackage{microtype}
+
+\usepackage{tikz}
+\usetikzlibrary{
+  positioning,
+  arrows.meta,
+  shapes.geometric,
+  shapes.multipart,
+  fit,
+  backgrounds,
+  calc,
+  matrix,
+  decorations.pathreplacing
+}
+
+\usepackage[most]{tcolorbox}
+\tcbuselibrary{breakable,skins}
+
+% ---------- Code source -----------------------------------------------
+\usepackage{listings}
+\usepackage{fontawesome5}
+
+% ---------- En-têtes, titres, sommaire ---------------------------------
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tocloft}
+
+% ---------- Liens et bibliographie ------------------------------------
+\usepackage{hyperref}
+\usepackage[backend=biber,style=numeric-comp,sorting=none,url=false,doi=false,isbn=false]{biblatex}
+\addbibresource{bibliography/references.bib}

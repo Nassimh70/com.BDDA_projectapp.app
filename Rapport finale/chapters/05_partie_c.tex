@@ -1,0 +1,307 @@
+% =====================================================================
+% 05_partie_c.tex — requêtes SQL
+% =====================================================================
+\chapter{Partie C : requêtes SQL}
+\label{chap:partieC}
+
+\section{Objectifs de la partie C}
+
+La partie C vérifie la capacité du schéma à répondre à des questions métier
+variées : fiches clients, comptes, opérations, agrégats, collections,
+signataires, échéances et suppressions conditionnelles. Elle s'appuie sur la
+syntaxe SQL décrite dans la référence officielle \cite{oracleSQLRef}. Elle ne se limite pas à
+des \code{SELECT *} : elle utilise le déréférencement, les jointures, les
+sous-requêtes corrélées, les agrégats, les fonctions de classement et les
+collections. Les requêtes sont numérotées de 6.1 à 6.25, certaines étant
+décomposées en variantes \code{a}, \code{b} ou \code{c}.
+
+\begin{objectifbox}[Ce que la partie C démontre]
+La partie C prouve que le modèle objet reste interrogeable avec SQL. Les
+\code{REF} se déréférencent, les \code{VARRAY} et les \emph{nested tables} se
+transforment en lignes avec \code{TABLE(...)}, et les agrégats classiques
+restent disponibles. Elle montre aussi que les résultats dépendent de l'état de
+la base au moment de l'exécution.
+\end{objectifbox}
+
+\section{Les requêtes 6.1 à 6.25}
+
+Le tableau~\ref{tab:requetes-C} reprend les thèmes, les techniques clés et les
+résultats attendus au moment de l'exécution de la partie C, c'est-à-dire avant
+les tests destructifs de la partie D. Il sert de carte de révision : chaque
+ligne peut être développée en soutenance à partir du script
+\code{partie\_C\_requetes.sql}.
+
+{\small
+\setlength{\tabcolsep}{3.5pt}
+\begin{longtable}{@{}C{0.9cm}L{5.0cm}L{4.4cm}L{3.8cm}@{}}
+\caption{Les requêtes de la partie C et leurs résultats attendus.}
+\label{tab:requetes-C}\\
+\toprule
+\entete{N°} & \entete{Thème} & \entete{Technique clé} &
+\entete{Résultat clé (au moment de C)} \\
+\midrule
+\endfirsthead
+\toprule
+\entete{N°} & \entete{Thème} & \entete{Technique clé} &
+\entete{Résultat clé (au moment de C)} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+6.1 & Fiche client sans afficher les téléphones &
+\code{SELECT} avec formats \code{COLUMN} & 6 clients. \\
+6.2 & Comptes courants & \code{REF} déréférencé &
+7 CC, dont CC1 à 2\,498\,500. \\
+6.3a & Épargne triée par taux & \code{ORDER BY taux\_interet DESC} &
+CE2 en tête (3,49). \\
+6.3b & Comptes à terme & \code{SELECT} simple & 4 CT. \\
+6.4 & CC du client 4 & Jointure implicite & CC4 et CC7. \\
+6.5 & Tous les comptes du client 4 & \code{UNION} CC + CE + CT &
+CC4, CC7, CE4. \\
+6.6 & Clients + CC < 100\,000 & Jointure + filtre &
+CC2, CC3, CC5, CC6. \\
+6.7a & Clients avec au moins un CE & \code{EXISTS} / jointure &
+Clients 1, 2, 3, 4. \\
+6.7b & Clients avec un seul CE &
+\code{GROUP BY ... HAVING COUNT(*) = 1} & Clients 2, 3, 4. \\
+6.8 & Clients ayant opéré sur CC7 & Jointure \code{operation} &
+Clients 2, 3, 4. \\
+6.9a & Opérations CC7 par le propriétaire &
+\code{o.ref\_client = cc.ref\_client} & Opérations du client 4. \\
+6.9b & Opérations CC7 par non-propriétaires &
+\code{o.ref\_client <> cc.ref\_client} & Opérations des clients 2 et 3. \\
+6.10 & CC à solde négatif + titulaire + conseiller &
+Jointures + \code{solde < 0} & CC2 : $-50\,000$. \\
+6.11a & Nombre de CE par client & \code{GROUP BY} &
+4 lignes : 2, 1, 1, 1 (clients 1 à 4). \\
+6.11b & Idem avec clients sans CE & \code{LEFT JOIN} / \code{NVL} &
+6 lignes, dont 0. \\
+6.12 & Client avec le plus de CE & Sous-requête + \code{HAVING} &
+Client 1 (2 CE). \\
+6.13 & Par type : nombre et montant moyen &
+\code{GROUP BY type\_op} & 20 opérations au moment de C. \\
+6.14 & Total des soldes par agence & \code{UNION ALL} CC + CE &
+A1 : 3\,478\,500 ; A2 : 700\,000 ; A3 : 158\,000. \\
+6.15 & Top 3 clients par solde total &
+\code{ORDER BY ... FETCH FIRST 3 ROWS} &
+Client 1 : 3\,348\,500 ; client 4 : 830\,000 ; client 2 : 300\,000. \\
+6.16a & Téléphones du client 1 & \code{TABLE(c.telephones)} &
+3 éléments, 2 renseignés. \\
+6.16b & Téléphones de tous les clients & \code{TABLE} + jointure &
+6 clients. \\
+6.17 & Numéros de téléphone de chaque client &
+\code{TABLE(c.telephones)} + \code{NVL} &
+6 clients, 3 éléments chacun, certains \code{<non renseigne>}. \\
+6.18a & Nombre de signataires de CC7 &
+\code{COUNT(*)} sur \code{TABLE(SELECT signataires ...)} & 3. \\
+6.18b & Nombre de signataires par CC &
+Sous-requête scalaire \code{COUNT(*)} sur \code{TABLE(cc.signataires)} &
+CC1:1, CC2:1, CC3:2, CC4:3, CC5:0, CC6:0, CC7:3. \\
+6.19a & Signataires de CC7 & \code{TABLE} & 3 lignes. \\
+6.19b & Signataires de tous les CC & \code{TABLE} + jointure &
+Tous les comptes. \\
+6.19c & Idem avec curseur imbriqué & Curseur paramétré + \code{FOR} &
+Affichage par compte. \\
+6.20 & Signataires de CC7 + adresse &
+\code{TABLE} + \code{s.ref\_client = REF(c)} &
+Clients 2 (D), 3 (X), 5 (R). \\
+6.21a & Clients par ville & \code{ORDER BY adresse.ville} &
+Béjaïa, Alger, Oran. \\
+6.21b & Clients de Béjaïa & \code{WHERE adresse.ville = 'Bejaia'} &
+Clients 1 et 4. \\
+6.22 & CT à échéance dans 30 jours &
+\code{BETWEEN SYSDATE AND SYSDATE+30} & CT2 (5 jours), CT1 (20 jours). \\
+6.23 & CC sans opération depuis 12 mois &
+\code{NOT EXISTS} + sous-requête & CC5 et CC6. \\
+6.24 & Opérations > 1\,000\,000 DA & Filtre \code{montant > 1000000} &
+Opération de 1\,500\,000 sur CC1. \\
+6.25 & Suppression CT expirés > 1 an, montant 0 &
+\code{DELETE} + \code{ADD\_MONTHS} & CT4 supprimé. \\
+\end{longtable}
+}
+
+\begin{attentionbox}[Chronologie des résultats]
+La partie C s'exécute \emph{avant} les tests destructifs de la partie D. C'est
+pourquoi 6.2 montre encore CC1, que 6.13 compte 20 opérations et que 6.24
+trouve l'opération de 1\,500\,000~DA. Après la partie D, CC1 et ses cinq
+opérations sont supprimés, et CE4 est supprimé par
+\code{fermeCompte('CE4')}. Si les captures sont refaites après l'exécution
+complète, ces résultats ne seront plus visibles. Il faut soit capturer la
+sortie de C avant D, soit utiliser \code{\_travail/\_C.out} ou
+\code{\_travail/\_FULL.out}.
+\end{attentionbox}
+
+\section{Déréférencement d'attributs}
+
+Un attribut objet se déréférence avec la notation pointée. Il faut un alias de
+table pour que Oracle sache à quelle ligne se rapporte l'attribut. Écrire
+\code{ref\_parrain.num\_client} sans alias échoue avec \code{ORA-00904}. La
+double notation \code{c.ref\_parrain.\allowbreak ref\_parrain.\allowbreak nom}
+permet d'atteindre le parrain du parrain, ce qui sera exploité en partie E.
+
+\begin{lstlisting}[caption={Déréférencement d'attributs objet.},label={lst:dereferencement}]
+SELECT c.num_client, c.nom, c.adresse.ville, c.ref_conseiller.nom
+  FROM client c;
+
+SELECT c.num_client, c.nom,
+       c.ref_parrain.nom             AS parrain,
+       c.ref_parrain.ref_parrain.nom AS grand_parrain
+  FROM client c;
+\end{lstlisting}
+
+\section{Interroger un \code{VARRAY}}
+
+La fonction de table \code{TABLE(...)} transforme une collection en ensemble de
+lignes. Pour un \code{VARRAY}, \code{COUNT(*)} compte les emplacements, tandis
+que \code{COUNT(COLUMN\_VALUE)} ne compte que les valeurs non \code{NULL}.
+\code{CARDINALITY} ne fonctionne pas sur un \code{VARRAY} dans cette version :
+elle lève \code{ORA-00932}. Il faut donc utiliser \code{TABLE(...)} et
+\code{COUNT(*)}.
+
+\begin{lstlisting}[caption={Interrogation d'un \code{VARRAY} de téléphones.},label={lst:varray}]
+SELECT c.num_client, t.COLUMN_VALUE AS telephone
+  FROM client c, TABLE(c.telephones) t
+ WHERE c.num_client = 1;
+
+SELECT COUNT(*)              AS nb_elements,
+       COUNT(t.COLUMN_VALUE) AS nb_renseignes
+  FROM TABLE (SELECT telephones FROM client WHERE num_client = 1) t;
+\end{lstlisting}
+
+\section{Interroger une \emph{nested table}}
+
+Une \emph{nested table} se manipule de la même manière avec \code{TABLE(...)}.
+La jointure avec le client se fait par \code{s.ref\_client = REF(c)}. La
+requête 6.20 combine ainsi la \emph{nested table} des signataires, le compte
+courant et le client, pour afficher l'adresse complète des signataires de CC7.
+
+\begin{lstlisting}[caption={Signataires de CC7 avec adresse.},label={lst:nested-table}]
+SELECT c.num_client, c.nom,
+       c.adresse.num_rue||' '||c.adresse.rue||', '||c.adresse.ville AS adresse,
+       s.droit
+  FROM cpt_courant cc, TABLE(cc.signataires) s, client c
+ WHERE cc.num_compte = 'CC7'
+   AND s.ref_client = REF(c)
+ ORDER BY c.num_client;
+\end{lstlisting}
+
+\section{Agrégats, classements et \code{NOT EXISTS}}
+
+Les agrégats classiques restent disponibles. La requête 6.14 additionne les
+soldes des comptes courants et d'épargne par agence avec \code{UNION ALL}. La
+requête 6.15 calcule le solde total d'un client en additionnant trois
+sous-requêtes, puis classe les résultats et ne garde que les trois premiers
+avec \code{FETCH FIRST 3 ROWS ONLY}.
+
+\begin{lstlisting}[caption={Top 3 des clients par solde total.},label={lst:top3}]
+SELECT c.num_client, c.nom,
+       NVL((SELECT SUM(solde) FROM cpt_courant x WHERE x.ref_client = REF(c)), 0)
+     + NVL((SELECT SUM(solde) FROM cpt_epargne x WHERE x.ref_client = REF(c)), 0)
+     + NVL((SELECT SUM(solde) FROM cpt_terme   x WHERE x.ref_client = REF(c)), 0)
+       AS solde_total
+  FROM client c
+ ORDER BY solde_total DESC
+ FETCH FIRST 3 ROWS ONLY;
+\end{lstlisting}
+
+La requête 6.23 utilise \code{NOT EXISTS} plutôt que \code{NOT IN}. Ce choix
+est plus robuste en présence de \code{NULL} : \code{NOT IN} peut produire un
+résultat vide lorsque la sous-requête contient une valeur nulle. La
+sous-requête corrélée utilise \code{REF(cc)} pour relier l'opération au compte
+courant.
+
+\begin{lstlisting}[caption={Comptes courants sans opération depuis douze mois.},label={lst:not-exists}]
+SELECT cc.num_compte, cc.solde, cc.statut,
+       (SELECT MAX(o.date_op) FROM operation o
+         WHERE o.ref_compte = REF(cc)) AS derniere_operation
+  FROM cpt_courant cc
+ WHERE NOT EXISTS (SELECT 1 FROM operation o
+                    WHERE o.ref_compte = REF(cc)
+                      AND o.date_op > ADD_MONTHS(TRUNC(SYSDATE), -12))
+ ORDER BY cc.num_compte;
+\end{lstlisting}
+
+\section{Filtres, échéances et suppression conditionnelle}
+
+La requête 6.22 sélectionne les comptes à terme dont l'échéance tombe dans les
+trente prochains jours. La requête 6.24 isole les opérations de plus d'un
+million de dinars. La requête 6.25 est la seule requête destructive de la
+partie C : elle supprime les comptes à terme expirés depuis plus d'un an et
+dont le montant bloqué est nul. \code{CT4} est le cas de test prévu ; les
+autres comptes à terme sont conservés.
+
+\begin{lstlisting}[caption={Opérations de plus d'un million et suppression des comptes à terme expirés.},label={lst:filtres-suppression}]
+SELECT o.id_op, o.date_op, o.montant, o.type_op,
+       c.num_client, c.nom AS client, cc.num_compte
+  FROM operation o, client c, cpt_courant cc
+ WHERE o.ref_client = REF(c)
+   AND o.ref_compte = REF(cc)
+   AND o.montant > 1000000
+ ORDER BY o.montant DESC;
+
+DELETE FROM cpt_terme
+ WHERE date_echeance < ADD_MONTHS(TRUNC(SYSDATE), -12)
+   AND montant_bloque = 0;
+COMMIT;
+\end{lstlisting}
+
+\section{Résultats à montrer en priorité}
+
+Huit résultats suffisent à démontrer la maîtrise de la partie C. Ils couvrent
+le déréférencement, les agrégats, les collections, les échéances et la
+suppression conditionnelle.
+
+\begin{enumerate}
+  \item \textbf{6.10} : CC2 à $-50\,000$, avec titulaire et conseiller.
+  \item \textbf{6.15} : top 3 clients (1 : 3\,348\,500 ; 4 : 830\,000 ;
+        2 : 300\,000).
+  \item \textbf{6.16a} : téléphones du client 1 (3 éléments, 2 renseignés).
+  \item \textbf{6.18a} : CC7 a 3 signataires.
+  \item \textbf{6.20} : signataires de CC7 avec adresse complète — clients 2
+        (D), 3 (X), 5 (R).
+  \item \textbf{6.22} : CT2 à 5 jours, CT1 à 20 jours.
+  \item \textbf{6.24} : opération de 1\,500\,000~DA (avant suppression de CC1).
+  \item \textbf{6.25} : CT4 supprimé, les autres CT restent.
+\end{enumerate}
+
+\begin{remarquebox}[Preuves disponibles]
+Les sorties sont conservées dans \code{\_travail/\_C.out} et dans la section
+« PARTIE\_C\_REQUETES.SQL » de \code{\_travail/\_FULL.out}. Les captures n°~13
+à n°~24 du plan de l'annexe~\ref{ann:captures} couvrent les requêtes
+prioritaires.
+\end{remarquebox}
+
+\section{Pièges de la partie C}
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Pièges de la partie C et solutions.}
+  \label{tab:pieges-partieC}
+  \begin{tabularx}{\textwidth}{@{}L{5.0cm}L{4.8cm}X@{}}
+    \toprule
+    \entete{Piège} & \entete{Symptôme} & \entete{Solution} \\
+    \midrule
+    Déréférencement sans alias & \code{ORA-00904}. &
+    Toujours écrire \code{c.adresse.ville}, \code{c.ref\_conseiller.nom}. \\
+    \code{CARDINALITY} sur un \code{VARRAY} & \code{ORA-00932}. &
+    \code{TABLE(...)} + \code{COUNT(*)}. \\
+    \code{COUNT} sur un \code{VARRAY} en SQL & \code{ORA-00904}. & Idem. \\
+    \code{NOT IN} avec \code{NULL} & Aucun résultat inattendu. &
+    Préférer \code{NOT EXISTS}. \\
+    Confondre \code{montant} signé et valeur absolue & Les totaux sont faux. &
+    Les retraits sont négatifs ; utiliser \code{SUM(montant)} ou \code{ABS}. \\
+    Capturer C après D & CC1, CE4 et l'opération de 1,5~M absents. &
+    Capturer avant D ou utiliser \code{\_C.out}. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Conclusion de la partie C}
+
+La partie C démontre que le modèle relationnel-objet reste interrogeable avec
+SQL standard. Les collections ne sont pas des boîtes noires : \code{TABLE(...)}
+les transforme en lignes, et les jointures avec les \code{REF} permettent de
+retrouver les objets référencés. Les agrégats et les fonctions de classement
+restent utilisables. La seule précaution majeure est chronologique : les
+résultats de C doivent être observés avant les tests destructifs de D.

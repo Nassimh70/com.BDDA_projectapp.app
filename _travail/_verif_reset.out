@@ -1,0 +1,40 @@
+*** Verification finale : objets du schema MASTER1 ***
+
+ NB_OBJETS
+----------
+	 0
+*** Tables relationnelles ***
+
+ NB_TABLES
+----------
+	 0
+*** Tables objet ***
+
+NB_OBJECT_TABLES
+----------------
+	       0
+*** Types ***
+
+  NB_TYPES
+----------
+	 0
+*** Sequences ***
+
+NB_SEQUENCES
+------------
+	   0
+*** Vues ***
+
+  NB_VIEWS
+----------
+	 0
+*** Triggers ***
+
+NB_TRIGGERS
+-----------
+	  0
+*** Corbeille ***
+
+NB_RECYCLEBIN
+-------------
+	    0

@@ -1,0 +1,182 @@
+% =====================================================================
+% 12d_glossaire.tex — glossaire des termes techniques
+% =====================================================================
+\chapter{Glossaire}
+\label{ann:glossaire}
+
+\section{Termes du modèle objet}
+
+\begin{description}[leftmargin=2.6em,style=nextline]
+
+\item[Attribut objet.]
+Donnée membre d'un type objet. Dans le projet, \code{client\_type} possède
+notamment \code{nom}, \code{adresse} et \code{ref\_parrain}.
+
+\item[Collection.]
+Ensemble ordonné ou non d'éléments de même type. Le projet utilise un
+\code{VARRAY} pour les téléphones et les mois, et une \emph{nested table} pour
+les signataires et les statistiques.
+
+\item[Héritage.]
+Mécanisme par lequel un sous-type reprend les attributs et méthodes d'un
+super-type. \code{cptCourant\_type}, \code{cptEpargne\_type} et
+\code{cptTerme\_type} héritent de \code{compte\_type}.
+
+\item[Méthode membre.]
+Fonction ou procédure associée à une instance de type. Elle peut lire
+\code{SELF}. \code{passeMvt} est une méthode membre de
+\code{cptCourant\_type}.
+
+\item[Méthode statique.]
+Fonction ou procédure associée au type, et non à une instance. Elle est appelée
+avec le nom du type. \code{fermeCompte} est une méthode statique de
+\code{compte\_type}.
+
+\item[Nested table.]
+Collection non ordonnée, stockée dans une table de stockage. Les signataires
+d'un compte courant et les statistiques d'un mois sont des \emph{nested
+tables}.
+
+\item[Objet.]
+Instance d'un type objet, avec ses attributs et ses méthodes. Une ligne de
+\code{cpt\_courant} est un objet \code{cptCourant\_type}.
+
+\item[OID (identifiant objet).]
+Identifiant interne ou dérivé d'une clé qui identifie un objet persistant. La
+table \code{client} utilise un OID système ; la table \code{agence} utilise
+\code{OBJECT IDENTIFIER IS PRIMARY KEY}.
+
+\item[Polymorphisme.]
+Capacité à appeler une méthode dont l'implémentation dépend du type réel de
+l'objet. \code{fraisTenue} est redéfinie dans chaque sous-type de compte.
+
+\item[REF.]
+Référence persistante vers un objet. Elle se déréférence par la notation
+pointée, par exemple \code{c.ref\_conseiller.nom}.
+
+\item[Type objet.]
+Définition d'une structure de données avec attributs et méthodes. Le projet
+distingue les types métier, les types de collection et les types de vue.
+
+\item[VARRAY.]
+Collection ordonnée de taille maximale fixe. \code{telephones} est un
+\code{VARRAY(3)}.
+
+\end{description}
+
+\section{Termes relationnels et SQL}
+
+\begin{description}[leftmargin=2.6em,style=nextline]
+
+\item[Contrainte différée.]
+Contrainte dont la vérification est reportée au \code{COMMIT}. La contrainte
+\code{ck\allowbreak\_cc\allowbreak\_client} est
+\code{DEFERRABLE INITIALLY DEFERRED}.
+
+\item[FK (clé étrangère).]
+Contrainte qui garantit qu'une valeur référence une clé existante. Elle peut
+porter sur une colonne ou sur un attribut \code{REF}.
+
+\item[Index.]
+Structure d'accès qui accélère les recherches. Les clés primaires et les
+contraintes d'unicité créent des index.
+
+\item[PDB (pluggable database).]
+Base de données pluggable d'Oracle. Le projet utilise \code{XEPDB1}.
+
+\item[Séquence.]
+Objet qui produit des numéros successifs. Le projet utilise
+\code{seq\_operation}, \code{seq\_alerte}, \code{seq\_audit} et
+\code{seq\_affectation}.
+
+\item[SQL*Plus.]
+Client en ligne de commande d'Oracle. Les scripts utilisent ses paramètres
+\code{SERVEROUTPUT}, \code{LINESIZE} et \code{DEFINE OFF}.
+
+\item[Vue objet.]
+Vue dont les lignes sont des objets d'un type donné. \code{Agence\_VOR} est une
+vue objet avec un OID fondé sur le code d'agence.
+
+\end{description}
+
+\section{Termes PL/SQL et transactions}
+
+\begin{description}[leftmargin=2.6em,style=nextline]
+
+\item[Bloc anonyme.]
+Bloc PL/SQL sans nom, exécuté directement. Les tests D7 et D9 utilisent des
+blocs anonymes.
+
+\item[COMMIT.]
+Validation définitive de la transaction courante. \code{fermeCompte} et
+\code{drop\_client} valident eux-mêmes ; \code{virement} et \code{passeMvt} ne
+le font pas.
+
+\item[Curseur.]
+Pointeur sur le résultat d'une requête. Les blocs D7 utilisent des curseurs
+explicites et paramétrés.
+
+\item[Exception.]
+Erreur détectée par PL/SQL ou levée par \code{RAISE\_APPLICATION\_ERROR}. Les
+codes \code{ORA-20001} à \code{ORA-20030} sont applicatifs.
+
+\item[ROLLBACK.]
+Annulation de la transaction courante. Les tests de rollback prouvent que
+\code{virement} et \code{passeMvt} ne valident pas implicitement.
+
+\item[SAVEPOINT.]
+Point de restauration intermédiaire dans une transaction. \code{virement}
+l'utilise pour annuler les deux écritures en cas d'échec.
+
+\item[Trigger.]
+Programme stocké déclenché par un événement sur une table ou une vue. Le projet
+compte six triggers.
+
+\item[Trigger COMPOUND.]
+Trigger qui combine plusieurs sections temporelles :
+\code{BEFORE STATEMENT}, \code{BEFORE EACH ROW}, \code{AFTER EACH ROW} et
+\code{AFTER STATEMENT}. Il évite l'erreur de table mutante
+\code{ORA-04091}.
+
+\end{description}
+
+\section{Termes du projet}
+
+\begin{description}[leftmargin=2.6em,style=nextline]
+
+\item[Agence.]
+Structure qui emploie des conseillers et détient des comptes. Le projet en
+compte trois : A1, A2 et A3.
+
+\item[Alerte.]
+Message stocké dans la table \code{alerte}, par exemple
+\code{SOLDE\_NEGATIF}, \code{OPERATION\allowbreak\_SUSPECTE} ou
+\code{ECHEANCE\allowbreak\_PROCHE}.
+
+\item[Audit.]
+Trace des modifications sensibles. La table \code{"AUDIT"} est entre guillemets
+car \code{AUDIT} est un mot réservé.
+
+\item[Conseiller.]
+Employé qui suit des clients et peut être affecté à une agence. Le projet en
+compte quatre.
+
+\item[Compte courant.]
+Compte utilisé pour les dépôts, retraits, CB et virements. Il possède un
+découvert autorisé et des signataires.
+
+\item[Compte d'épargne.]
+Compte rémunéré avec un taux d'intérêt et un plafond de dépôt.
+
+\item[Compte à terme.]
+Compte dont le montant est bloqué jusqu'à une date d'échéance.
+
+\item[Signataire.]
+Client autorisé à opérer sur un compte courant, avec un droit \code{X},
+\code{R} ou \code{D}.
+
+\item[Virement.]
+Transfert entre deux comptes courants, avec commission inter-agences de 1~\%,
+minimum 100~DA.
+
+\end{description}

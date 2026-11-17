@@ -1,2 +1,0 @@
-SELECT 'TRIVIAL' FROM dual;
-EXIT
