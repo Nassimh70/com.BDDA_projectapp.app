@@ -2,39 +2,53 @@
 -- projet_bdda_banque.sql
 -- Mini-projet BDDA - M1 ASR - 2026/2027
 -- Banque de gestion des comptes et des clients
--- .
--- SCRIPT UNIQUE ET REJOUABLE : parties A a E
---   Partie A : schema objet-relationnel + donnees de test
---   Partie B : manipulations de donnees (B5a-B5f)
---   Partie C : requetes SQL (6.1-6.25)
---   Partie D : programmation PL/SQL (7, 8, 9)
---   Partie E : fonctionnalites objet avancees (10, 11, 12)
--- .
+--
+-- SCRIPT UNIQUE, COMMENTE ET ORGANISE PAR PARTIE (A a E).
+-- Il regenere entierement le schema et les donnees de MASTER1.
+--
+-- Ordre d'execution :
+--   0. reinitialisation (suppression de tous les objets du projet)
+--   A. types, tables, contraintes, sequences et donnees de test
+--   B. manipulations (client 99, CC99, procedures change_Portable/drop_client)
+--   C. 25 requetes SQL, y compris la suppression voulue de CT4
+--   D. sous-programmes, blocs PL/SQL, methodes des types et triggers
+--      (y compris les suppressions voulues de CE4 et CC1)
+--   E. type recursif, collections multi-niveaux, vue objet et mutation
+--
 -- Connexion :
 --   sqlplus MASTER1/system@localhost:1521/XEPDB1
---   SQL> @projet_bdda_banque.sql
--- .
--- Le script supprime d'abord les objets existants (section 0 de la
--- partie A), puis les recree dans l'ordre. Il peut donc etre rejoue.
--- Les erreurs attendues des tests d'exception sont signalees par un
--- commentaire "Erreur attendue" et n'arretent pas le script.
+--   SQL> @D:\bdda\projet_bdda_banque.sql
+--
+-- Prerequis unique (a executer une fois par un administrateur, hors de ce script) :
+--   sqlplus SYSTEM/<mot_de_passe>@localhost:1521/XEPDB1 @Partie\partieA\00_creation_utilisateur.sql
+--
+-- Le script est rejouable : la section 0 purge le schema avant de le
+-- reconstruire. Les erreurs ORA-200xx affichees pendant les tests sont
+-- des refus attendus et n'arrete pas l'execution.
 -- =====================================================================
 
 PROMPT ############################################################
-PROMPT # PARTIE_A_SCHEMA.SQL
+PROMPT # 0. REINITIALISATION COMPLETE DU SCHEMA (MASTER1)
 PROMPT ############################################################
+
 -- =====================================================================
--- partie_A_schema.sql
+-- reset_schema.sql
 -- Mini-projet BDDA - M1 ASR - 2026/2027
 -- .
--- PARTIE A
---   A1 : diagramme de classes -> dossier uml/
---   A2 : creation de l'utilisateur -> 00_creation_utilisateur.sql
---   A3 : types objet, VARRAY, nested tables, tables objet, contraintes,
---        script de regeneration (DROP) et purge des donnees (DELETE)
---   A4 : jeu de donnees de test
+-- REINITIALISATION COMPLETE DU SCHEMA MASTER1
 -- .
--- Le script est rejouable : il supprime d'abord les objets existants.
+-- Ce script supprime TOUS les objets du projet et ne recree RIEN.
+-- Il laisse donc le schema vide, pret pour une reexecution de A a E.
+-- Il est idempotent : on peut le relancer sur un schema deja vide.
+-- .
+-- Ordre de suppression (important pour les dependances) :
+--   1. vue objet Agence_VOR
+--   2. sous-programmes (procedures et fonctions)
+--   3. triggers
+--   4. tables (CASCADE CONSTRAINTS PURGE)
+--   5. sequences
+--   6. types (FORCE, sous-types avant super-types)
+--   7. verification : aucun objet ne doit rester
 -- =====================================================================
 
 SET SERVEROUTPUT ON SIZE UNLIMITED
@@ -43,77 +57,160 @@ SET PAGESIZE 100
 SET DEFINE OFF
 SET FEEDBACK ON
 SET ECHO OFF
-
-PROMPT ============================================================
-PROMPT 0. REGENERATION - SUPPRESSION DES OBJETS EXISTANTS
-PROMPT ============================================================
--- ORDRE DE REGENERATION (equivalent explicite, pour le rapport) :
---   DROP VIEW Agence_VOR;                 -- vue objet de E12
---   DROP TABLE releves, "AUDIT", alerte, operation, cpt_terme, cpt_epargne,
---              cpt_courant, client, affectation, agence, conseiller;
---   DROP SEQUENCE seq_operation, seq_alerte, seq_audit, seq_affectation;
---   DROP TYPE agence_vor_type, mois_vry_type, mois_elt_vry_type,
---             type_stat_nt_type, type_stat_elt_nt_type, cptCourant_nt_type,
---             conseiller_nt_type, operation_type, cptTerme_type,
---             cptEpargne_type, cptCourant_type, compte_type,
---             signataire_nt_type, signataire_elt_nt_type, client_type,
---             agence_type, conseiller_type, tel_vry_type, adresse_type;
---
--- Bloc idempotent : au premier passage les objets n'existent pas, on
--- ignore donc les erreurs de suppression (aucune sortie parasite).
-
--- La vue objet de E12 depend de la table agence et du type agence_vor_type :
--- on la supprime en premier pour rendre le script complet rejouable.
-BEGIN
-  EXECUTE IMMEDIATE 'DROP VIEW Agence_VOR';
-EXCEPTION WHEN OTHERS THEN NULL;
-END;
-/
-
-DECLARE
-  TYPE t_liste IS TABLE OF VARCHAR2(30);
-  v_tables t_liste := t_liste(
-    'RELEVES','AUDIT','ALERTE','OPERATION','CPT_TERME','CPT_EPARGNE',
-    'CPT_COURANT','CLIENT','AFFECTATION','AGENCE','CONSEILLER');
-  v_sequences t_liste := t_liste(
-    'SEQ_OPERATION','SEQ_ALERTE','SEQ_AUDIT','SEQ_AFFECTATION');
-  v_types t_liste := t_liste(
-    'AGENCE_VOR_TYPE','MOIS_VRY_TYPE','MOIS_ELT_VRY_TYPE',
-    'TYPE_STAT_NT_TYPE','TYPE_STAT_ELT_NT_TYPE','CPTCOURANT_NT_TYPE',
-    'CONSEILLER_NT_TYPE','OPERATION_TYPE','CPTTERME_TYPE','CPTEPARGNE_TYPE',
-    'CPTCOURANT_TYPE','COMPTE_TYPE','SIGNATAIRE_NT_TYPE',
-    'SIGNATAIRE_ELT_NT_TYPE','CLIENT_TYPE','AGENCE_TYPE','CONSEILLER_TYPE',
-    'TEL_VRY_TYPE','ADRESSE_TYPE');
-BEGIN
-  FOR i IN 1..v_tables.COUNT LOOP
-    BEGIN
-      EXECUTE IMMEDIATE 'DROP TABLE "'||v_tables(i)||'" CASCADE CONSTRAINTS PURGE';
-    EXCEPTION WHEN OTHERS THEN NULL;
-    END;
-  END LOOP;
-  FOR i IN 1..v_sequences.COUNT LOOP
-    BEGIN
-      EXECUTE IMMEDIATE 'DROP SEQUENCE "'||v_sequences(i)||'"';
-    EXCEPTION WHEN OTHERS THEN NULL;
-    END;
-  END LOOP;
-  FOR i IN 1..v_types.COUNT LOOP
-    BEGIN
-      EXECUTE IMMEDIATE 'DROP TYPE "'||v_types(i)||'" FORCE';
-    EXCEPTION WHEN OTHERS THEN NULL;
-    END;
-  END LOOP;
-  DBMS_OUTPUT.PUT_LINE('Regeneration : objets existants supprimes.');
-END;
-/
 WHENEVER SQLERROR CONTINUE
 
 PROMPT ============================================================
-PROMPT 1. CREATION DES TYPES OBJET
+PROMPT 1. SUPPRESSION DE LA VUE OBJET
 PROMPT ============================================================
--- CREATE TYPE direct ferme silencieusement la session SQL*Plus sur cette
--- installation : on passe par EXECUTE IMMEDIATE (comportement verifie).
+BEGIN
+  EXECUTE IMMEDIATE 'DROP VIEW Agence_VOR';
+  DBMS_OUTPUT.PUT_LINE('Vue Agence_VOR supprimee.');
+EXCEPTION WHEN OTHERS THEN
+  DBMS_OUTPUT.PUT_LINE('Vue Agence_VOR absente (deja supprimee).');
+END;
+/
 
+PROMPT ============================================================
+PROMPT 2. SUPPRESSION DES SOUS-PROGRAMMES
+PROMPT ============================================================
+DECLARE
+  TYPE t_liste IS TABLE OF VARCHAR2(30);
+  v_noms t_liste := t_liste(
+    'NB_COMPTES', 'SOLDE_TOTAL', 'VILLE_CLIENT',
+    'AJOUT_CLIENT', 'CHANGE_PORTABLE', 'DROP_CLIENT',
+    'MAJ_STATUTS_DORMANTS', 'SCAN_ECHEANCES', 'VIREMENT');
+BEGIN
+  FOR i IN 1..v_noms.COUNT LOOP
+    BEGIN
+      EXECUTE IMMEDIATE 'DROP PROCEDURE "'||v_noms(i)||'"';
+      DBMS_OUTPUT.PUT_LINE('Procedure '||v_noms(i)||' supprimee.');
+    EXCEPTION WHEN OTHERS THEN
+      BEGIN
+        EXECUTE IMMEDIATE 'DROP FUNCTION "'||v_noms(i)||'"';
+        DBMS_OUTPUT.PUT_LINE('Fonction '||v_noms(i)||' supprimee.');
+      EXCEPTION WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Sous-programme '||v_noms(i)||' absent.');
+      END;
+    END;
+  END LOOP;
+END;
+/
+
+PROMPT ============================================================
+PROMPT 3. SUPPRESSION DES TRIGGERS
+PROMPT ============================================================
+DECLARE
+  TYPE t_liste IS TABLE OF VARCHAR2(30);
+  v_noms t_liste := t_liste(
+    'TRG_AUDIT_DECOUVERT', 'TRG_AUDIT_TAUX', 'TRG_AUDIT_TAUX_TERME',
+    'TRG_CT_ECHEANCE', 'TRG_OP_APRES', 'TRG_OP_AVANT');
+BEGIN
+  FOR i IN 1..v_noms.COUNT LOOP
+    BEGIN
+      EXECUTE IMMEDIATE 'DROP TRIGGER "'||v_noms(i)||'"';
+      DBMS_OUTPUT.PUT_LINE('Trigger '||v_noms(i)||' supprime.');
+    EXCEPTION WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE('Trigger '||v_noms(i)||' absent.');
+    END;
+  END LOOP;
+END;
+/
+
+PROMPT ============================================================
+PROMPT 4. SUPPRESSION DES TABLES
+PROMPT ============================================================
+DECLARE
+  TYPE t_liste IS TABLE OF VARCHAR2(30);
+  v_noms t_liste := t_liste(
+    'RELEVES', 'AUDIT', 'ALERTE', 'OPERATION',
+    'CPT_TERME', 'CPT_EPARGNE', 'CPT_COURANT', 'SIGNATAIRE_NT_ST',
+    'CLIENT', 'AFFECTATION', 'AGENCE', 'CONSEILLER');
+BEGIN
+  FOR i IN 1..v_noms.COUNT LOOP
+    BEGIN
+      EXECUTE IMMEDIATE 'DROP TABLE "'||v_noms(i)||'" CASCADE CONSTRAINTS PURGE';
+      DBMS_OUTPUT.PUT_LINE('Table '||v_noms(i)||' supprimee.');
+    EXCEPTION WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE('Table '||v_noms(i)||' absente.');
+    END;
+  END LOOP;
+END;
+/
+
+PROMPT ============================================================
+PROMPT 5. SUPPRESSION DES SEQUENCES
+PROMPT ============================================================
+DECLARE
+  TYPE t_liste IS TABLE OF VARCHAR2(30);
+  v_noms t_liste := t_liste(
+    'SEQ_OPERATION', 'SEQ_ALERTE', 'SEQ_AUDIT', 'SEQ_AFFECTATION');
+BEGIN
+  FOR i IN 1..v_noms.COUNT LOOP
+    BEGIN
+      EXECUTE IMMEDIATE 'DROP SEQUENCE "'||v_noms(i)||'"';
+      DBMS_OUTPUT.PUT_LINE('Sequence '||v_noms(i)||' supprimee.');
+    EXCEPTION WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE('Sequence '||v_noms(i)||' absente.');
+    END;
+  END LOOP;
+END;
+/
+
+PROMPT ============================================================
+PROMPT 6. SUPPRESSION DES TYPES
+PROMPT ============================================================
+DECLARE
+  TYPE t_liste IS TABLE OF VARCHAR2(30);
+  v_noms t_liste := t_liste(
+    'AGENCE_VOR_TYPE', 'MOIS_VRY_TYPE', 'MOIS_ELT_VRY_TYPE',
+    'TYPE_STAT_NT_TYPE', 'TYPE_STAT_ELT_NT_TYPE',
+    'CPTCOURANT_NT_TYPE', 'CONSEILLER_NT_TYPE',
+    'OPERATION_TYPE', 'CPTTERME_TYPE', 'CPTEPARGNE_TYPE',
+    'CPTCOURANT_TYPE', 'COMPTE_TYPE',
+    'SIGNATAIRE_NT_TYPE', 'SIGNATAIRE_ELT_NT_TYPE',
+    'CLIENT_TYPE', 'AGENCE_TYPE', 'CONSEILLER_TYPE',
+    'TEL_VRY_TYPE', 'ADRESSE_TYPE');
+BEGIN
+  FOR i IN 1..v_noms.COUNT LOOP
+    BEGIN
+      EXECUTE IMMEDIATE 'DROP TYPE "'||v_noms(i)||'" FORCE';
+      DBMS_OUTPUT.PUT_LINE('Type '||v_noms(i)||' supprime.');
+    EXCEPTION WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE('Type '||v_noms(i)||' absent.');
+    END;
+  END LOOP;
+END;
+/
+
+PROMPT ============================================================
+PROMPT 7. VERIFICATION - LE SCHEMA DOIT ETRE VIDE
+PROMPT ============================================================
+COLUMN object_type FORMAT A25
+COLUMN nb FORMAT 999
+SELECT object_type, COUNT(*) AS nb
+  FROM user_objects
+ GROUP BY object_type
+ ORDER BY object_type;
+
+PROMPT *** Objets restants (aucune ligne attendue) ***
+COLUMN object_name FORMAT A35
+SELECT object_name, object_type
+  FROM user_objects
+ ORDER BY object_type, object_name;
+
+PROMPT ============================================================
+PROMPT FIN DE LA REINITIALISATION
+PROMPT ============================================================
+-- Pas de EXIT ici : ce script peut aussi etre lance depuis VS Code
+-- sans fermer la session de l'editeur.
+
+PROMPT ############################################################
+PROMPT # PARTIE A - SCHEMA OBJET-RELATIONNEL ET DONNEES (questions 1 a 4)
+PROMPT ############################################################
+
+
+
+PROMPT 1. CREATION DES TYPES OBJET
 -- 1.1 Adresse (type objet dedie)
 BEGIN
   EXECUTE IMMEDIATE q'[
@@ -125,7 +222,7 @@ BEGIN
     )]';
 END;
 /
-SHOW ERRORS TYPE adresse_type
+
 
 -- 1.2 Telephones : VARRAY de 3 elements scalaires (domicile, portable 1, portable 2)
 BEGIN
@@ -133,7 +230,7 @@ BEGIN
     CREATE TYPE tel_vry_type AS VARRAY(3) OF VARCHAR2(20)]';
 END;
 /
-SHOW ERRORS TYPE tel_vry_type
+
 
 -- 1.3 Conseiller
 BEGIN
@@ -148,7 +245,7 @@ BEGIN
     )]';
 END;
 /
-SHOW ERRORS TYPE conseiller_type
+
 
 -- 1.4 Agence : le responsable est un REF vers un conseiller
 BEGIN
@@ -161,9 +258,10 @@ BEGIN
     )]';
 END;
 /
-SHOW ERRORS TYPE agence_type
 
--- 1.5 Client (sans le parrain : il sera ajoute par ALTER TYPE, cf. E10)
+
+-- 1.5 Client (type de base ; le parrain est ajoute juste apres en 1.6
+-- pour permettre les insertions de clients parraines de la question A4)
 BEGIN
   EXECUTE IMMEDIATE q'[
     CREATE TYPE client_type AS OBJECT (
@@ -180,12 +278,21 @@ BEGIN
     )]';
 END;
 /
-SHOW ERRORS TYPE client_type
 
--- 1.6 Association recursive de parrainage (question E10, rendue possible
---     des la partie A pour pouvoir inserer les 2 clients parraines de A4)
-ALTER TYPE client_type ADD ATTRIBUTE ref_parrain REF client_type CASCADE;
-SHOW ERRORS TYPE client_type
+-- 1.6 Association recursive de parrainage (A4, puis E10)
+DECLARE
+  v_nb NUMBER;
+BEGIN
+  SELECT COUNT(*) INTO v_nb
+    FROM user_type_attrs
+   WHERE type_name = 'CLIENT_TYPE' AND attr_name = 'REF_PARRAIN';
+  IF v_nb = 0 THEN
+    EXECUTE IMMEDIATE 'ALTER TYPE client_type ADD ATTRIBUTE ref_parrain REF client_type CASCADE';
+  END IF;
+END;
+/
+
+
 
 -- 1.7 Signataires : nested table d'objets (client + droit)
 BEGIN
@@ -196,14 +303,12 @@ BEGIN
     )]';
 END;
 /
-SHOW ERRORS TYPE signataire_elt_nt_type
-
 BEGIN
   EXECUTE IMMEDIATE q'[
     CREATE TYPE signataire_nt_type AS TABLE OF signataire_elt_nt_type]';
 END;
 /
-SHOW ERRORS TYPE signataire_nt_type
+
 
 -- 1.8 Compte : racine NOT FINAL NOT INSTANTIABLE
 BEGIN
@@ -214,12 +319,12 @@ BEGIN
       date_ouverture DATE,
       statut         VARCHAR2(10),
       ref_client     REF client_type,
-      ref_agence     REF agence_type,
-      MEMBER FUNCTION fraisTenue RETURN NUMBER
+      ref_agence     REF agence_type
+      -- MEMBER FUNCTION fraisTenue RETURN NUMBER  (ajoutee en D8)
     ) NOT FINAL NOT INSTANTIABLE]';
 END;
 /
-SHOW ERRORS TYPE compte_type
+
 
 -- 1.9 Compte courant
 BEGIN
@@ -227,24 +332,25 @@ BEGIN
     CREATE TYPE cptCourant_type UNDER compte_type (
       decouvert   NUMBER(12,2),
       nb_op_cb    NUMBER,
-      signataires signataire_nt_type,
-      OVERRIDING MEMBER FUNCTION fraisTenue RETURN NUMBER
+      signataires signataire_nt_type
+      -- OVERRIDING MEMBER FUNCTION fraisTenue RETURN NUMBER  (ajoutee en D8)
     )]';
 END;
 /
-SHOW ERRORS TYPE cptCourant_type
+
+
 
 -- 1.10 Compte d'epargne
 BEGIN
   EXECUTE IMMEDIATE q'[
     CREATE TYPE cptEpargne_type UNDER compte_type (
       taux_interet  NUMBER(5,2),
-      plafond_depot NUMBER(12,2),
-      OVERRIDING MEMBER FUNCTION fraisTenue RETURN NUMBER
+      plafond_depot NUMBER(12,2)
+      -- OVERRIDING MEMBER FUNCTION fraisTenue RETURN NUMBER  (ajoutee en D8)
     )]';
 END;
 /
-SHOW ERRORS TYPE cptEpargne_type
+
 
 -- 1.11 Compte a terme
 BEGIN
@@ -253,12 +359,12 @@ BEGIN
       montant_bloque NUMBER(12,2),
       duree_mois     NUMBER,
       date_echeance  DATE,
-      taux_garanti   NUMBER(5,2),
-      OVERRIDING MEMBER FUNCTION fraisTenue RETURN NUMBER
+      taux_garanti   NUMBER(5,2)
+      -- OVERRIDING MEMBER FUNCTION fraisTenue RETURN NUMBER  (ajoutee en D8)
     )]';
 END;
 /
-SHOW ERRORS TYPE cptTerme_type
+
 
 -- 1.12 Operation (uniquement sur compte courant : typage structurel)
 BEGIN
@@ -274,7 +380,8 @@ BEGIN
     )]';
 END;
 /
-SHOW ERRORS TYPE operation_type
+
+
 
 -- 1.13 Collections pour la vue objet de E12
 BEGIN
@@ -282,14 +389,13 @@ BEGIN
     CREATE TYPE conseiller_nt_type AS TABLE OF conseiller_type]';
 END;
 /
-SHOW ERRORS TYPE conseiller_nt_type
-
 BEGIN
   EXECUTE IMMEDIATE q'[
     CREATE TYPE cptCourant_nt_type AS TABLE OF cptCourant_type]';
 END;
 /
-SHOW ERRORS TYPE cptCourant_nt_type
+
+
 
 -- 1.14 Collections multi-niveaux de E11
 BEGIN
@@ -301,15 +407,11 @@ BEGIN
     )]';
 END;
 /
-SHOW ERRORS TYPE type_stat_elt_nt_type
-
 BEGIN
   EXECUTE IMMEDIATE q'[
     CREATE TYPE type_stat_nt_type AS TABLE OF type_stat_elt_nt_type]';
 END;
 /
-SHOW ERRORS TYPE type_stat_nt_type
-
 BEGIN
   EXECUTE IMMEDIATE q'[
     CREATE TYPE mois_elt_vry_type AS OBJECT (
@@ -319,60 +421,18 @@ BEGIN
     )]';
 END;
 /
-SHOW ERRORS TYPE mois_elt_vry_type
-
 BEGIN
   EXECUTE IMMEDIATE q'[
     CREATE TYPE mois_vry_type AS VARRAY(12) OF mois_elt_vry_type]';
 END;
 /
-SHOW ERRORS TYPE mois_vry_type
 
-PROMPT ============================================================
-PROMPT 2. CORPS DES TYPES (POLYMORPHISME DE fraisTenue)
-PROMPT ============================================================
--- fraisTenue est declaree des la creation : Oracle interdit d'ajouter
--- ensuite une methode qui REDEFINIT une methode existante (ORA-22324).
+PROMPT 2. CREATION DES TABLES ET DES CONTRAINTES
 
-CREATE OR REPLACE TYPE BODY compte_type AS
-  MEMBER FUNCTION fraisTenue RETURN NUMBER IS
-  BEGIN
-    RETURN 500;   -- valeur de la racine (jamais instanciee)
-  END;
-END;
-/
-SHOW ERRORS TYPE BODY compte_type
 
-CREATE OR REPLACE TYPE BODY cptCourant_type AS
-  OVERRIDING MEMBER FUNCTION fraisTenue RETURN NUMBER IS
-  BEGIN
-    RETURN 1200;
-  END;
-END;
-/
-SHOW ERRORS TYPE BODY cptCourant_type
 
-CREATE OR REPLACE TYPE BODY cptEpargne_type AS
-  OVERRIDING MEMBER FUNCTION fraisTenue RETURN NUMBER IS
-  BEGIN
-    RETURN 0;
-  END;
-END;
-/
-SHOW ERRORS TYPE BODY cptEpargne_type
 
-CREATE OR REPLACE TYPE BODY cptTerme_type AS
-  OVERRIDING MEMBER FUNCTION fraisTenue RETURN NUMBER IS
-  BEGIN
-    RETURN 0;
-  END;
-END;
-/
-SHOW ERRORS TYPE BODY cptTerme_type
 
-PROMPT ============================================================
-PROMPT 3. CREATION DES TABLES ET DES CONTRAINTES
-PROMPT ============================================================
 
 -- 3.1 Conseiller
 CREATE TABLE conseiller OF conseiller_type (
@@ -380,11 +440,13 @@ CREATE TABLE conseiller OF conseiller_type (
   CONSTRAINT ck_cons_salaire CHECK (salaire >= 0)
 );
 
+
 -- 3.2 Agence : OID primaire, indispensable a MAKE_REF dans la vue objet
 CREATE TABLE agence OF agence_type (
   code PRIMARY KEY,
   CONSTRAINT ck_ag_responsable CHECK (ref_responsable IS NOT NULL)
 ) OBJECT IDENTIFIER IS PRIMARY KEY;
+
 
 -- 3.3 Historique des affectations conseiller <-> agence
 CREATE TABLE affectation (
@@ -398,6 +460,7 @@ CREATE TABLE affectation (
   CONSTRAINT ck_aff_dates      CHECK (date_fin IS NULL OR date_fin > date_debut)
 );
 
+
 -- 3.4 Client : OID systeme (un REF d'OID primaire ne peut pas entrer
 --     dans la nested table des signataires : ORA-22979)
 CREATE TABLE client OF client_type (
@@ -405,6 +468,7 @@ CREATE TABLE client OF client_type (
   num_secu   UNIQUE,
   CONSTRAINT ck_cli_conseiller CHECK (ref_conseiller IS NOT NULL)
 );
+
 
 -- 3.5 Comptes courants + nested table des signataires
 CREATE TABLE cpt_courant OF cptCourant_type (
@@ -420,11 +484,15 @@ CREATE TABLE cpt_courant OF cptCourant_type (
 )
 NESTED TABLE signataires STORE AS signataire_nt_st;
 
+
+
 -- Contraintes de domaine ajoutees sur la nested table par ALTER TABLE
 ALTER TABLE signataire_nt_st
   ADD CONSTRAINT ck_sig_droit CHECK (droit IN ('X','R','D'));
 ALTER TABLE signataire_nt_st
   ADD CONSTRAINT ck_sig_droit_nn CHECK (droit IS NOT NULL);
+
+
 
 -- 3.6 Comptes d'epargne
 CREATE TABLE cpt_epargne OF cptEpargne_type (
@@ -435,6 +503,8 @@ CREATE TABLE cpt_epargne OF cptEpargne_type (
   CONSTRAINT ck_ce_taux    CHECK (taux_interet >= 0 AND taux_interet < 3.5),
   CONSTRAINT ck_ce_plafond CHECK (plafond_depot >= 0)
 );
+
+
 
 -- 3.7 Comptes a terme
 CREATE TABLE cpt_terme OF cptTerme_type (
@@ -447,6 +517,7 @@ CREATE TABLE cpt_terme OF cptTerme_type (
   CONSTRAINT ck_ct_taux    CHECK (taux_garanti >= 0)
 );
 
+
 -- 3.8 Operations
 CREATE TABLE operation OF operation_type (
   id_op PRIMARY KEY,
@@ -456,6 +527,7 @@ CREATE TABLE operation OF operation_type (
   CONSTRAINT ck_op_commission CHECK (commission >= 0),
   CONSTRAINT ck_op_montant    CHECK (montant <> 0)
 );
+
 
 -- 3.9 Alertes
 CREATE TABLE alerte (
@@ -470,6 +542,7 @@ CREATE TABLE alerte (
   CONSTRAINT ck_al_traitee CHECK (traitee IN ('O','N'))
 );
 
+
 -- 3.10 Audit
 CREATE TABLE "AUDIT" (
   id_audit        NUMBER PRIMARY KEY,
@@ -481,6 +554,7 @@ CREATE TABLE "AUDIT" (
   date_modif      DATE DEFAULT SYSDATE,
   utilisateur     VARCHAR2(30) DEFAULT USER
 );
+
 
 -- 3.11 Releves mensuels multi-niveaux (E11)
 CREATE TABLE releves (
@@ -524,19 +598,22 @@ ALTER TABLE operation   ADD CONSTRAINT fk_op_client
 ALTER TABLE operation   ADD CONSTRAINT fk_op_compte
   FOREIGN KEY (ref_compte) REFERENCES cpt_courant;
 
-PROMPT ============================================================
-PROMPT 4. SEQUENCES
-PROMPT ============================================================
+
+
+
+
+PROMPT 3. SEQUENCES UTILISEES PAR LES TRIGGERS DE LA PARTIE D
 CREATE SEQUENCE seq_operation   START WITH 100;
 CREATE SEQUENCE seq_alerte      START WITH 1;
 CREATE SEQUENCE seq_audit       START WITH 1;
 CREATE SEQUENCE seq_affectation START WITH 100;
 
-PROMPT ============================================================
-PROMPT 5. DONNEES DE TEST (A4)
-PROMPT ============================================================
+PROMPT 4. DONNEES DE TEST (A4)
 
--- 5.1 Conseillers (4)
+
+
+
+-- 4.1 Conseillers (4)
 INSERT INTO conseiller VALUES (conseiller_type(1,'BENALI','Karim','Particuliers',
                                                DATE '2015-03-01', 85000));
 INSERT INTO conseiller VALUES (conseiller_type(2,'HAMDI','Sara','Entreprises',
@@ -546,7 +623,7 @@ INSERT INTO conseiller VALUES (conseiller_type(3,'TOUATI','Yacine','Particuliers
 INSERT INTO conseiller VALUES (conseiller_type(4,'KACI','Nadia','Epargne',
                                                DATE '2021-06-01', 81000));
 
--- 5.2 Agences (3), un responsable par agence
+-- 4.2 Agences (3), un responsable par agence
 INSERT INTO agence (code, nom, ville, ref_responsable)
 VALUES ('A1','Agence Bejaia Centre','Bejaia',
         (SELECT REF(c) FROM conseiller c WHERE c.num_conseiller = 1));
@@ -556,8 +633,7 @@ VALUES ('A2','Agence Alger Grande Poste','Alger',
 INSERT INTO agence (code, nom, ville, ref_responsable)
 VALUES ('A3','Agence Oran Front de Mer','Oran',
         (SELECT REF(c) FROM conseiller c WHERE c.num_conseiller = 3));
-
--- 5.3 Historique des affectations (mutation du conseiller 4)
+-- 4.3 Historique des affectations (mutation du conseiller 4)
 INSERT INTO affectation (id_affectation, ref_conseiller, ref_agence, date_debut, date_fin)
 VALUES (1,(SELECT REF(c) FROM conseiller c WHERE c.num_conseiller = 1),
           (SELECT REF(a) FROM agence a WHERE a.code = 'A1'),
@@ -578,8 +654,7 @@ INSERT INTO affectation (id_affectation, ref_conseiller, ref_agence, date_debut,
 VALUES (5,(SELECT REF(c) FROM conseiller c WHERE c.num_conseiller = 4),
           (SELECT REF(a) FROM agence a WHERE a.code = 'A2'),
           DATE '2024-01-01', NULL);
-
--- 5.4 Clients (6) - VARRAY varies : NULL, partiel, complet
+-- 4.4 Clients (6) - VARRAY varies : NULL, partiel, complet
 INSERT INTO client (num_client, nom, prenom, date_naissance, num_secu, adresse,
                     telephones, email, date_entree, ref_conseiller, ref_parrain)
 VALUES (1,'AMRANI','Ali',DATE '1980-05-12','800512001',
@@ -632,8 +707,7 @@ VALUES (6,'ZERROUKI','Nour',DATE '2000-01-25','000125006',
 UPDATE client
    SET ref_parrain = (SELECT REF(p) FROM client p WHERE p.num_client = 1)
  WHERE num_client IN (2,3);
-
--- 5.5 Comptes courants (7) : nested table vide a la creation
+-- 4.5 Comptes courants (7) : nested table vide a la creation
 INSERT INTO cpt_courant (num_compte, solde, date_ouverture, ref_client, ref_agence,
                          decouvert, signataires)
 VALUES ('CC1',0,DATE '2015-04-10',
@@ -677,7 +751,7 @@ VALUES ('CC7',0,DATE '2023-05-01',
         (SELECT REF(a) FROM agence a WHERE a.code = 'A1'),
         75000, signataire_nt_type());
 
--- 5.6 Remplissage des signataires (5 comptes, les trois droits X, R et D)
+-- 4.6 Remplissage des signataires (5 comptes, les trois droits X, R et D)
 INSERT INTO TABLE (SELECT signataires FROM cpt_courant WHERE num_compte = 'CC1')
 SELECT signataire_elt_nt_type(REF(c),'X') FROM client c WHERE c.num_client = 4;
 
@@ -703,7 +777,7 @@ SELECT signataire_elt_nt_type(REF(c),'X') FROM client c WHERE c.num_client = 3;
 INSERT INTO TABLE (SELECT signataires FROM cpt_courant WHERE num_compte = 'CC7')
 SELECT signataire_elt_nt_type(REF(c),'R') FROM client c WHERE c.num_client = 5;
 
--- 5.7 Comptes d'epargne (5), dont CE2 a 3.49 % (limite < 3.5)
+-- 4.7 Comptes d'epargne (5), dont CE2 a 3.49 % (limite < 3.5)
 INSERT INTO cpt_epargne (num_compte, solde, date_ouverture, ref_client, ref_agence,
                          taux_interet, plafond_depot)
 VALUES ('CE1',150000,DATE '2016-01-15',
@@ -729,8 +803,7 @@ INSERT INTO cpt_epargne (num_compte, solde, date_ouverture, ref_client, ref_agen
 VALUES ('CE5',500000,DATE '2021-09-01',
         (SELECT REF(c) FROM client c WHERE c.num_client = 1),
         (SELECT REF(a) FROM agence a WHERE a.code = 'A2'), 3.00, 2000000);
-
--- 5.8 Comptes a terme (4)
+-- 4.8 Comptes a terme (4)
 --     CT1 : echeance dans 20 jours
 --     CT2 : echeance dans 5 jours  (< 8 jours -> alerte)
 --     CT3 : echeance depassee de 20 jours
@@ -888,46 +961,29 @@ UNION ALL SELECT 'CE',          COUNT(*) FROM cpt_epargne
 UNION ALL SELECT 'CT',          COUNT(*) FROM cpt_terme
 UNION ALL SELECT 'OPERATIONS',  COUNT(*) FROM operation
 UNION ALL SELECT 'SIGNATAIRES', COUNT(*) FROM cpt_courant c, TABLE(c.signataires) s;
+--Afficher les infromation de tous les client 
 
-PROMPT *** Objets invalides eventuels ***
-SELECT object_name, object_type, status
-  FROM user_objects
- WHERE status <> 'VALID'
- ORDER BY object_type, object_name;
-
-PROMPT ============================================================
-PROMPT FIN PARTIE A
-PROMPT ============================================================
+SELECT * FROM agence;
 
 PROMPT ############################################################
-PROMPT # PARTIE_B_MANIPULATIONS.SQL
+PROMPT # PARTIE B - MANIPULATIONS DE DONNEES (question 5)
 PROMPT ############################################################
+
 -- =====================================================================
 -- partie_B_manipulations.sql
 -- Mini-projet BDDA - M1 ASR - 2026/2027
---
--- PARTIE B - Manipulation de la base (question 5)
---   B5a : ajout du client 99 (VARRAY a un seul element)
---   B5b : ajout de CC99 sans titulaire, puis UPDATE (contrainte differee)
---   B5c : operation sans date -> valeur par defaut SYSDATE
---   B5d : ajout d'un signataire de droit D dans la nested table
---   B5e : procedure change_Portable (avant / apres)
---   B5f : procedure drop_client(99) (avant / apres)
---
--- A executer APRES la partie A. Le script est rejouable : il commence par
--- supprimer un eventuel client 99 reste d'une execution precedente.
+-- PARTIE B - Manipulation de la base (question B5)
+-- A executer apres la partie A.
 -- =====================================================================
-
 SET SERVEROUTPUT ON SIZE UNLIMITED
-SET LINESIZE 200
+SET LINESIZE 250
 SET PAGESIZE 100
 SET DEFINE OFF
 SET FEEDBACK ON
 SET ECHO OFF
+WHENEVER SQLERROR CONTINUE
 
-PROMPT ============================================================
 PROMPT 0. PROCEDURES CATALOGUEES UTILISEES EN PARTIE B
-PROMPT ============================================================
 
 -- ---------------------------------------------------------------------
 -- change_Portable (element 4 des "Elements a programmer")
@@ -1276,8 +1332,9 @@ PROMPT FIN PARTIE B
 PROMPT ============================================================
 
 PROMPT ############################################################
-PROMPT # PARTIE_C_REQUETES.SQL
+PROMPT # PARTIE C - REQUETES SQL (question 6)
 PROMPT ############################################################
+
 -- =====================================================================
 -- partie_C_requetes.sql
 -- Mini-projet BDDA - M1 ASR - 2026/2027
@@ -1361,12 +1418,12 @@ SELECT cc.num_compte, 'COURANT' AS type_compte, cc.solde, cc.date_ouverture,
        'decouvert='||cc.decouvert AS info
   FROM cpt_courant cc, client c
  WHERE cc.ref_client = REF(c) AND c.num_client = 4
-UNION ALL
+UNION
 SELECT ce.num_compte, 'EPARGNE', ce.solde, ce.date_ouverture,
        'taux='||ce.taux_interet
   FROM cpt_epargne ce, client c
  WHERE ce.ref_client = REF(c) AND c.num_client = 4
-UNION ALL
+UNION
 SELECT ct.num_compte, 'TERME', ct.solde, ct.date_ouverture,
        'bloque='||ct.montant_bloque
   FROM cpt_terme ct, client c
@@ -1672,8 +1729,9 @@ PROMPT FIN PARTIE C
 PROMPT ############################################################
 
 PROMPT ############################################################
-PROMPT # PARTIE_D_PROGRAMMATION.SQL
+PROMPT # PARTIE D - PROGRAMMATION PL/SQL (questions 7, 8 et 9)
 PROMPT ############################################################
+
 -- =====================================================================
 -- partie_D_programmation.sql
 -- Mini-projet BDDA - M1 ASR - 2026/2027
@@ -2136,8 +2194,8 @@ SELECT t.COLUMN_VALUE AS telephone
 DELETE FROM client WHERE num_client = 98;
 COMMIT;
 
--- =====================================================================
--- D7e : total des interets annuels des comptes d epargne de l agence A1
+PROMPT =====================================================================
+PROMPT D7e : total des interets annuels des comptes d epargne de l agence A1
 -- =====================================================================
 DECLARE
   CURSOR c_epargne (p_agence VARCHAR2) IS
@@ -2188,6 +2246,10 @@ DECLARE
     'ALTER TYPE cptEpargne_type ADD MEMBER FUNCTION sortieAnticipee RETURN NUMBER CASCADE',
     'ALTER TYPE cptTerme_type ADD MEMBER FUNCTION calculeInterets RETURN NUMBER CASCADE',
     'ALTER TYPE cptTerme_type ADD MEMBER FUNCTION sortieAnticipee RETURN NUMBER CASCADE',
+    'ALTER TYPE compte_type ADD MEMBER FUNCTION fraisTenue RETURN NUMBER CASCADE',
+    'ALTER TYPE cptCourant_type ADD OVERRIDING MEMBER FUNCTION fraisTenue RETURN NUMBER CASCADE',
+    'ALTER TYPE cptEpargne_type ADD OVERRIDING MEMBER FUNCTION fraisTenue RETURN NUMBER CASCADE',
+    'ALTER TYPE cptTerme_type ADD OVERRIDING MEMBER FUNCTION fraisTenue RETURN NUMBER CASCADE',
     'ALTER TYPE compte_type ADD STATIC PROCEDURE fermeCompte(cpt IN VARCHAR2) CASCADE'
   );
 BEGIN
@@ -2763,8 +2825,9 @@ BEGIN
   SELECT VALUE(cc) INTO v_cc
     FROM cpt_courant cc WHERE cc.num_compte = 'CC7';
   DBMS_OUTPUT.PUT_LINE('CC7 avant : '||v_cc.nbSignataire()||' signataires');
-  v_cc.supprimeSign(2);
-  v_cc.supprimeSign(999);
+  v_cc.supprimeSign(2);       -- signataire present : retrait
+  v_cc.supprimeSign(6);       -- client existant mais non signataire : anomalie
+  v_cc.supprimeSign(999);     -- client inexistant : anomalie
 END;
 /
 
@@ -3600,8 +3663,9 @@ PROMPT FIN PARTIE D
 PROMPT ============================================================
 
 PROMPT ############################################################
-PROMPT # PARTIE_E_OBJET_AVANCE.SQL
+PROMPT # PARTIE E - FONCTIONNALITES OBJET AVANCEES (questions 10, 11 et 12)
 PROMPT ############################################################
+
 -- =====================================================================
 -- partie_E_objet_avance.sql
 -- Mini-projet BDDA - M1 ASR - 2026/2027
@@ -3626,11 +3690,22 @@ WHENEVER SQLERROR CONTINUE
 PROMPT ============================================================
 PROMPT E10. TYPE RECURSIF : PARRAINAGE
 PROMPT ============================================================
--- L'attribut ref_parrain REF client_type a ete ajoute en partie A par
--- ALTER TYPE client_type ADD ATTRIBUTE ref_parrain REF client_type CASCADE.
--- La partie A a deja parraine les clients 2 et 3 par le client 1.
--- On ajoute trois liens supplementaires pour obtenir une chaine sur deux
+-- Ajout de l'attribut récursif ref_parrain.
+-- Il est déjà present depuis la partie A (necessaire aux insertions A4) :
+-- on ne le rajoute que s'il manque, pour que le script reste rejouable.
+-- Les cinq relations de parrainage sont établies en E10.
 -- niveaux : 5 -> 2 -> 1 et 6 -> 3 -> 1, plus 4 -> 1.
+DECLARE
+  v_nb NUMBER;
+BEGIN
+  SELECT COUNT(*) INTO v_nb
+    FROM user_type_attrs
+   WHERE type_name = 'CLIENT_TYPE' AND attr_name = 'REF_PARRAIN';
+  IF v_nb = 0 THEN
+    EXECUTE IMMEDIATE 'ALTER TYPE client_type ADD ATTRIBUTE ref_parrain REF client_type CASCADE';
+  END IF;
+END;
+/
 
 UPDATE client SET ref_parrain = (SELECT REF(p) FROM client p WHERE p.num_client = 1)
  WHERE num_client = 4;
@@ -3939,6 +4014,7 @@ SELECT a.code, CARDINALITY(a.conseillers) AS nb_conseillers
   FROM Agence_VOR a ORDER BY a.code;
 
 -- 5.5 Erreur attendue : conseiller 1 absent de l'agence A3.
+PROMPT *** ERREUR ATTENDUE : conseiller 1 absent de A3 (ORA-20010) ***
 DECLARE
   v_ag agence_vor_type;
 BEGIN
@@ -3948,6 +4024,7 @@ END;
 /
 
 -- 5.6 Erreur attendue : conseiller inexistant.
+PROMPT *** ERREUR ATTENDUE : conseiller 99 inexistant (ORA-20011) ***
 DECLARE
   v_ag agence_vor_type;
 BEGIN
@@ -3957,6 +4034,7 @@ END;
 /
 
 -- 5.7 Erreur attendue : agence cible inexistante.
+PROMPT *** ERREUR ATTENDUE : agence cible A9 inexistante (ORA-20011) ***
 DECLARE
   v_ag agence_vor_type;
 BEGIN
@@ -3966,22 +4044,5 @@ END;
 /
 
 PROMPT ############################################################
-PROMPT # CONTROLE FINAL
+PROMPT # FIN DU SCRIPT UNIQUE A - E
 PROMPT ############################################################
-COLUMN object_name FORMAT A35
-COLUMN object_type FORMAT A20
-PROMPT *** Objets invalides (aucune ligne attendue) ***
-SELECT object_name, object_type, status
-  FROM user_objects
- WHERE status <> 'VALID'
- ORDER BY object_type, object_name;
-
-PROMPT *** Nombre d objets par categorie ***
-SELECT object_type, COUNT(*) AS nb
-  FROM user_objects
- GROUP BY object_type
- ORDER BY object_type;
-
-PROMPT ============================================================
-PROMPT FIN DU SCRIPT UNIQUE - PARTIES A A E
-PROMPT ============================================================

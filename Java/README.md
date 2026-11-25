@@ -63,6 +63,18 @@ javac -encoding UTF-8 -cp "lib\ojdbc11.jar" -d out src\bdda\explorer\*.java
 
 La configuration (hôte, port, service, utilisateur) est mémorisée dans les préférences utilisateur Java. Le mot de passe n'est jamais enregistré.
 
+## Organisation de l'interface
+
+La fenêtre principale adopte une organisation en **trois colonnes**, sous un en-tête unique, avec un **thème sombre** et une couleur d’accent propre à chaque zone : cyan pour le catalogue, bleu pour l’éditeur, violet pour les résultats.
+
+| Colonne | Rôle |
+|---|---|
+| Gauche | catégories (puces cliquables), recherche et liste des requêtes |
+| Centre | éditeur SQL avec ses actions (exécuter, réinitialiser, copier, exporter) |
+| Droite | résultats, historique et messages dans des onglets |
+
+Un bandeau inférieur affiche l'état de connexion, la catégorie/requête courante, le nombre de lignes et les raccourcis. Les deux séparateurs entre colonnes sont proportionnels : le catalogue occupe environ 24 % de la largeur, l'éditeur environ 40 % et les résultats le reste. Les espacements et les cartes sont volontairement généreux pour éviter l’effet « tout mélangé ». La fenêtre de connexion est organisée en deux sections : serveur Oracle puis compte Oracle.
+
 ## Structure
 
 ```text

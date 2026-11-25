@@ -55,8 +55,8 @@ final class SqlEditorPanel extends JPanel {
         editor.setDocument(new DefaultStyledDocument());
 
         gutter.setFont(ModernTheme.MONO);
-        gutter.setForeground(new Color(150, 162, 180));
-        gutter.setBackground(new Color(249, 251, 254));
+        gutter.setForeground(ModernTheme.MUTED);
+        gutter.setBackground(ModernTheme.CARD_ALT);
         gutter.setEditable(false);
         gutter.setFocusable(false);
         gutter.setHighlighter(null);

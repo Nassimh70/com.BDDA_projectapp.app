@@ -168,4 +168,5 @@ SELECT object_name, object_type
 PROMPT ============================================================
 PROMPT FIN DE LA REINITIALISATION
 PROMPT ============================================================
-EXIT;
+-- Pas de EXIT ici : ce script peut aussi etre lance depuis VS Code
+-- sans fermer la session de l'editeur.

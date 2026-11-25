@@ -22,36 +22,51 @@ import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
-/** Palette claire, composants "soft" et boutons sans fond coloré plein. */
+/** Palette sombre, accents par zone et composants arrondis. */
 public final class ModernTheme {
 
-    public static final Color NAVY = new Color(30, 41, 59);
-    public static final Color NAVY_LIGHT = new Color(51, 65, 85);
-    public static final Color ACCENT = new Color(37, 99, 235);
-    public static final Color ACCENT_HOVER = new Color(29, 78, 216);
-    public static final Color SUCCESS = new Color(22, 163, 74);
-    public static final Color DANGER = new Color(220, 38, 38);
-    public static final Color WARNING = new Color(217, 119, 6);
-    public static final Color BG = new Color(247, 249, 252);
-    public static final Color CARD = Color.WHITE;
-    public static final Color TEXT = new Color(30, 41, 59);
-    public static final Color MUTED = new Color(107, 114, 128);
-    public static final Color BORDER = new Color(226, 232, 240);
-    public static final Color SOFT_BLUE = new Color(239, 246, 255);
-    public static final Color SOFT_RED = new Color(254, 242, 242);
-    public static final Color SOFT_GREEN = new Color(240, 253, 244);
-    public static final Color SOFT_GRAY = new Color(248, 250, 252);
+    /* Fond et surfaces */
+    public static final Color BG = new Color(15, 23, 42);          // slate-900
+    public static final Color CARD = new Color(30, 41, 59);        // slate-800
+    public static final Color CARD_ALT = new Color(23, 32, 51);    // slate-800 foncé
+    public static final Color TEXT = new Color(226, 232, 240);     // slate-200
+    public static final Color MUTED = new Color(148, 163, 184);    // slate-400
+    public static final Color BORDER = new Color(51, 65, 85);      // slate-700
+    public static final Color NAVY = BG;
+    public static final Color NAVY_LIGHT = CARD;
 
-    public static final Color SQL_KEYWORD = new Color(37, 99, 235);
-    public static final Color SQL_STRING = new Color(161, 98, 7);
-    public static final Color SQL_COMMENT = new Color(107, 114, 128);
-    public static final Color SQL_NUMBER = new Color(124, 58, 237);
+    /* Accents généraux */
+    public static final Color ACCENT = new Color(56, 189, 248);    // sky-400
+    public static final Color ACCENT_HOVER = new Color(125, 211, 252);
+    public static final Color SUCCESS = new Color(52, 211, 153);   // emerald-400
+    public static final Color DANGER = new Color(248, 113, 113);   // red-400
+    public static final Color WARNING = new Color(251, 191, 36);   // amber-400
+
+    /* Fonds teintés (remplacent les anciens "soft" clairs) */
+    public static final Color SOFT_BLUE = new Color(12, 74, 110);
+    public static final Color SOFT_RED = new Color(76, 29, 36);
+    public static final Color SOFT_GREEN = new Color(6, 61, 46);
+    public static final Color SOFT_GRAY = new Color(36, 50, 68);
+    public static final Color HOVER = new Color(43, 59, 80);
+
+    /* Couleurs par zone : catalogue, éditeur, résultats */
+    public static final Color ZONE_CATALOG = new Color(34, 211, 238);   // cyan
+    public static final Color ZONE_EDITOR = new Color(96, 165, 250);    // blue
+    public static final Color ZONE_RESULTS = new Color(167, 139, 250);  // violet
+    public static final Color ZONE_CATALOG_BG = new Color(8, 51, 68);
+    public static final Color ZONE_EDITOR_BG = new Color(23, 49, 83);
+    public static final Color ZONE_RESULTS_BG = new Color(46, 30, 82);
+
+    /* Coloration SQL */
+    public static final Color SQL_KEYWORD = new Color(125, 211, 252);
+    public static final Color SQL_STRING = new Color(251, 191, 36);
+    public static final Color SQL_COMMENT = new Color(100, 116, 139);
+    public static final Color SQL_NUMBER = new Color(192, 132, 252);
 
     public static final Font UI = font(new String[]{"Segoe UI", "Inter", "Arial"}, Font.PLAIN, 13);
     public static final Font UI_BOLD = font(new String[]{"Segoe UI", "Inter", "Arial"}, Font.BOLD, 13);
@@ -79,20 +94,46 @@ public final class ModernTheme {
         UIManager.put("Label.foreground", TEXT);
         UIManager.put("Label.font", UI);
         UIManager.put("Button.font", UI);
+        UIManager.put("Button.background", CARD);
+        UIManager.put("Button.foreground", TEXT);
         UIManager.put("TextField.font", UI);
+        UIManager.put("TextField.background", CARD);
+        UIManager.put("TextField.foreground", TEXT);
         UIManager.put("PasswordField.font", UI);
+        UIManager.put("PasswordField.background", CARD);
+        UIManager.put("PasswordField.foreground", TEXT);
         UIManager.put("TextArea.font", UI);
+        UIManager.put("TextArea.background", CARD);
+        UIManager.put("TextArea.foreground", TEXT);
+        UIManager.put("TextPane.background", CARD);
+        UIManager.put("TextPane.foreground", TEXT);
         UIManager.put("Table.font", UI);
-        UIManager.put("Table.rowHeight", 30);
+        UIManager.put("Table.rowHeight", 34);
+        UIManager.put("Table.background", CARD);
+        UIManager.put("Table.foreground", TEXT);
         UIManager.put("Table.gridColor", BORDER);
         UIManager.put("TableHeader.font", UI_BOLD);
+        UIManager.put("TableHeader.background", SOFT_GRAY);
+        UIManager.put("TableHeader.foreground", TEXT);
         UIManager.put("ScrollPane.background", CARD);
         UIManager.put("Viewport.background", CARD);
         UIManager.put("TabbedPane.font", UI);
+        UIManager.put("TabbedPane.background", CARD);
+        UIManager.put("TabbedPane.foreground", TEXT);
+        UIManager.put("TabbedPane.selected", CARD);
+        UIManager.put("TabbedPane.contentAreaColor", CARD);
+        UIManager.put("TabbedPane.focus", ACCENT);
         UIManager.put("ToolTip.font", UI_SMALL);
         UIManager.put("List.font", UI);
+        UIManager.put("List.background", CARD);
+        UIManager.put("List.foreground", TEXT);
         UIManager.put("CheckBox.font", UI);
+        UIManager.put("CheckBox.background", BG);
+        UIManager.put("CheckBox.foreground", TEXT);
         UIManager.put("OptionPane.font", UI);
+        UIManager.put("OptionPane.background", CARD);
+        UIManager.put("OptionPane.foreground", TEXT);
+        UIManager.put("OptionPane.messageForeground", TEXT);
     }
 
     /* ------------------------------ Panneaux ------------------------------ */
@@ -142,46 +183,6 @@ public final class ModernTheme {
         return new ActionButton(text, style);
     }
 
-    /** Bouton de navigation clair : texte gris, sélection bleu très pâle. */
-    public static final class NavButton extends JButton {
-        private static final long serialVersionUID = 1L;
-        private boolean selected;
-
-        public NavButton(String text) {
-            super(text);
-            setOpaque(false);
-            setFocusable(false);
-            setHorizontalAlignment(SwingConstants.LEFT);
-            setBorder(BorderFactory.createEmptyBorder(11, 16, 11, 14));
-            setFont(selected ? UI_BOLD : UI);
-            setForeground(new Color(71, 85, 105));
-            setRolloverEnabled(true);
-        }
-
-        public void setSelected(boolean selected) {
-            this.selected = selected;
-            setFont(selected ? UI_BOLD : UI);
-            setForeground(selected ? ACCENT : new Color(71, 85, 105));
-            repaint();
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = antialias(g);
-            if (selected) {
-                g2.setColor(SOFT_BLUE);
-                g2.fill(new RoundRectangle2D.Float(6, 3, getWidth() - 12, getHeight() - 6, 9, 9));
-                g2.setColor(ACCENT);
-                g2.fillRoundRect(6, 8, 4, getHeight() - 16, 3, 3);
-            } else if (getModel().isRollover()) {
-                g2.setColor(new Color(241, 245, 249));
-                g2.fill(new RoundRectangle2D.Float(6, 3, getWidth() - 12, getHeight() - 6, 9, 9));
-            }
-            g2.dispose();
-            super.paintComponent(g);
-        }
-    }
-
     private static final class ActionButton extends JButton {
         private static final long serialVersionUID = 1L;
         private final ButtonStyle style;
@@ -192,7 +193,7 @@ public final class ModernTheme {
             setOpaque(false);
             setFocusable(false);
             setRolloverEnabled(true);
-            setBorder(BorderFactory.createEmptyBorder(9, 15, 9, 15));
+            setBorder(BorderFactory.createEmptyBorder(10, 17, 10, 17));
             setFont(style == ButtonStyle.PRIMARY ? UI_BOLD : UI);
             setForeground(foregroundFor(false));
             addMouseListener(new MouseAdapter() {
@@ -210,10 +211,10 @@ public final class ModernTheme {
 
         private Color foregroundFor(boolean hover) {
             return switch (style) {
-                case PRIMARY, GHOST -> hover ? ACCENT_HOVER : ACCENT;
-                case SECONDARY -> TEXT;
-                case DANGER -> hover ? new Color(185, 28, 28) : DANGER;
-                default -> new Color(71, 85, 105);
+                case PRIMARY, GHOST -> hover ? Color.WHITE : ACCENT;
+                case SECONDARY -> hover ? ACCENT_HOVER : TEXT;
+                case DANGER -> hover ? new Color(252, 165, 165) : DANGER;
+                default -> MUTED;
             };
         }
 
@@ -230,37 +231,37 @@ public final class ModernTheme {
             switch (style) {
                 case PRIMARY -> {
                     base = SOFT_BLUE;
-                    hoverBg = new Color(219, 234, 254);
-                    border = new Color(191, 219, 254);
+                    hoverBg = new Color(14, 96, 140);
+                    border = new Color(14, 116, 144);
                     hoverBorder = ACCENT;
                 }
                 case DANGER -> {
                     base = SOFT_RED;
-                    hoverBg = new Color(254, 226, 226);
-                    border = new Color(254, 202, 202);
+                    hoverBg = new Color(92, 35, 42);
+                    border = new Color(120, 45, 54);
                     hoverBorder = DANGER;
                 }
                 case SECONDARY -> {
-                    base = CARD;
-                    hoverBg = SOFT_GRAY;
+                    base = CARD_ALT;
+                    hoverBg = HOVER;
                     border = BORDER;
-                    hoverBorder = new Color(203, 213, 225);
+                    hoverBorder = MUTED;
                 }
                 case GHOST -> {
                     base = new Color(0, 0, 0, 0);
-                    hoverBg = SOFT_BLUE;
+                    hoverBg = HOVER;
                     border = null;
                     hoverBorder = null;
                 }
                 default -> {
                     base = new Color(0, 0, 0, 0);
-                    hoverBg = SOFT_BLUE;
+                    hoverBg = HOVER;
                     border = null;
                     hoverBorder = null;
                 }
             }
 
-            Color fill = !isEnabled() ? new Color(248, 250, 252) : hover ? hoverBg : base;
+            Color fill = !isEnabled() ? CARD_ALT : hover ? hoverBg : base;
             if (fill.getAlpha() > 0) {
                 g2.setColor(fill);
                 g2.fill(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 9, 9));
@@ -274,6 +275,62 @@ public final class ModernTheme {
             g2.dispose();
             super.paintComponent(g);
         }
+    }
+
+    /* --------------------------- Filtres / puces --------------------------- */
+
+    /** Petit bouton de filtre utilisé pour les catégories du catalogue. */
+    public static JButton chip(String text) {
+        return new ChipButton(text);
+    }
+
+    public static void setChipSelected(JButton button, boolean selected) {
+        if (button instanceof ChipButton chip) {
+            chip.selected = selected;
+            chip.setForeground(selected ? ACCENT : MUTED);
+            chip.repaint();
+        }
+    }
+
+    private static final class ChipButton extends JButton {
+        private static final long serialVersionUID = 1L;
+        private boolean selected;
+
+        ChipButton(String text) {
+            super(text);
+            setOpaque(false);
+            setFocusable(false);
+            setFont(UI_SMALL);
+            setForeground(MUTED);
+            setBorder(BorderFactory.createEmptyBorder(8, 14, 8, 14));
+            setRolloverEnabled(true);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = antialias(g);
+            boolean hover = getModel().isRollover();
+            if (selected) {
+                g2.setColor(SOFT_BLUE);
+                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 9, 9));
+                g2.setColor(ACCENT);
+                g2.setStroke(new BasicStroke(1f));
+                g2.draw(new RoundRectangle2D.Float(0.5f, 0.5f, getWidth() - 2, getHeight() - 2, 9, 9));
+            } else if (hover) {
+                g2.setColor(HOVER);
+                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 9, 9));
+            }
+            g2.dispose();
+            super.paintComponent(g);
+        }
+    }
+
+    /** Titre de zone, coloré selon la colonne (catalogue / éditeur / résultats). */
+    public static JLabel zoneTitle(String text, Color color) {
+        JLabel label = new JLabel(text);
+        label.setFont(UI_SMALL.deriveFont(Font.BOLD));
+        label.setForeground(color);
+        return label;
     }
 
     /* ------------------------------ Pastilles ------------------------------ */
@@ -312,7 +369,7 @@ public final class ModernTheme {
             g2.setColor(background);
             g2.fill(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1,
                     getHeight() / 2f, getHeight() / 2f));
-            g2.setColor(new Color(226, 232, 240));
+            g2.setColor(BORDER);
             g2.setStroke(new BasicStroke(1f));
             g2.draw(new RoundRectangle2D.Float(0.5f, 0.5f, getWidth() - 2, getHeight() - 2,
                     getHeight() / 2f, getHeight() / 2f));
@@ -424,12 +481,14 @@ public final class ModernTheme {
     /* ------------------------------- Tableaux ------------------------------- */
 
     public static void styleTable(JTable table) {
-        table.setRowHeight(30);
+        table.setRowHeight(34);
         table.setShowGrid(false);
         table.setIntercellSpacing(new java.awt.Dimension(0, 0));
         table.setFillsViewportHeight(true);
-        table.setSelectionBackground(new Color(219, 234, 254));
-        table.setSelectionForeground(TEXT);
+        table.setBackground(CARD);
+        table.setForeground(TEXT);
+        table.setSelectionBackground(new Color(14, 116, 144));
+        table.setSelectionForeground(Color.WHITE);
         table.setFont(UI);
         table.getTableHeader().setFont(UI_BOLD);
         table.getTableHeader().setDefaultRenderer(new HeaderRenderer());
@@ -475,10 +534,10 @@ public final class ModernTheme {
                                                        boolean focus, int row, int column) {
             Component c = super.getTableCellRendererComponent(table, value, selected, focus, row, column);
             if (selected) {
-                c.setBackground(new Color(219, 234, 254));
-                c.setForeground(TEXT);
+                c.setBackground(new Color(14, 116, 144));
+                c.setForeground(Color.WHITE);
             } else {
-                c.setBackground(row % 2 == 0 ? CARD : new Color(250, 251, 253));
+                c.setBackground(row % 2 == 0 ? CARD : CARD_ALT);
                 c.setForeground(TEXT);
             }
             return c;

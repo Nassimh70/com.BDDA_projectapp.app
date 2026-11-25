@@ -10,6 +10,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -88,14 +90,17 @@ public final class DatabaseExplorerApp extends JFrame {
     private JPanel cardsPanel;
     private JScrollPane catalogScroll;
     private JLabel statusPill;
-    private JLabel sidebarStatus;
     private JLabel editorCodePill;
     private JLabel destructivePill;
     private JLabel summaryLabel;
+    private JLabel statusBarConnection;
+    private JLabel statusBarSelection;
+    private JLabel statusBarRows;
+    private int lastRowCount = -1;
     private JButton runButton;
     private JButton connectButton;
     private JTabbedPane tabs;
-    private final List<ModernTheme.NavButton> navButtons = new ArrayList<>();
+    private final List<JButton> categoryButtons = new ArrayList<>();
 
     public static void main(String[] args) {
         ModernTheme.install();
@@ -122,7 +127,7 @@ public final class DatabaseExplorerApp extends JFrame {
         setContentPane(buildRoot());
         installShortcuts();
         selectQuery(queries.getFirst());
-        updateConnectionUi("Non connecté", ModernTheme.MUTED, new Color(238, 242, 248));
+        updateConnectionUi("Non connecté", ModernTheme.MUTED, ModernTheme.SOFT_GRAY);
     }
 
     /* ------------------------------------------------------------------ */
@@ -132,156 +137,108 @@ public final class DatabaseExplorerApp extends JFrame {
     private JComponent buildRoot() {
         JPanel root = new JPanel(new BorderLayout());
         root.setBackground(ModernTheme.BG);
-        root.add(buildSidebar(), BorderLayout.WEST);
 
-        JPanel main = new JPanel(new BorderLayout());
-        main.setBackground(ModernTheme.BG);
-        main.add(buildHeader(), BorderLayout.NORTH);
-
-        JSplitPane body = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, buildCatalog(), buildWorkspace());
-        body.setDividerLocation(358);
-        body.setResizeWeight(0.0);
-        body.setBorder(null);
-        body.setBackground(ModernTheme.BG);
-        main.add(body, BorderLayout.CENTER);
-
-        root.add(main, BorderLayout.CENTER);
+        // La barre d'état est construite avant le catalogue, qui la met à jour
+        // dès son premier filtrage.
+        root.add(buildStatusBar(), BorderLayout.SOUTH);
+        root.add(buildHeader(), BorderLayout.NORTH);
+        root.add(buildBody(), BorderLayout.CENTER);
         return root;
     }
 
-    private JComponent buildSidebar() {
-        JPanel sidebar = new JPanel(new BorderLayout());
-        sidebar.setBackground(ModernTheme.CARD);
-        sidebar.setPreferredSize(new Dimension(232, 0));
-        sidebar.setBorder(javax.swing.BorderFactory.createCompoundBorder(
-                new EmptyBorder(20, 14, 18, 14),
-                javax.swing.BorderFactory.createMatteBorder(0, 0, 0, 1, ModernTheme.BORDER)));
+    /**
+     * Corps en trois colonnes : catalogue à gauche, éditeur au centre,
+     * résultats à droite. Deux séparateurs imbriqués gardent des proportions
+     * stables quelle que soit la taille de la fenêtre.
+     */
+    private JComponent buildBody() {
+        JSplitPane editorAndResults = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                buildEditorColumn(), buildResultColumn());
+        editorAndResults.setResizeWeight(0.52);
+        editorAndResults.setBorder(null);
+        editorAndResults.setBackground(ModernTheme.BG);
+        placeDivider(editorAndResults, 0.52);
 
-        JPanel brand = ModernTheme.roundedPanel(ModernTheme.SOFT_BLUE, null, 14);
-        brand.setPreferredSize(new Dimension(204, 74));
-        brand.setLayout(new BorderLayout(12, 0));
-        brand.setBorder(new EmptyBorder(12, 14, 12, 14));
+        JSplitPane body = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                buildCatalogColumn(), editorAndResults);
+        body.setResizeWeight(0.24);
+        body.setBorder(null);
+        body.setBackground(ModernTheme.BG);
+        placeDivider(body, 0.24);
+        return body;
+    }
 
-        JLabel logo = new JLabel("DB", SwingConstants.CENTER) {
-            private static final long serialVersionUID = 1L;
-
+    /**
+     * Place le séparateur en pourcentage une fois que le panneau a une taille
+     * réelle. setDividerLocation(double) avant l'affichage est ignoré par Swing.
+     */
+    private static void placeDivider(JSplitPane split, double proportion) {
+        split.addComponentListener(new ComponentAdapter() {
             @Override
-            protected void paintComponent(java.awt.Graphics g) {
-                java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
-                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING,
-                        java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(ModernTheme.ACCENT);
-                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 12, 12);
-                g2.dispose();
-                super.paintComponent(g);
+            public void componentResized(ComponentEvent e) {
+                split.setDividerLocation(proportion);
+                split.removeComponentListener(this);
             }
-        };
-        logo.setFont(new Font("Segoe UI", Font.BOLD, 15));
-        logo.setForeground(Color.WHITE);
-        logo.setOpaque(false);
-        logo.setPreferredSize(new Dimension(42, 42));
-
-        JPanel brandText = new JPanel();
-        brandText.setOpaque(false);
-        brandText.setLayout(new BoxLayout(brandText, BoxLayout.Y_AXIS));
-        JLabel brandTitle = new JLabel("BDDA Explorer");
-        brandTitle.setFont(ModernTheme.UI_SEMIBOLD);
-        brandTitle.setForeground(ModernTheme.TEXT);
-        JLabel brandSub = new JLabel("M1 ASR · Oracle 21c");
-        brandSub.setFont(ModernTheme.UI_SMALL);
-        brandSub.setForeground(ModernTheme.MUTED);
-        brandText.add(brandTitle);
-        brandText.add(Box.createVerticalStrut(3));
-        brandText.add(brandSub);
-        brand.add(logo, BorderLayout.WEST);
-        brand.add(brandText, BorderLayout.CENTER);
-
-        JPanel nav = new JPanel();
-        nav.setOpaque(false);
-        nav.setLayout(new BoxLayout(nav, BoxLayout.Y_AXIS));
-        nav.setBorder(new EmptyBorder(24, 0, 0, 0));
-
-        JLabel navTitle = new JLabel("CATALOGUE");
-        navTitle.setFont(ModernTheme.UI_SMALL.deriveFont(Font.BOLD));
-        navTitle.setForeground(ModernTheme.MUTED);
-        navTitle.setBorder(new EmptyBorder(0, 14, 10, 0));
-        nav.add(navTitle);
-
-        addNavButton(nav, "Tout voir", "Tout");
-        for (String category : QueryCatalog.categories()) {
-            addNavButton(nav, category, category);
-        }
-
-        JPanel bottom = new JPanel();
-        bottom.setOpaque(false);
-        bottom.setLayout(new BoxLayout(bottom, BoxLayout.Y_AXIS));
-
-        JPanel connectionCard = ModernTheme.roundedPanel(ModernTheme.SOFT_GRAY, ModernTheme.BORDER, 12);
-        connectionCard.setBorder(new EmptyBorder(14, 14, 14, 14));
-        connectionCard.setLayout(new BoxLayout(connectionCard, BoxLayout.Y_AXIS));
-        JLabel connTitle = new JLabel("CONNEXION");
-        connTitle.setFont(ModernTheme.UI_SMALL.deriveFont(Font.BOLD));
-        connTitle.setForeground(ModernTheme.MUTED);
-        sidebarStatus = new JLabel("Non connecté");
-        sidebarStatus.setFont(ModernTheme.UI);
-        sidebarStatus.setForeground(ModernTheme.TEXT);
-        sidebarStatus.setBorder(new EmptyBorder(6, 0, 10, 0));
-        JButton openConn = ModernTheme.button("Configurer", ModernTheme.ButtonStyle.GHOST);
-        openConn.setAlignmentX(LEFT_ALIGNMENT);
-        openConn.addActionListener(e -> openConnectionDialog());
-        connectionCard.add(connTitle);
-        connectionCard.add(sidebarStatus);
-        connectionCard.add(openConn);
-
-        JLabel hint = new JLabel("<html><body style='color:#6b7280'>MASTER1 / XEPDB1<br>Ctrl+Entrée : exécuter</body></html>");
-        hint.setFont(ModernTheme.UI_SMALL);
-        hint.setBorder(new EmptyBorder(12, 6, 0, 0));
-
-        bottom.add(connectionCard);
-        bottom.add(hint);
-
-        sidebar.add(brand, BorderLayout.NORTH);
-        sidebar.add(nav, BorderLayout.CENTER);
-        sidebar.add(bottom, BorderLayout.SOUTH);
-        return sidebar;
-    }
-
-    private void addNavButton(JPanel parent, String label, String category) {
-        ModernTheme.NavButton button = new ModernTheme.NavButton(label);
-        button.addActionListener(e -> {
-            activeCategory = category;
-            for (ModernTheme.NavButton nav : navButtons) {
-                nav.setSelected(nav == button);
-            }
-            filterCards();
         });
-        if ("Tout".equals(category)) {
-            button.setSelected(true);
-        }
-        navButtons.add(button);
-        parent.add(button);
-        parent.add(Box.createVerticalStrut(3));
     }
 
-    private JComponent buildHeader() {
-        JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(ModernTheme.BG);
-        header.setBorder(new EmptyBorder(22, 26, 16, 26));
+    /** Bandeau inférieur : connexion, sélection courante et raccourcis. */
+    private JComponent buildStatusBar() {
+        JPanel bar = new JPanel(new BorderLayout(16, 0));
+        bar.setBackground(ModernTheme.CARD);
+        bar.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+                javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, ModernTheme.BORDER),
+                new EmptyBorder(10, 24, 10, 24)));
 
-        JPanel titles = new JPanel();
-        titles.setOpaque(false);
-        titles.setLayout(new BoxLayout(titles, BoxLayout.Y_AXIS));
-        JLabel title = new JLabel("Explorateur de requêtes BDDA");
-        title.setFont(ModernTheme.TITLE);
+        statusBarConnection = new JLabel("Non connecté");
+        statusBarSelection = new JLabel("Catalogue : " + queries.size() + " requêtes");
+        statusBarRows = new JLabel("Ctrl+Entrée : exécuter · Double-clic : copier une ligne");
+        for (JLabel label : new JLabel[]{statusBarConnection, statusBarSelection, statusBarRows}) {
+            label.setFont(ModernTheme.UI_SMALL);
+            label.setForeground(ModernTheme.MUTED);
+        }
+        statusBarRows.setHorizontalAlignment(SwingConstants.RIGHT);
+
+        bar.add(statusBarConnection, BorderLayout.WEST);
+        bar.add(statusBarSelection, BorderLayout.CENTER);
+        bar.add(statusBarRows, BorderLayout.EAST);
+        return bar;
+    }
+
+    /** Remet à jour le bandeau inférieur selon l'état courant. */
+    private void updateStatusBar() {
+        if (statusBarSelection == null) {
+            return;
+        }
+        String category = "Tout".equals(activeCategory) ? "Toutes les catégories" : activeCategory;
+        String query = current == null ? "Aucune requête sélectionnée"
+                : current.code() + " · " + current.title();
+        String rows = lastRowCount < 0 ? "" : " · " + lastRowCount + " ligne(s)";
+        statusBarSelection.setText(category + "  |  " + query + rows);
+    }
+
+    /** En-tête unique et compact : identité à gauche, connexion à droite. */
+    private JComponent buildHeader() {
+        JPanel header = new JPanel(new BorderLayout(16, 0));
+        header.setBackground(ModernTheme.CARD);
+        header.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+                javax.swing.BorderFactory.createMatteBorder(0, 0, 1, 0, ModernTheme.BORDER),
+                new EmptyBorder(14, 24, 14, 24)));
+
+        JPanel identity = new JPanel(new FlowLayout(FlowLayout.LEFT, 11, 0));
+        identity.setOpaque(false);
+        JLabel mark = ModernTheme.pill("DB", ModernTheme.ACCENT, Color.WHITE);
+        JLabel title = new JLabel("BDDA Explorer");
+        title.setFont(ModernTheme.UI_SEMIBOLD);
         title.setForeground(ModernTheme.TEXT);
-        JLabel subtitle = new JLabel("Mini-projet BDDA · schéma MASTER1 · SQL objet, collections et objets avancés");
+        JLabel subtitle = new JLabel("Requêtes SQL Oracle · schéma MASTER1");
         subtitle.setFont(ModernTheme.UI_SMALL);
         subtitle.setForeground(ModernTheme.MUTED);
-        subtitle.setBorder(new EmptyBorder(4, 0, 0, 0));
-        titles.add(title);
-        titles.add(subtitle);
+        identity.add(mark);
+        identity.add(title);
+        identity.add(subtitle);
 
-        JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 9, 0));
         actions.setOpaque(false);
         statusPill = ModernTheme.pill("Non connecté", ModernTheme.SOFT_GRAY, ModernTheme.MUTED);
         connectButton = ModernTheme.button("Configurer", ModernTheme.ButtonStyle.SECONDARY);
@@ -292,29 +249,42 @@ public final class DatabaseExplorerApp extends JFrame {
         actions.add(connectButton);
         actions.add(quick);
 
-        header.add(titles, BorderLayout.WEST);
+        header.add(identity, BorderLayout.WEST);
         header.add(actions, BorderLayout.EAST);
         return header;
     }
 
-    private JComponent buildCatalog() {
+    /** Colonne 1 : catégories, recherche puis liste des requêtes. */
+    private JComponent buildCatalogColumn() {
         JPanel catalog = new JPanel(new BorderLayout());
         catalog.setBackground(ModernTheme.CARD);
         catalog.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 0, 1, ModernTheme.BORDER));
-        catalog.setPreferredSize(new Dimension(358, 0));
+        catalog.setPreferredSize(new Dimension(330, 0));
 
-        JPanel top = new JPanel();
-        top.setBackground(ModernTheme.CARD);
-        top.setLayout(new BoxLayout(top, BoxLayout.Y_AXIS));
-        top.setBorder(new EmptyBorder(18, 18, 12, 18));
+        JPanel top = new JPanel(new BorderLayout(0, 12));
+        top.setBackground(ModernTheme.ZONE_CATALOG_BG);
+        top.setBorder(new EmptyBorder(20, 18, 16, 18));
 
         JPanel titleRow = new JPanel(new BorderLayout());
         titleRow.setOpaque(false);
-        JLabel title = new JLabel("Requêtes");
+        JLabel title = new JLabel("1  ·  Catalogue de requêtes");
         title.setFont(ModernTheme.UI_SEMIBOLD);
-        countLabel = ModernTheme.pill(queries.size() + " requêtes", ModernTheme.SOFT_BLUE, ModernTheme.ACCENT);
+        title.setForeground(ModernTheme.ZONE_CATALOG);
+        countLabel = ModernTheme.pill(queries.size() + " requêtes",
+                ModernTheme.ZONE_CATALOG_BG, ModernTheme.ZONE_CATALOG);
         titleRow.add(title, BorderLayout.WEST);
         titleRow.add(countLabel, BorderLayout.EAST);
+
+        JLabel categoriesTitle = new JLabel("CATÉGORIES");
+        categoriesTitle.setFont(ModernTheme.UI_SMALL.deriveFont(Font.BOLD));
+        categoriesTitle.setForeground(ModernTheme.MUTED);
+
+        JPanel chips = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 4));
+        chips.setOpaque(false);
+        addCategoryChip(chips, "Tout", "Tout");
+        for (String category : QueryCatalog.categories()) {
+            addCategoryChip(chips, category, category);
+        }
 
         searchField = ModernTheme.searchField("⌕  Rechercher une requête ou du SQL…");
         searchField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
@@ -324,14 +294,19 @@ public final class DatabaseExplorerApp extends JFrame {
             @Override public void changedUpdate(DocumentEvent e) { filterCards(); }
         });
 
-        top.add(titleRow);
-        top.add(Box.createVerticalStrut(14));
-        top.add(searchField);
+        JPanel filters = new JPanel(new BorderLayout(0, 6));
+        filters.setOpaque(false);
+        filters.add(categoriesTitle, BorderLayout.NORTH);
+        filters.add(chips, BorderLayout.CENTER);
+        filters.add(searchField, BorderLayout.SOUTH);
+
+        top.add(titleRow, BorderLayout.NORTH);
+        top.add(filters, BorderLayout.CENTER);
 
         cardsPanel = new JPanel();
         cardsPanel.setBackground(ModernTheme.BG);
         cardsPanel.setLayout(new BoxLayout(cardsPanel, BoxLayout.Y_AXIS));
-        cardsPanel.setBorder(new EmptyBorder(4, 14, 18, 14));
+        cardsPanel.setBorder(new EmptyBorder(8, 14, 22, 14));
         catalogScroll = new JScrollPane(cardsPanel);
         ModernTheme.styleScroll(catalogScroll);
         catalogScroll.getVerticalScrollBar().setUnitIncrement(16);
@@ -342,13 +317,46 @@ public final class DatabaseExplorerApp extends JFrame {
         return catalog;
     }
 
-    private JComponent buildWorkspace() {
-        JPanel workspace = new JPanel(new BorderLayout());
-        workspace.setBackground(ModernTheme.BG);
-        workspace.setBorder(new EmptyBorder(16, 20, 20, 20));
+    private void addCategoryChip(JPanel parent, String label, String category) {
+        JButton button = ModernTheme.chip(label);
+        ModernTheme.setChipSelected(button, "Tout".equals(category));
+        button.addActionListener(e -> {
+            activeCategory = category;
+            for (JButton chip : categoryButtons) {
+                ModernTheme.setChipSelected(chip, chip == button);
+            }
+            filterCards();
+        });
+        categoryButtons.add(button);
+        parent.add(button);
+    }
 
-        JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+    /** Colonne 2 : l'éditeur SQL et ses actions, sur toute la hauteur. */
+    private JComponent buildEditorColumn() {
+        JPanel column = new JPanel(new BorderLayout());
+        column.setBackground(ModernTheme.BG);
+        column.setBorder(new EmptyBorder(20, 18, 20, 12));
+        column.add(buildEditorCard(), BorderLayout.CENTER);
+        return column;
+    }
+
+    /** Colonne 3 : résultats, historique et messages, sur toute la hauteur. */
+    private JComponent buildResultColumn() {
+        JPanel column = new JPanel(new BorderLayout());
+        column.setBackground(ModernTheme.BG);
+        column.setBorder(new EmptyBorder(20, 12, 20, 20));
+        column.add(buildResultCard(), BorderLayout.CENTER);
+        return column;
+    }
+
+    /** Actions de l'éditeur réparties sur deux rangées pour rester lisibles. */
+    private JComponent buildEditorToolbar() {
+        JPanel toolbar = new JPanel();
         toolbar.setOpaque(false);
+        toolbar.setLayout(new BoxLayout(toolbar, BoxLayout.Y_AXIS));
+
+        JPanel execution = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        execution.setOpaque(false);
         runButton = ModernTheme.button("▶  Exécuter  (Ctrl+Entrée)", ModernTheme.ButtonStyle.PRIMARY);
         runButton.addActionListener(e -> runQuery());
         JButton reset = ModernTheme.button("↻  Réinitialiser", ModernTheme.ButtonStyle.SECONDARY);
@@ -357,45 +365,82 @@ public final class DatabaseExplorerApp extends JFrame {
                 selectQuery(current);
             }
         });
+        execution.add(runButton);
+        execution.add(Box.createHorizontalStrut(8));
+        execution.add(reset);
+
+        JPanel tools = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        tools.setOpaque(false);
         JButton copy = ModernTheme.button("⧉  Copier SQL", ModernTheme.ButtonStyle.GHOST);
         copy.addActionListener(e -> copySql());
         JButton export = ModernTheme.button("⬇  Exporter CSV", ModernTheme.ButtonStyle.GHOST);
         export.addActionListener(e -> exportCsv());
         destructivePill = ModernTheme.pill("⚠  Requête destructive", ModernTheme.SOFT_RED, ModernTheme.DANGER);
         destructivePill.setVisible(false);
-        toolbar.add(runButton);
-        toolbar.add(reset);
-        toolbar.add(copy);
-        toolbar.add(export);
-        toolbar.add(destructivePill);
+        tools.add(copy);
+        tools.add(export);
+        tools.add(Box.createHorizontalStrut(4));
+        tools.add(destructivePill);
 
-        JPanel editorWrapper = ModernTheme.roundedPanel(ModernTheme.CARD, ModernTheme.BORDER, 12);
-        editorWrapper.setLayout(new BorderLayout());
-        JPanel editorHeader = new JPanel(new BorderLayout());
-        editorHeader.setBackground(ModernTheme.CARD);
-        editorHeader.setBorder(new EmptyBorder(12, 16, 8, 16));
-        JLabel editorTitle = new JLabel("Éditeur SQL");
-        editorTitle.setFont(ModernTheme.UI_BOLD);
-        editorCodePill = ModernTheme.pill("—", ModernTheme.SOFT_BLUE, ModernTheme.ACCENT);
-        editorHeader.add(editorTitle, BorderLayout.WEST);
-        editorHeader.add(editorCodePill, BorderLayout.EAST);
-        editorWrapper.add(editorHeader, BorderLayout.NORTH);
-        editorWrapper.add(editor, BorderLayout.CENTER);
+        toolbar.add(execution);
+        toolbar.add(Box.createVerticalStrut(10));
+        toolbar.add(tools);
+        return toolbar;
+    }
 
-        JPanel resultWrapper = ModernTheme.roundedPanel(ModernTheme.CARD, ModernTheme.BORDER, 12);
-        resultWrapper.setLayout(new BorderLayout());
-        JPanel resultHeader = new JPanel(new BorderLayout());
-        resultHeader.setBackground(ModernTheme.CARD);
-        resultHeader.setBorder(new EmptyBorder(12, 16, 8, 16));
-        JLabel resultTitle = new JLabel("Sortie");
-        resultTitle.setFont(ModernTheme.UI_BOLD);
+    /** Carte réutilisable : titre coloré par zone, badge à droite, contenu. */
+    private JPanel buildCard(String title, JComponent badge, JComponent content,
+                             Color zoneColor, Color zoneBackground) {
+        JPanel wrapper = ModernTheme.roundedPanel(ModernTheme.CARD, ModernTheme.BORDER, 14);
+        wrapper.setLayout(new BorderLayout());
+
+        JPanel header = new JPanel(new BorderLayout());
+        header.setBackground(zoneBackground);
+        header.setBorder(new EmptyBorder(16, 20, 12, 20));
+        JLabel label = new JLabel(title);
+        label.setFont(ModernTheme.UI_BOLD);
+        label.setForeground(zoneColor);
+        header.add(label, BorderLayout.WEST);
+        if (badge != null) {
+            header.add(badge, BorderLayout.EAST);
+        }
+
+        wrapper.add(header, BorderLayout.NORTH);
+        wrapper.add(content, BorderLayout.CENTER);
+        return wrapper;
+    }
+
+    private JComponent buildEditorCard() {
+        editorCodePill = ModernTheme.pill("—",
+                ModernTheme.ZONE_EDITOR_BG, ModernTheme.ZONE_EDITOR);
+
+        JPanel content = new JPanel(new BorderLayout(0, 12));
+        content.setBackground(ModernTheme.CARD);
+        content.setBorder(new EmptyBorder(0, 18, 16, 18));
+        content.add(buildEditorToolbar(), BorderLayout.NORTH);
+        content.add(editor, BorderLayout.CENTER);
+
+        return buildCard("2  ·  Éditeur SQL", editorCodePill, content,
+                ModernTheme.ZONE_EDITOR, ModernTheme.ZONE_EDITOR_BG);
+    }
+
+    private JComponent buildResultCard() {
         summaryLabel = new JLabel("Prêt");
         summaryLabel.setFont(ModernTheme.UI_SMALL);
-        summaryLabel.setForeground(ModernTheme.MUTED);
-        resultHeader.add(resultTitle, BorderLayout.WEST);
-        resultHeader.add(summaryLabel, BorderLayout.EAST);
-        resultWrapper.add(resultHeader, BorderLayout.NORTH);
+        summaryLabel.setForeground(ModernTheme.ZONE_RESULTS);
 
+        tabs = new JTabbedPane();
+        tabs.setFont(ModernTheme.UI);
+        tabs.setBackground(ModernTheme.CARD);
+        tabs.addTab("Résultats", buildResultsTab());
+        tabs.addTab("Historique", buildHistoryTab());
+        tabs.addTab("Messages", buildMessagesTab());
+
+        return buildCard("3  ·  Résultats", summaryLabel, tabs,
+                ModernTheme.ZONE_RESULTS, ModernTheme.ZONE_RESULTS_BG);
+    }
+
+    private JComponent buildResultsTab() {
         ModernTheme.styleTable(resultTable);
         TableRowSorter<ResultTableModel> sorter = new TableRowSorter<>(resultModel);
         for (int i = 0; i < resultModel.getColumnCount(); i++) {
@@ -410,9 +455,12 @@ public final class DatabaseExplorerApp extends JFrame {
                 }
             }
         });
-        JScrollPane resultScroll = new JScrollPane(resultTable);
-        ModernTheme.styleScroll(resultScroll);
+        JScrollPane scroll = new JScrollPane(resultTable);
+        ModernTheme.styleScroll(scroll);
+        return scroll;
+    }
 
+    private JComponent buildHistoryTab() {
         historyList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         historyList.setFont(ModernTheme.UI);
         historyList.setBackground(ModernTheme.CARD);
@@ -427,39 +475,21 @@ public final class DatabaseExplorerApp extends JFrame {
                 }
             }
         });
-        JScrollPane historyScroll = new JScrollPane(historyList);
-        ModernTheme.styleScroll(historyScroll);
+        JScrollPane scroll = new JScrollPane(historyList);
+        ModernTheme.styleScroll(scroll);
+        return scroll;
+    }
 
+    private JComponent buildMessagesTab() {
         messagesArea.setEditable(false);
         messagesArea.setFont(ModernTheme.MONO);
-        messagesArea.setBackground(new Color(250, 251, 253));
+        messagesArea.setBackground(ModernTheme.CARD_ALT);
         messagesArea.setBorder(new EmptyBorder(12, 14, 12, 14));
         messagesArea.setLineWrap(true);
         messagesArea.setWrapStyleWord(true);
-        JScrollPane messagesScroll = new JScrollPane(messagesArea);
-        ModernTheme.styleScroll(messagesScroll);
-
-        tabs = new JTabbedPane();
-        tabs.setFont(ModernTheme.UI);
-        tabs.setBackground(ModernTheme.CARD);
-        tabs.addTab("Résultats", resultScroll);
-        tabs.addTab("Historique", historyScroll);
-        tabs.addTab("Messages", messagesScroll);
-
-        resultWrapper.add(tabs, BorderLayout.CENTER);
-
-        JSplitPane vertical = new JSplitPane(JSplitPane.VERTICAL_SPLIT, editorWrapper, resultWrapper);
-        vertical.setResizeWeight(0.38);
-        vertical.setDividerLocation(300);
-        vertical.setBorder(null);
-        vertical.setBackground(ModernTheme.BG);
-
-        JPanel top = new JPanel(new BorderLayout());
-        top.setOpaque(false);
-        top.add(toolbar, BorderLayout.CENTER);
-        workspace.add(top, BorderLayout.NORTH);
-        workspace.add(vertical, BorderLayout.CENTER);
-        return workspace;
+        JScrollPane scroll = new JScrollPane(messagesArea);
+        ModernTheme.styleScroll(scroll);
+        return scroll;
     }
 
     private void installShortcuts() {
@@ -503,7 +533,7 @@ public final class DatabaseExplorerApp extends JFrame {
             card.setSelected(query == current);
             cards.add(card);
             cardsPanel.add(card);
-            cardsPanel.add(Box.createVerticalStrut(9));
+            cardsPanel.add(Box.createVerticalStrut(12));
         }
         if (filtered.isEmpty()) {
             JLabel empty = new JLabel("Aucune requête ne correspond à la recherche.", SwingConstants.CENTER);
@@ -513,6 +543,7 @@ public final class DatabaseExplorerApp extends JFrame {
             cardsPanel.add(empty);
         }
         countLabel.setText(filtered.size() + " requête" + (filtered.size() > 1 ? "s" : ""));
+        updateStatusBar();
         cardsPanel.revalidate();
         cardsPanel.repaint();
         catalogScroll.getVerticalScrollBar().setValue(0);
@@ -531,7 +562,8 @@ public final class DatabaseExplorerApp extends JFrame {
         destructivePill.setVisible(query.destructive() || query.plsql());
         if (query.plsql()) {
             destructivePill.setText("ℹ  Bloc PL/SQL · DBMS_OUTPUT");
-            ModernTheme.setPillColors(destructivePill, new Color(245, 243, 255), new Color(109, 40, 217));
+            ModernTheme.setPillColors(destructivePill,
+                    ModernTheme.ZONE_RESULTS_BG, ModernTheme.ZONE_RESULTS);
         } else {
             destructivePill.setText("⚠  Requête destructive");
             ModernTheme.setPillColors(destructivePill, ModernTheme.SOFT_RED, ModernTheme.DANGER);
@@ -540,6 +572,8 @@ public final class DatabaseExplorerApp extends JFrame {
             card.setSelected(card.query() == query);
         }
         summaryLabel.setText("Prêt · " + query.title());
+        lastRowCount = -1;
+        updateStatusBar();
     }
 
     /* ------------------------------------------------------------------ */
@@ -576,7 +610,7 @@ public final class DatabaseExplorerApp extends JFrame {
 
         String code = snapshot == null ? "SQL" : snapshot.code();
         String label = snapshot == null ? "Requête libre" : snapshot.title();
-        setBusy(true, "Exécution…", new Color(255, 246, 224), ModernTheme.WARNING);
+        setBusy(true, "Exécution…", new Color(69, 52, 13), ModernTheme.WARNING);
 
         SwingWorker<DatabaseService.QueryResult, Void> worker = new SwingWorker<>() {
             @Override
@@ -589,6 +623,7 @@ public final class DatabaseExplorerApp extends JFrame {
                 try {
                     DatabaseService.QueryResult result = get();
                     resultModel.setData(result);
+                    lastRowCount = result.rows().size();
                     TableRowSorter<ResultTableModel> newSorter = new TableRowSorter<>(resultModel);
                     for (int i = 0; i < resultModel.getColumnCount(); i++) {
                         newSorter.setComparator(i, DatabaseExplorerApp::compareCells);
@@ -601,7 +636,8 @@ public final class DatabaseExplorerApp extends JFrame {
                     messagesArea.setText(result.messages().isEmpty()
                             ? "Aucun message DBMS_OUTPUT."
                             : String.join(System.lineSeparator(), result.messages()));
-                    updateConnectionUi("Connecté · OK", ModernTheme.SUCCESS, new Color(226, 246, 238));
+                    updateStatusBar();
+                    updateConnectionUi("Connecté · OK", ModernTheme.SUCCESS, ModernTheme.SOFT_GREEN);
                     historyModel.add(0, new HistoryEntry(code, label, sql,
                             result.rows().size(), result.elapsedMillis(), true));
                     if (result.rows().isEmpty() && result.updateCount() >= 0) {
@@ -613,7 +649,9 @@ public final class DatabaseExplorerApp extends JFrame {
                     String message = cause.getMessage() == null ? cause.getClass().getSimpleName() : cause.getMessage();
                     messagesArea.setText("ERREUR ORACLE\n\n" + message);
                     summaryLabel.setText("Erreur d'exécution");
-                    updateConnectionUi("Connecté · Erreur", ModernTheme.DANGER, new Color(255, 237, 238));
+                    lastRowCount = -1;
+                    updateStatusBar();
+                    updateConnectionUi("Connecté · Erreur", ModernTheme.DANGER, ModernTheme.SOFT_RED);
                     historyModel.add(0, new HistoryEntry(code, label, sql, 0, 0, false));
                     JOptionPane.showMessageDialog(DatabaseExplorerApp.this, message,
                             "Erreur lors de l'exécution", JOptionPane.ERROR_MESSAGE);
@@ -636,11 +674,11 @@ public final class DatabaseExplorerApp extends JFrame {
     private void updateConnectionUi(String text, Color foreground, Color background) {
         statusPill.setText(text);
         ModernTheme.setPillColors(statusPill, background == null ? ModernTheme.SOFT_GRAY : background, foreground);
-        sidebarStatus.setText(text);
-        Color sideForeground = foreground == ModernTheme.SUCCESS ? new Color(21, 128, 61)
-                : foreground == ModernTheme.DANGER ? new Color(185, 28, 28)
-                : ModernTheme.TEXT;
-        sidebarStatus.setForeground(sideForeground);
+        statusBarConnection.setText(text);
+        Color barForeground = foreground == ModernTheme.SUCCESS ? ModernTheme.SUCCESS
+                : foreground == ModernTheme.DANGER ? ModernTheme.DANGER
+                : ModernTheme.MUTED;
+        statusBarConnection.setForeground(barForeground);
     }
 
     private static int compareCells(Object a, Object b) {
@@ -747,7 +785,7 @@ public final class DatabaseExplorerApp extends JFrame {
                     get();
                     savePreferences(cfg);
                     updateConnectionUi("Connecté", ModernTheme.SUCCESS, ModernTheme.SOFT_GREEN);
-                    sidebarStatus.setText("Connecté à " + cfg.service());
+                    statusBarConnection.setText("Connecté à " + cfg.service());
                     summaryLabel.setText("Connexion établie · " + cfg.user());
                 } catch (Exception ex) {
                     Throwable cause = ex.getCause() == null ? ex : ex.getCause();
@@ -796,7 +834,7 @@ public final class DatabaseExplorerApp extends JFrame {
             port.setText(PREFS.get("port", "1521"));
             service.setText(PREFS.get("service", "XEPDB1"));
             user.setText(PREFS.get("user", "MASTER1"));
-            setSize(new Dimension(520, 470));
+            setSize(new Dimension(560, 540));
             setLocationRelativeTo(owner);
             setResizable(false);
             setContentPane(buildContent());
@@ -824,45 +862,89 @@ public final class DatabaseExplorerApp extends JFrame {
         }
 
         private JComponent buildContent() {
-            JPanel root = new JPanel(new BorderLayout());
+            JPanel root = new JPanel(new BorderLayout(0, 8));
             root.setBackground(ModernTheme.CARD);
-            root.setBorder(new EmptyBorder(24, 28, 22, 28));
+            root.setBorder(new EmptyBorder(22, 26, 20, 26));
 
+            JPanel header = new JPanel();
+            header.setOpaque(false);
+            header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
             JLabel title = new JLabel("Connexion Oracle");
             title.setFont(ModernTheme.TITLE);
             JLabel subtitle = new JLabel("Renseigne les paramètres de la base Oracle 21c XE.");
             subtitle.setFont(ModernTheme.UI_SMALL);
             subtitle.setForeground(ModernTheme.MUTED);
-
-            JPanel header = new JPanel();
-            header.setOpaque(false);
-            header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
             header.add(title);
             header.add(Box.createVerticalStrut(4));
             header.add(subtitle);
 
-            JPanel form = new JPanel(new GridBagLayout());
+            // Deux sections distinctes : serveur puis compte.
+            JPanel form = new JPanel();
             form.setOpaque(false);
-            form.setBorder(new EmptyBorder(22, 0, 8, 0));
-            GridBagConstraints gc = new GridBagConstraints();
-            gc.insets = new Insets(6, 4, 6, 4);
-            gc.anchor = GridBagConstraints.WEST;
+            form.setLayout(new BoxLayout(form, BoxLayout.Y_AXIS));
+            form.setBorder(new EmptyBorder(18, 0, 0, 0));
+            form.add(buildSection("1  ·  Serveur Oracle", buildServerFields()));
+            form.add(Box.createVerticalStrut(10));
+            form.add(buildSection("2  ·  Compte Oracle", buildAccountFields()));
 
-            addField(form, gc, 0, "Hôte", host);
-            addField(form, gc, 1, "Port", port);
-            addField(form, gc, 2, "Service / PDB", service);
-            addField(form, gc, 3, "Utilisateur", user);
-            addField(form, gc, 4, "Mot de passe", password);
+            root.add(header, BorderLayout.NORTH);
+            root.add(form, BorderLayout.CENTER);
+            root.add(buildDialogFooter(), BorderLayout.SOUTH);
+            return root;
+        }
+
+        /** Carte de formulaire avec un titre de section. */
+        private JPanel buildSection(String title, JComponent fields) {
+            JPanel card = ModernTheme.roundedPanel(ModernTheme.SOFT_GRAY, ModernTheme.BORDER, 10);
+            card.setLayout(new BorderLayout());
+            card.setBorder(new EmptyBorder(12, 14, 10, 14));
+
+            JLabel label = new JLabel(title);
+            label.setFont(ModernTheme.UI_SMALL.deriveFont(Font.BOLD));
+            label.setForeground(ModernTheme.MUTED);
+            label.setBorder(new EmptyBorder(0, 0, 6, 0));
+
+            card.add(label, BorderLayout.NORTH);
+            card.add(fields, BorderLayout.CENTER);
+            return card;
+        }
+
+        private JComponent buildServerFields() {
+            JPanel grid = new JPanel(new GridBagLayout());
+            grid.setOpaque(false);
+            GridBagConstraints gc = newConstraints();
+            addField(grid, gc, 0, "Hôte", host);
+            addField(grid, gc, 1, "Port", port);
+            addField(grid, gc, 2, "Service / PDB", service);
+            return grid;
+        }
+
+        private JComponent buildAccountFields() {
+            JPanel grid = new JPanel(new GridBagLayout());
+            grid.setOpaque(false);
+            GridBagConstraints gc = newConstraints();
+            addField(grid, gc, 0, "Utilisateur", user);
+            addField(grid, gc, 1, "Mot de passe", password);
 
             gc.gridx = 0;
-            gc.gridy = 5;
+            gc.gridy = 2;
             gc.gridwidth = 2;
             gc.fill = GridBagConstraints.NONE;
-            gc.insets = new Insets(12, 4, 4, 4);
-            form.add(remember, gc);
+            gc.insets = new Insets(8, 4, 2, 4);
+            grid.add(remember, gc);
+            return grid;
+        }
 
+        private static GridBagConstraints newConstraints() {
+            GridBagConstraints gc = new GridBagConstraints();
+            gc.insets = new Insets(4, 4, 4, 4);
+            gc.anchor = GridBagConstraints.WEST;
+            return gc;
+        }
+
+        private JComponent buildDialogFooter() {
             JPanel urlCard = ModernTheme.roundedPanel(ModernTheme.SOFT_BLUE, null, 10);
-            urlCard.setBorder(new EmptyBorder(10, 14, 10, 14));
+            urlCard.setBorder(new EmptyBorder(9, 12, 9, 12));
             urlPreview.setFont(ModernTheme.UI_SMALL);
             urlPreview.setForeground(ModernTheme.ACCENT);
             urlCard.add(urlPreview);
@@ -878,12 +960,12 @@ public final class DatabaseExplorerApp extends JFrame {
                 updateUrl();
             });
 
-            JPanel bottomLeft = new JPanel();
-            bottomLeft.setOpaque(false);
-            bottomLeft.setLayout(new BoxLayout(bottomLeft, BoxLayout.Y_AXIS));
-            bottomLeft.add(preset);
-            bottomLeft.add(Box.createVerticalStrut(8));
-            bottomLeft.add(urlCard);
+            JPanel left = new JPanel();
+            left.setOpaque(false);
+            left.setLayout(new BoxLayout(left, BoxLayout.Y_AXIS));
+            left.add(preset);
+            left.add(Box.createVerticalStrut(6));
+            left.add(urlCard);
 
             JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
             buttons.setOpaque(false);
@@ -897,15 +979,12 @@ public final class DatabaseExplorerApp extends JFrame {
             buttons.add(cancel);
             buttons.add(ok);
 
-            root.add(header, BorderLayout.NORTH);
-            root.add(form, BorderLayout.CENTER);
-            JPanel footer = new JPanel(new BorderLayout());
+            JPanel footer = new JPanel(new BorderLayout(12, 0));
             footer.setOpaque(false);
-            footer.setBorder(new EmptyBorder(6, 0, 0, 0));
-            footer.add(bottomLeft, BorderLayout.WEST);
+            footer.setBorder(new EmptyBorder(8, 0, 0, 0));
+            footer.add(left, BorderLayout.WEST);
             footer.add(buttons, BorderLayout.EAST);
-            root.add(footer, BorderLayout.SOUTH);
-            return root;
+            return footer;
         }
 
         private void watchUrl() {

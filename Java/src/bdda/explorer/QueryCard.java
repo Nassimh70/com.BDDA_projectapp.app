@@ -1,7 +1,6 @@
 package bdda.explorer;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -36,7 +35,7 @@ final class QueryCard extends JPanel {
         this.onClick = onClick;
         setLayout(new BorderLayout());
         setOpaque(false);
-        setBorder(BorderFactory.createEmptyBorder(14, 14, 12, 14));
+        setBorder(BorderFactory.createEmptyBorder(16, 16, 14, 16));
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
         JPanel content = new JPanel();
@@ -47,7 +46,7 @@ final class QueryCard extends JPanel {
         top.setOpaque(false);
         JLabel code = ModernTheme.pill(query.code(), ModernTheme.SOFT_BLUE, ModernTheme.ACCENT);
         code.setHorizontalAlignment(SwingConstants.CENTER);
-        JLabel category = ModernTheme.pill(query.category(), new Color(238, 242, 248), ModernTheme.MUTED);
+        JLabel category = ModernTheme.pill(query.category(), ModernTheme.SOFT_GRAY, ModernTheme.MUTED);
         top.add(code, BorderLayout.WEST);
         top.add(Box.createHorizontalGlue(), BorderLayout.CENTER);
         top.add(category, BorderLayout.EAST);
@@ -75,7 +74,8 @@ final class QueryCard extends JPanel {
         if (query.plsql()) {
             gc.gridx = 1;
             gc.insets = new Insets(0, 10, 0, 0);
-            footer.add(ModernTheme.pill("PL/SQL", new Color(245, 238, 255), new Color(126, 65, 180)), gc);
+            footer.add(ModernTheme.pill("PL/SQL",
+                    ModernTheme.ZONE_RESULTS_BG, ModernTheme.ZONE_RESULTS), gc);
         }
 
         content.add(top);
@@ -121,18 +121,18 @@ final class QueryCard extends JPanel {
         int w = getWidth();
         int h = getHeight();
         if (selected) {
-            g2.setColor(new Color(232, 240, 255));
+            g2.setColor(ModernTheme.ZONE_EDITOR_BG);
             g2.fill(new RoundRectangle2D.Float(0, 0, w - 1, h - 1, 12, 12));
-            g2.setColor(ModernTheme.ACCENT);
-            g2.setStroke(new java.awt.BasicStroke(1.3f));
+            g2.setColor(ModernTheme.ZONE_EDITOR);
+            g2.setStroke(new java.awt.BasicStroke(1.4f));
             g2.draw(new RoundRectangle2D.Float(0.7f, 0.7f, w - 2, h - 2, 12, 12));
         } else if (hovered) {
-            g2.setColor(new Color(249, 251, 255));
+            g2.setColor(ModernTheme.HOVER);
             g2.fill(new RoundRectangle2D.Float(0, 0, w - 1, h - 1, 12, 12));
-            g2.setColor(new Color(214, 226, 245));
+            g2.setColor(ModernTheme.BORDER);
             g2.draw(new RoundRectangle2D.Float(0.5f, 0.5f, w - 2, h - 2, 12, 12));
         } else {
-            g2.setColor(Color.WHITE);
+            g2.setColor(ModernTheme.CARD_ALT);
             g2.fill(new RoundRectangle2D.Float(0, 0, w - 1, h - 1, 12, 12));
             g2.setColor(ModernTheme.BORDER);
             g2.draw(new RoundRectangle2D.Float(0.5f, 0.5f, w - 2, h - 2, 12, 12));

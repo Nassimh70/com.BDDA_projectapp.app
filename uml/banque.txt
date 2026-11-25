@@ -3,7 +3,7 @@ M1 ASR - Universite de Bejaia - 2026/2027
 Version textuelle du diagramme (A1)
 
 =====================================================================
-1. CLASSES ET ATTRIBUTS
+1. CLASSES ET ATTRIBUTSj
 =====================================================================
 
 adresse_type <<type objet>
@@ -211,5 +211,5 @@ agence_vor_type 1 ---- 0..* cptCourant_type      (vue objet)
 
 [OK] Methodes
      Elles figurent dans les classes et sont ajoutees par
-     ALTER TYPE ... ADD MEMBER ... CASCADE (partie D), sauf
-     fraisTenue declaree des la creation pour permettre OVERRIDING.
+     ALTER TYPE ... ADD MEMBER ... CASCADE (partie D), y compris
+     fraisTenue ajoutee en D8 : racine puis OVERRIDING dans les 3 sous-types.
