@@ -1,0 +1,5 @@
+# Dossier à ignorer
+/_travail/
+/proj/
+# Fichier SQL à ignorer
+/_reset_shema.sql
